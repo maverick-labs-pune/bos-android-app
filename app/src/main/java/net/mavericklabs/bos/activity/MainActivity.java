@@ -20,62 +20,46 @@
 package net.mavericklabs.bos.activity;
 
 import android.app.AlertDialog;
-import android.app.Dialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
-import android.util.DisplayMetrics;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.Window;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.navigation.NavigationView;
 
-import net.mavericklabs.bos.fragment.AboutFragment;
+import net.mavericklabs.bos.fragment.AthleteFragment;
 import net.mavericklabs.bos.fragment.ChangeLanguageFragment;
-import net.mavericklabs.bos.fragment.HomeFragment;
+import net.mavericklabs.bos.fragment.GroupFragment;
+import net.mavericklabs.bos.fragment.DailyPlannerFragment;
 import net.mavericklabs.bos.fragment.ResetPasswordFragment;
-import net.mavericklabs.bos.retrofit.ApiClient;
+import net.mavericklabs.bos.fragment.ResourceFragment;
 import net.mavericklabs.bos.sync.SyncAdapter;
-import net.mavericklabs.bos.util.Constants;
-import net.mavericklabs.bos.util.DisplayUtil;
-import net.mavericklabs.bos.util.Logger;
-import net.mavericklabs.bos.util.NetworkConnection;
-import net.mavericklabs.bos.util.SharedPreferenceUtil;
+import net.mavericklabs.bos.utils.AppLogger;
+import net.mavericklabs.bos.utils.Constants;
+import net.mavericklabs.bos.utils.NetworkConnection;
+import net.mavericklabs.bos.utils.SharedPreferenceUtil;
 import net.mavericklabs.bos.R;
 import net.mavericklabs.bos.model.LoginResponse;
 import net.mavericklabs.bos.realm.RealmHandler;
 
-import java.util.List;
-
 import io.realm.Realm;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
+import static net.mavericklabs.bos.realm.RealmHandler.clearRealmDatabase;
 import static net.mavericklabs.bos.realm.RealmHandler.getTranslation;
 
 
@@ -85,7 +69,9 @@ public class MainActivity extends AppCompatActivity
     private DrawerLayout drawer;
     boolean doubleBackToExitPressedOnce = false;
     private String locale;
-    private TextView labelBookFairyName;
+    private TextView textViewUserName;
+    private AppLogger appLogger = new AppLogger(getClass().toString());
+    private TextView textViewNGOName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,15 +91,16 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         View headerView = navigationView.getHeaderView(0);
-        TextView textBookFairyName = headerView.findViewById(R.id.text_header_book_fairy_name);
-        labelBookFairyName = headerView.findViewById(R.id.label_book_fairy_name);
+        textViewNGOName = headerView.findViewById(R.id.text_view_ngo_name);
+        textViewUserName = headerView.findViewById(R.id.text_view_user_name);
         selectDrawerItem(navigationView.getMenu().findItem(R.id.nav_home));
 
         LoginResponse loginResponse = RealmHandler.getLoginResponse();
         if (loginResponse != null) {
             languageChanged();
             String name = loginResponse.getFirstName() + " " + loginResponse.getLastName();
-            textBookFairyName.setText(name);
+            textViewUserName.setText(name);
+            textViewNGOName.setText(loginResponse.getNgoName());
             if (NetworkConnection.isNetworkAvailable(this)) {
                 boolean result = SyncAdapter.requestSync(this, SyncAdapter.SYNC_EVERYTHING);
                 if (!result) {
@@ -172,8 +159,17 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
         switch (id) {
             case R.id.nav_home:
-                fragmentClass = HomeFragment.class;
-                title = getTranslation(locale, "SESSION_FRAGMENT_TITLE");
+                fragmentClass = DailyPlannerFragment.class;
+//                title = getTranslation(locale, "SESSION_FRAGMENT_TITLE");
+                break;
+            case R.id.nav_athletes:
+                fragmentClass = AthleteFragment.class;
+                break;
+            case R.id.nav_resources:
+                fragmentClass = ResourceFragment.class;
+                break;
+            case R.id.nav_groups:
+                fragmentClass = GroupFragment.class;
                 break;
             case R.id.nav_change_password:
                 fragmentClass = ResetPasswordFragment.class;
@@ -200,10 +196,14 @@ public class MainActivity extends AppCompatActivity
                     return;
                 }
 
-            case R.id.nav_about:
-                fragmentClass = AboutFragment.class;
-                title = getTranslation(locale, "ABOUT_TITLE");
-                break;
+                clearRealmDatabase();
+                Intent intent = new Intent(MainActivity.this,LoginActivity.class);
+                startActivity(intent);
+                finish();
+//            case R.id.nav_about:
+//                fragmentClass = AboutFragment.class;
+//                title = getTranslation(locale, "ABOUT_TITLE");
+//                break;
             default:
                 break;
         }
@@ -213,9 +213,7 @@ public class MainActivity extends AppCompatActivity
             setTitle(title);
             try {
                 fragment = (Fragment) fragmentClass.newInstance();
-            } catch (InstantiationException e) {
-                e.printStackTrace();
-            } catch (IllegalAccessException e) {
+            } catch (InstantiationException | IllegalAccessException e) {
                 e.printStackTrace();
             }
 
@@ -232,7 +230,7 @@ public class MainActivity extends AppCompatActivity
                 @Override
                 public void onBackStackChanged() {
                     Fragment f = getSupportFragmentManager().findFragmentById(R.id.content);
-                    Logger.d(" count onBackStackChanged" + getSupportFragmentManager().getBackStackEntryCount());
+                    appLogger.logDebug(" count onBackStackChanged" + getSupportFragmentManager().getBackStackEntryCount());
                     updateTitleAndDrawer(f);
                 }
             });
@@ -254,15 +252,27 @@ public class MainActivity extends AppCompatActivity
         String name = fragment.getClass().getName();
         String title = "";
         int id = R.id.nav_home;
-        if (name.equals(HomeFragment.class.getName())) {
-            title = getTranslation(locale, "SESSION_FRAGMENT_TITLE");
+        if (name.equals(DailyPlannerFragment.class.getName())) {
+            title = getTranslation(locale, "Daily planner");
             id = R.id.nav_home;
         } else if (name.equals(ResetPasswordFragment.class.getName())) {
-            title = getTranslation(locale, "RESET_PASSWORD_TITLE");
+            title = getTranslation(locale, "Reset password");
             id = R.id.nav_change_password;
         } else if (name.equals(ChangeLanguageFragment.class.getName())) {
-            title = getTranslation(locale, "CHANGE_LANGUAGE_TITLE");
+            title = getTranslation(locale, "Change language");
             id = R.id.nav_language;
+        }else if (name.equals(AthleteFragment.class.getName())) {
+//            title = getTranslation(locale, "CHANGE_LANGUAGE_TITLE");
+            title = "Athlete";
+            id = R.id.nav_athletes;
+        }else if (name.equals(ResourceFragment.class.getName())) {
+//            title = getTranslation(locale, "CHANGE_LANGUAGE_TITLE");
+            title = "Resource";
+            id = R.id.nav_resources;
+        }else if (name.equals(GroupFragment.class.getName())) {
+//            title = getTranslation(locale, "CHANGE_LANGUAGE_TITLE");
+            title = "Group";
+            id = R.id.nav_groups;
         }
         setTitle(title);
         navigationView.setCheckedItem(id);
@@ -292,15 +302,14 @@ public class MainActivity extends AppCompatActivity
     public void languageChanged() {
         Menu menu = navigationView.getMenu();
         locale = SharedPreferenceUtil.getLocale(getApplicationContext());
-        labelBookFairyName.setText(getTranslation(locale,"LABEL_BOOK_FAIRY"));
         MenuItem item = menu.findItem(R.id.nav_home);
-        item.setTitle(getTranslation(locale, "SESSION_FRAGMENT_TITLE"));
+        item.setTitle(getTranslation(locale, "Daily planner"));
         item = menu.findItem(R.id.nav_change_password);
-        item.setTitle(getTranslation(locale, "RESET_PASSWORD_TITLE"));
+        item.setTitle(getTranslation(locale, "Reset password"));
         item = menu.findItem(R.id.nav_language);
-        item.setTitle(getTranslation(locale, "CHANGE_LANGUAGE_TITLE"));
+        item.setTitle(getTranslation(locale, "Change language"));
         item = menu.findItem(R.id.nav_logout);
-        item.setTitle(getTranslation(locale, "LABEL_LOGOUT"));
+        item.setTitle(getTranslation(locale, "Logout"));
         invalidateOptionsMenu();
     }
 

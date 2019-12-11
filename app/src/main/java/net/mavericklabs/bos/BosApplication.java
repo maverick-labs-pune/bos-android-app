@@ -26,8 +26,8 @@ import android.net.Uri;
 
 import net.mavericklabs.bos.realm.RealmMigration;
 import net.mavericklabs.bos.sync.SyncAdapter;
-import net.mavericklabs.bos.util.Constants;
-import net.mavericklabs.bos.util.SharedPreferenceUtil;
+import net.mavericklabs.bos.utils.Constants;
+import net.mavericklabs.bos.utils.SharedPreferenceUtil;
 
 import io.realm.Realm;
 import io.realm.RealmConfiguration;

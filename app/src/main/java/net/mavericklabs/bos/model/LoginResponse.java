@@ -32,6 +32,9 @@ public class LoginResponse extends RealmObject {
     private String userKey;
 
     @SerializedName("ngo")
+    private String ngoKey;
+
+    @SerializedName("ngo_name")
     private String ngoName;
 
     @SerializedName("first_name")
@@ -42,6 +45,9 @@ public class LoginResponse extends RealmObject {
 
     @SerializedName("group")
     private String groupName;
+
+    @SerializedName("role")
+    private String role;
 
     private String language;
     private String token;
@@ -127,5 +133,21 @@ public class LoginResponse extends RealmObject {
 
     public void setExpiryDate(String expiryDate) {
         this.expiryDate = expiryDate;
+    }
+
+    public String getNgoKey() {
+        return ngoKey;
+    }
+
+    public void setNgoKey(String ngoKey) {
+        this.ngoKey = ngoKey;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
     }
 }

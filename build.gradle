@@ -11,8 +11,8 @@ buildscript {
 
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.5.1'
-        classpath 'io.realm:realm-gradle-plugin:3.7.2'
+        classpath 'com.android.tools.build:gradle:3.5.3'
+        classpath  'io.realm:realm-gradle-plugin:6.0.0'
         // Check for v3.1.2 or higher
 
         classpath 'com.google.gms:google-services:4.2.0'  // Google Services plugin

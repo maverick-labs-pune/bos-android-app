@@ -19,20 +19,12 @@
 
 package net.mavericklabs.bos.realm;
 
-import net.mavericklabs.bos.model.RealmTranslation;
-import net.mavericklabs.bos.util.Constants;
-import net.mavericklabs.bos.util.DateUtil;
-import net.mavericklabs.bos.util.Logger;
 import net.mavericklabs.bos.model.LoginResponse;
+import net.mavericklabs.bos.utils.Constants;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 import io.realm.Realm;
-import io.realm.RealmList;
-import io.realm.RealmResults;
 
 public class RealmHandler {
 
@@ -79,9 +71,81 @@ public class RealmHandler {
             value = realmTranslation.getValue();
         }
         realm.close();
-        Logger.d(value);
         return value;
 
     }
 
+    public static List<RealmMeasurement> getAllMeasurements() {
+        Realm realm = Realm.getDefaultInstance();
+        List<RealmMeasurement> realmMeasurements = realm.where(RealmMeasurement.class).findAll();
+        realm.close();
+        return realmMeasurements;
+
+    }
+
+    public static List<RealmResource> getAllResources() {
+        Realm realm = Realm.getDefaultInstance();
+        List<RealmResource> realmResource = realm.where(RealmResource.class).findAll();
+        realm.close();
+        return realmResource;
+
+    }
+
+    public static List<RealmGroup> getAllGroups() {
+        Realm realm = Realm.getDefaultInstance();
+        List<RealmGroup> realmGroups = realm.where(RealmGroup.class).findAll();
+        realm.close();
+        return realmGroups;
+
+    }
+
+    public static List<RealmUser> getAllUsers() {
+        Realm realm = Realm.getDefaultInstance();
+        List<RealmUser> realmUsers = realm.where(RealmUser.class).findAll();
+        realm.close();
+        return realmUsers;
+
+    }
+
+    public static List<RealmUser> getAllAthletes() {
+        Realm realm = Realm.getDefaultInstance();
+        List<RealmUser> realmUsers = realm.where(RealmUser.class).equalTo("role",
+                Constants.ATHLETE).findAll();
+        realm.close();
+        return realmUsers;
+
+    }
+
+    public static List<RealmEvaluationResource> getEvaluationResources() {
+        Realm realm = Realm.getDefaultInstance();
+        List<RealmEvaluationResource> realmEvaluationResources =
+                realm.where(RealmEvaluationResource.class).findAll();
+        realm.close();
+        return realmEvaluationResources;
+
+    }
+
+    public static RealmResource getResourceByKey(String resourceKey) {
+        Realm realm = Realm.getDefaultInstance();
+        RealmResource realmResource = realm.where(RealmResource.class)
+                .equalTo("key",resourceKey).findFirst();
+        realm.close();
+        return realmResource;
+    }
+
+    public static RealmMeasurement getMeasurementFromKey(String measurementKey) {
+        Realm realm = Realm.getDefaultInstance();
+        RealmMeasurement realmMeasurement = realm.where(RealmMeasurement.class)
+                .equalTo("key",measurementKey).findFirst();
+        realm.close();
+        return realmMeasurement;
+    }
+
+    public static RealmGroup getGroup(String groupKey) {
+        Realm realm = Realm.getDefaultInstance();
+        RealmGroup realmGroup = realm.where(RealmGroup.class)
+                .equalTo("key",groupKey).findFirst();
+        realm.close();
+        return realmGroup;
+    }
 }

@@ -26,8 +26,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import net.mavericklabs.bos.retrofit.ApiClient;
 import net.mavericklabs.bos.retrofit.ApiInterface;
-import net.mavericklabs.bos.util.DateUtil;
-import net.mavericklabs.bos.util.Logger;
+import net.mavericklabs.bos.utils.DateUtil;
+import net.mavericklabs.bos.utils.AppLogger;
 import net.mavericklabs.bos.model.LoginResponse;
 import net.mavericklabs.bos.realm.RealmHandler;
 
@@ -40,6 +40,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class MainEmptyActivity extends AppCompatActivity {
+    private AppLogger appLogger = new AppLogger(getClass().toString());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,7 +49,7 @@ public class MainEmptyActivity extends AppCompatActivity {
         Intent activityIntent;
 
         Realm realm = Realm.getDefaultInstance();
-        Logger.d("realmPath: " + realm.getPath());
+        appLogger.logDebug("realmPath: " + realm.getPath());
         realm.close();
 
         // go straight to main if a token is stored
@@ -57,7 +58,7 @@ public class MainEmptyActivity extends AppCompatActivity {
                 refreshToken();
             }
 
-            Logger.d("Logged in " + RealmHandler.getAccessToken());
+            appLogger.logDebug("Logged in " + RealmHandler.getAccessToken());
             activityIntent = new Intent(this, MainActivity.class);
         } else {
             activityIntent = new Intent(this, LoginActivity.class);
@@ -77,7 +78,7 @@ public class MainEmptyActivity extends AppCompatActivity {
         String expiryDate = DateUtil.dateToString(calendar.getTime(), "yyyy-MM-dd");
         String currentDate = DateUtil.dateToString(Calendar.getInstance().getTime(), "yyyy-MM-dd");
         if (expiryDate.equals(currentDate)) {
-            Logger.d("Refresh required");
+            appLogger.logDebug("Refresh required");
             return true;
         } else {
             return false;

@@ -22,6 +22,8 @@ package net.mavericklabs.bos.model;
 import com.google.gson.JsonObject;
 import com.google.gson.annotations.SerializedName;
 
+import java.util.Date;
+
 public class Resource {
     @SerializedName("key")
     private String key;
@@ -29,11 +31,20 @@ public class Resource {
     private String ngo;
     @SerializedName("label")
     private String label;
+    @SerializedName("description")
+    private String description;
     @SerializedName("type")
     private String type;
+    @SerializedName("is_active")
+    private Boolean isActive;
+    @SerializedName("is_shared")
+    private Boolean isShared;
     @SerializedName("data")
     private JsonObject data;
-
+    @SerializedName("creation_time")
+    private Date creationTime;
+    @SerializedName("last_modification_time")
+    private Date lastModificationTime;
 
     public String getKey() {
         return key;
@@ -53,5 +64,65 @@ public class Resource {
 
     public String getNgo() {
         return ngo;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
+    }
+
+    public void setNgo(String ngo) {
+        this.ngo = ngo;
+    }
+
+    public void setLabel(String label) {
+        this.label = label;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public Boolean getIsActive() {
+        return isActive;
+    }
+
+    public void setIsActive(Boolean isActive) {
+        this.isActive = isActive;
+    }
+
+    public Boolean getIsShared() {
+        return isShared;
+    }
+
+    public void setIsShared(Boolean isShared) {
+        this.isShared = isShared;
+    }
+
+    public void setData(JsonObject data) {
+        this.data = data;
+    }
+
+    public Date getCreationTime() {
+        return creationTime;
+    }
+
+    public void setCreationTime(Date creationTime) {
+        this.creationTime = creationTime;
+    }
+
+    public Date getLastModificationTime() {
+        return lastModificationTime;
+    }
+
+    public void setLastModificationTime(Date lastModificationTime) {
+        this.lastModificationTime = lastModificationTime;
     }
 }

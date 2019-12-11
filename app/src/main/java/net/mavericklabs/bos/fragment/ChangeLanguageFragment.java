@@ -28,8 +28,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -43,13 +41,12 @@ import androidx.fragment.app.Fragment;
 
 import net.mavericklabs.bos.BosApplication;
 import net.mavericklabs.bos.sync.SyncAdapter;
-import net.mavericklabs.bos.util.Constants;
-import net.mavericklabs.bos.util.Logger;
-import net.mavericklabs.bos.util.NetworkConnection;
-import net.mavericklabs.bos.util.SharedPreferenceUtil;
+import net.mavericklabs.bos.utils.Constants;
+import net.mavericklabs.bos.utils.AppLogger;
+import net.mavericklabs.bos.utils.NetworkConnection;
+import net.mavericklabs.bos.utils.SharedPreferenceUtil;
 import net.mavericklabs.bos.R;
 import net.mavericklabs.bos.activity.MainActivity;
-import net.mavericklabs.bos.realm.RealmHandler;
 
 import static net.mavericklabs.bos.realm.RealmHandler.getTranslation;
 
@@ -61,7 +58,7 @@ public class ChangeLanguageFragment extends Fragment {
     private String locale;
     private ContentObserver syncCompletedObserver;
     private final Object updateLock = new Object();
-
+    private AppLogger appLogger = new AppLogger(getClass().toString());
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -121,7 +118,7 @@ public class ChangeLanguageFragment extends Fragment {
             @Override
             public void onCheckedChanged(RadioGroup radioGroup, int i) {
                 RadioButton radioButton = radioGroup.findViewById(radioGroup.getCheckedRadioButtonId());
-                Logger.d("radio " + radioButton.getText());
+                appLogger.logDebug("radio " + radioButton.getText());
                 if (radioButton.getText().equals(getString(R.string.english))) {
                     SharedPreferenceUtil.setStringPreference(getContext(), "locale", Constants.en_INLocale);
                 } else if (radioButton.getText().equals(getString(R.string.marathi))) {
@@ -147,7 +144,7 @@ public class ChangeLanguageFragment extends Fragment {
             }
             syncCompletedObserver = new ContentObserver(new Handler(Looper.getMainLooper())) {
                 public void onChange(boolean selfChange) {
-                    Logger.d("On change syncCompletedObserver");
+                    appLogger.logDebug("On change syncCompletedObserver");
                     synchronized (updateLock) {
                         Toast.makeText(getContext(), getTranslation(locale, "SYNC_COMPLETE"), Toast.LENGTH_SHORT).show();
                     }
@@ -158,7 +155,7 @@ public class ChangeLanguageFragment extends Fragment {
 
             contentResolver.registerContentObserver(syncCompletedURI,
                     true, syncCompletedObserver);
-            Logger.d("Registered observers");
+            appLogger.logDebug("Registered observers");
         }
     }
 

@@ -19,16 +19,18 @@
 
 package net.mavericklabs.bos.realm;
 
-import net.mavericklabs.bos.util.Logger;
+import net.mavericklabs.bos.utils.AppLogger;
 
 import io.realm.DynamicRealm;
 import io.realm.RealmSchema;
 
 public class RealmMigration implements io.realm.RealmMigration {
+    private AppLogger appLogger = new AppLogger(getClass().toString());
+
     @Override
     public void migrate(DynamicRealm realm, long oldVersion, long newVersion) {
         final RealmSchema schema = realm.getSchema();
-        Logger.d("RealmMigration oldVersion " + oldVersion);
-        Logger.d("RealmMigration newVersion " + newVersion);
+        appLogger.logDebug("RealmMigration oldVersion " + oldVersion);
+        appLogger.logDebug("RealmMigration newVersion " + newVersion);
     }
 }

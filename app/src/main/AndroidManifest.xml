@@ -1,23 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-  ~ Copyright (c) 2019. Maverick Labs
-  ~
-  ~   This program is free software: you can redistribute it and/or modify
-  ~   it under the terms of the GNU Affero General Public License as,
-  ~   published by the Free Software Foundation, either version 3 of the
-  ~   License, or (at your option) any later version.
-  ~
-  ~   This program is distributed in the hope that it will be useful,
-  ~   but WITHOUT ANY WARRANTY; without even the implied warranty of
-  ~   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  ~   GNU Affero General Public License for more details.
-  ~
-  ~   You should have received a copy of the GNU Affero General Public License
-  ~   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-  ~
-  ~
-  -->
-
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="net.mavericklabs.bos">
@@ -30,18 +11,21 @@
     <uses-permission android:name="android.permission.READ_SYNC_SETTINGS" />
     <uses-permission android:name="android.permission.WRITE_SYNC_SETTINGS" />
     <uses-permission android:name="android.permission.READ_SYNC_STATS" />
-
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
-        android:name="net.mavericklabs.bos.BosApplication"
+        android:name=".BosApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
+        android:usesCleartextTraffic="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
+        <activity android:name=".activity.CurriculumActivity" />
+        <activity android:name=".activity.TrainingSessionActivity" />
+        <activity android:name=".activity.GroupDetailActivity" />
 
         <provider
             android:name="androidx.core.content.FileProvider"
@@ -54,7 +38,7 @@
         </provider>
 
         <activity
-            android:name="net.mavericklabs.bos.activity.MainEmptyActivity"
+            android:name=".activity.MainEmptyActivity"
             android:screenOrientation="portrait"
             android:theme="@android:style/Theme.NoDisplay">
             <intent-filter>
@@ -64,7 +48,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="net.mavericklabs.bos.activity.MainActivity"
+            android:name=".activity.MainActivity"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar">
@@ -75,18 +59,17 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="net.mavericklabs.bos.activity.ApplyCoachActivity"
+            android:name=".activity.ApplyCoachActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="net.mavericklabs.bos.activity.ApplyNGOActivity"
+            android:name=".activity.ApplyNGOActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="net.mavericklabs.bos.activity.LoginActivity"
+            android:name=".activity.LoginActivity"
             android:screenOrientation="portrait" />
-
 
         <service
-            android:name="net.mavericklabs.bos.sync.SyncService"
+            android:name=".sync.SyncService"
             android:exported="true"
             android:process=":sync">
             <intent-filter>
@@ -97,7 +80,7 @@
                 android:name="android.content.SyncAdapter"
                 android:resource="@xml/syncadapter" />
         </service>
-        <service android:name="net.mavericklabs.bos.sync.AuthenticatorService">
+        <service android:name=".sync.AuthenticatorService">
             <intent-filter>
                 <action android:name="android.accounts.AccountAuthenticator" />
             </intent-filter>
@@ -108,11 +91,10 @@
         </service>
 
         <provider
-            android:name="net.mavericklabs.bos.sync.StubProvider"
+            android:name=".sync.StubProvider"
             android:authorities="net.mavericklabs.bos.datasync.provider"
             android:exported="false"
             android:syncable="true" />
-
     </application>
 
 </manifest>

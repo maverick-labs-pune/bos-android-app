@@ -29,34 +29,39 @@ import android.content.SyncResult;
 import android.net.Uri;
 import android.os.Bundle;
 
-import com.google.gson.Gson;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import net.mavericklabs.bos.BosApplication;
-import net.mavericklabs.bos.model.RealmTranslation;
-import net.mavericklabs.bos.util.Constants;
-import net.mavericklabs.bos.util.Logger;
+import net.mavericklabs.bos.model.Group;
+import net.mavericklabs.bos.model.Measurement;
+import net.mavericklabs.bos.model.Resource;
+import net.mavericklabs.bos.model.User;
+import net.mavericklabs.bos.realm.RealmGroup;
+import net.mavericklabs.bos.realm.RealmMeasurement;
+import net.mavericklabs.bos.realm.RealmResource;
+import net.mavericklabs.bos.realm.RealmTranslation;
+import net.mavericklabs.bos.realm.RealmUser;
+import net.mavericklabs.bos.utils.Constants;
+import net.mavericklabs.bos.utils.AppLogger;
 import net.mavericklabs.bos.R;
 import net.mavericklabs.bos.model.LoginResponse;
 import net.mavericklabs.bos.model.Translation;
 import net.mavericklabs.bos.realm.RealmHandler;
 import net.mavericklabs.bos.retrofit.ApiClient;
-import net.mavericklabs.bos.retrofit.ApiInterface;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import io.realm.Realm;
-import retrofit2.Call;
 import retrofit2.Response;
 
 import static android.content.Context.ACCOUNT_SERVICE;
 
 public class SyncAdapter extends AbstractThreadedSyncAdapter {
+    private AppLogger appLogger = new AppLogger(getClass().toString());
     public static final int SYNC_EVERYTHING = 0;
     public static final int SYNC_BOOKS = 1;
     public static final int SYNC_SESSIONS = 2;
@@ -67,7 +72,6 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
     }
 
     public static boolean requestSync(Context context, int syncType) {
-        Logger.d("requestSync syncAdapter");
         String AUTHORITY = context.getResources().getString(R.string.content_authority);
         String ACCOUNT_NAME = context.getResources().getString(R.string.sync_account_name);
         String ACCOUNT_TYPE = context.getResources().getString(R.string.sync_account_type);
@@ -118,10 +122,10 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
     @Override
     public void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
 
-        Logger.d("onPerformSync");
+        appLogger.logDebug("onPerformSync");
         LoginResponse loginResponse = RealmHandler.getLoginResponse();
         if (loginResponse == null) {
-            Logger.d("login response null");
+            appLogger.logDebug("login response null");
             notifySyncStopped();
             return;
         }
@@ -129,7 +133,12 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         switch (syncType) {
             case SYNC_TRANSLATIONS:
             case SYNC_EVERYTHING:
-                syncTranslations();
+//                syncTranslations();
+                syncMeasurements(loginResponse.getNgoKey());
+                syncResources(loginResponse.getUserKey());
+                syncGroups(loginResponse.getUserKey());
+                syncAthletes(loginResponse.getUserKey());
+//                sync(loginResponse.getNgoKey());
                 notifySyncStopped();
                 break;
         }
@@ -140,7 +149,133 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         ContentResolver contentResolver = getContext().getContentResolver();
         Uri uri = Uri.withAppendedPath(BosApplication.BASE_URI, BosApplication.SYNC_COMPLETED);
         contentResolver.notifyChange(uri, null);
-        Logger.d("notifyChange Sync stopped");
+        appLogger.logDebug("notifyChange Sync stopped");
+    }
+
+    private void syncMeasurements(String ngoKey) {
+
+        try {
+            Response<List<Measurement>> response = ApiClient.getApiInterface(getContext()).getAllMeasurements(ngoKey).execute();
+            if (response.isSuccessful()) {
+                List<Measurement> measurements = response.body();
+                Realm realm = Realm.getDefaultInstance();
+                List<RealmMeasurement> realmMeasurements = RealmHandler.getAllMeasurements();
+                appLogger.logInformation("Realm measurements "  + realmMeasurements.size());
+
+
+                if (measurements == null){
+                    return;
+                }
+                realm.beginTransaction();
+                for (Measurement measurement : measurements){
+                    RealmMeasurement realmMeasurement = new RealmMeasurement(measurement);
+                    realm.copyToRealmOrUpdate(realmMeasurement);
+                }
+                realm.commitTransaction();
+                realm.close();
+                ContentResolver contentResolver = getContext().getContentResolver();
+                Uri uri = Uri.withAppendedPath(BosApplication.BASE_URI, BosApplication.TRANSLATIONS);
+                contentResolver.notifyChange(uri, null);
+                appLogger.logDebug("notifyChange TRANSLATIONS");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void syncResources(String userKey) {
+
+        try {
+            Response<List<Resource>> response = ApiClient.getApiInterface(getContext()).getUserResources(userKey).execute();
+            if (response.isSuccessful()) {
+                List<Resource> resources = response.body();
+                Realm realm = Realm.getDefaultInstance();
+                List<RealmResource> realmResources = RealmHandler.getAllResources();
+                appLogger.logInformation("Realm resources "  + realmResources.size());
+
+
+                if (resources == null){
+                    return;
+                }
+                realm.beginTransaction();
+
+                for (Resource resource : resources){
+                    RealmResource realmResource = new RealmResource(resource);
+                    realm.copyToRealmOrUpdate(realmResource);
+                }
+                realm.commitTransaction();
+                realm.close();
+                ContentResolver contentResolver = getContext().getContentResolver();
+                Uri uri = Uri.withAppendedPath(BosApplication.BASE_URI, BosApplication.TRANSLATIONS);
+                contentResolver.notifyChange(uri, null);
+                appLogger.logDebug("notifyChange TRANSLATIONS");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void syncGroups(String userKey) {
+
+        try {
+            Response<List<Group>> response = ApiClient.getApiInterface(getContext()).getGroups(userKey).execute();
+            if (response.isSuccessful()) {
+                List<Group> groups = response.body();
+                Realm realm = Realm.getDefaultInstance();
+                List<RealmGroup> realmGroups = RealmHandler.getAllGroups();
+                appLogger.logInformation("Realm groups "  + realmGroups.size());
+
+                if (groups == null){
+                    return;
+                }
+                realm.beginTransaction();
+
+                for (Group group : groups){
+                    appLogger.logInformation(String.valueOf(group.getResources().size()));
+                    RealmGroup realmGroup = new RealmGroup(group);
+                    realm.copyToRealmOrUpdate(realmGroup);
+                }
+                realm.commitTransaction();
+                realm.close();
+                ContentResolver contentResolver = getContext().getContentResolver();
+                Uri uri = Uri.withAppendedPath(BosApplication.BASE_URI, BosApplication.TRANSLATIONS);
+                contentResolver.notifyChange(uri, null);
+                appLogger.logDebug("notifyChange TRANSLATIONS");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void syncAthletes(String userKey) {
+
+        try {
+            Response<List<User>> response = ApiClient.getApiInterface(getContext()).getAthletes(userKey).execute();
+            if (response.isSuccessful()) {
+                List<User> athletes = response.body();
+                Realm realm = Realm.getDefaultInstance();
+                List<RealmUser> realmAthletes = RealmHandler.getAllAthletes();
+                appLogger.logInformation("Realm athletes "  + realmAthletes.size());
+
+                if (athletes == null){
+                    return;
+                }
+                realm.beginTransaction();
+
+                for (User athlete : athletes){
+                    RealmUser realmUser = new RealmUser(athlete);
+                    realm.copyToRealmOrUpdate(realmUser);
+                }
+                realm.commitTransaction();
+                realm.close();
+                ContentResolver contentResolver = getContext().getContentResolver();
+                Uri uri = Uri.withAppendedPath(BosApplication.BASE_URI, BosApplication.TRANSLATIONS);
+                contentResolver.notifyChange(uri, null);
+                appLogger.logDebug("notifyChange TRANSLATIONS");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void syncTranslations() {
@@ -166,7 +301,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                     for (Map.Entry<String, JsonElement> entry : marathiEntries) {
                         RealmTranslation realmTranslation = new RealmTranslation(Constants.mr_INLocale, entry.getKey(), entry.getValue().getAsString());
                         realm.copyToRealm(realmTranslation);
-                        Logger.d(String.valueOf(entry.getValue()));
+                        appLogger.logDebug(String.valueOf(entry.getValue()));
                     }
                     realm.commitTransaction();
                     realm.close();
@@ -174,7 +309,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 ContentResolver contentResolver = getContext().getContentResolver();
                 Uri uri = Uri.withAppendedPath(BosApplication.BASE_URI, BosApplication.TRANSLATIONS);
                 contentResolver.notifyChange(uri, null);
-                Logger.d("notifyChange TRANSLATIONS");
+                appLogger.logDebug("notifyChange TRANSLATIONS");
             }
         } catch (IOException e) {
             e.printStackTrace();

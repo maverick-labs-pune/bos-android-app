@@ -28,6 +28,18 @@
             android:icon="@drawable/ic_home"
             android:title="Home" />
         <item
+            android:id="@+id/nav_athletes"
+            android:icon="@drawable/baseline_person_black_18"
+            android:title="Athletes" />
+        <item
+            android:id="@+id/nav_resources"
+            android:icon="@drawable/baseline_calendar_today_black_18"
+            android:title="Resources" />
+        <item
+            android:id="@+id/nav_groups"
+            android:icon="@drawable/baseline_group_black_18"
+            android:title="Groups" />
+        <item
             android:id="@+id/nav_language"
             android:icon="@drawable/ic_language"
             android:title="Change language" />
@@ -41,11 +53,11 @@
             android:checkable="false"
             android:icon="@drawable/ic_logout"
             android:title="Log out" />
-        <item
-            android:id="@+id/nav_about"
-            android:checkable="false"
-            android:icon="@drawable/baseline_info_black_36"
-            android:title="About" />
+<!--        <item-->
+<!--            android:id="@+id/nav_about"-->
+<!--            android:checkable="false"-->
+<!--            android:icon="@drawable/baseline_info_black_36"-->
+<!--            android:title="About" />-->
     </group>
 
 

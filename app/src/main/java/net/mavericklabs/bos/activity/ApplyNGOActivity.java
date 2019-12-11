@@ -24,8 +24,10 @@ import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 
 import net.mavericklabs.bos.R;
+import net.mavericklabs.bos.utils.AppLogger;
 
 public class ApplyNGOActivity extends AppCompatActivity {
+    private AppLogger appLogger = new AppLogger(getClass().toString());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

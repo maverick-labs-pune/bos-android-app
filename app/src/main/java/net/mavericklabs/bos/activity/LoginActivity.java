@@ -45,16 +45,16 @@ import com.google.gson.JsonObject;
 
 import net.mavericklabs.bos.R;
 import net.mavericklabs.bos.model.LoginResponse;
-import net.mavericklabs.bos.model.RealmTranslation;
+import net.mavericklabs.bos.realm.RealmTranslation;
 import net.mavericklabs.bos.model.Translation;
 import net.mavericklabs.bos.retrofit.ApiClient;
 import net.mavericklabs.bos.retrofit.ApiInterface;
 import net.mavericklabs.bos.retrofit.custom.LoginRequest;
-import net.mavericklabs.bos.util.Constants;
-import net.mavericklabs.bos.util.DisplayUtil;
-import net.mavericklabs.bos.util.Logger;
-import net.mavericklabs.bos.util.NetworkConnection;
-import net.mavericklabs.bos.util.SharedPreferenceUtil;
+import net.mavericklabs.bos.utils.Constants;
+import net.mavericklabs.bos.utils.DisplayUtil;
+import net.mavericklabs.bos.utils.AppLogger;
+import net.mavericklabs.bos.utils.NetworkConnection;
+import net.mavericklabs.bos.utils.SharedPreferenceUtil;
 
 import org.json.JSONObject;
 
@@ -77,6 +77,7 @@ public class LoginActivity extends AppCompatActivity {
     private boolean passwordHasFocus = false;
     private TextView textApplyCoach;
     private TextView textApplyNgo;
+    private AppLogger appLogger = new AppLogger(getClass().toString());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -119,7 +120,7 @@ public class LoginActivity extends AppCompatActivity {
         textApplyCoach.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(LoginActivity.this,ApplyCoachActivity.class);
+                Intent intent = new Intent(LoginActivity.this, ApplyCoachActivity.class);
                 startActivity(intent);
             }
         });
@@ -127,7 +128,7 @@ public class LoginActivity extends AppCompatActivity {
         textApplyNgo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(LoginActivity.this,ApplyNGOActivity.class);
+                Intent intent = new Intent(LoginActivity.this, ApplyNGOActivity.class);
                 startActivity(intent);
             }
         });
@@ -169,11 +170,11 @@ public class LoginActivity extends AppCompatActivity {
                         String userName = editText.getText().toString().trim();
                         if (!userName.equals("")) {
                             dialog.dismiss();
-                            if(NetworkConnection.isNetworkAvailable(getApplicationContext())){
+                            if (NetworkConnection.isNetworkAvailable(getApplicationContext())) {
                                 sendForgotPasswordRequest(userName);
-                            }else{
+                            } else {
                                 Toast.makeText(getApplicationContext(),
-                                        getTranslationFromXML(locale,"NO_NETWORK"),
+                                        getTranslationFromXML(locale, "NO_NETWORK"),
                                         Toast.LENGTH_SHORT).show();
                             }
                         }
@@ -298,9 +299,9 @@ public class LoginActivity extends AppCompatActivity {
 
     private void login() {
         final String locale = SharedPreferenceUtil.getLocale(getApplicationContext());
-        if (!NetworkConnection.isNetworkAvailable(getApplicationContext())){
+        if (!NetworkConnection.isNetworkAvailable(getApplicationContext())) {
             Toast.makeText(getApplicationContext(),
-                    getTranslationFromXML(locale,"NO_NETWORK"),Toast.LENGTH_SHORT).show();
+                    getTranslationFromXML(locale, "NO_NETWORK"), Toast.LENGTH_SHORT).show();
             return;
         }
         final ProgressDialog progress = new ProgressDialog(this);
@@ -318,14 +319,18 @@ public class LoginActivity extends AppCompatActivity {
             public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
                 if (response.isSuccessful()) {
                     LoginResponse res = response.body();
-                    if (res != null && res.getGroupName().equals(Constants.group_name)) {
-                        Realm realm = Realm.getDefaultInstance();
-                        realm.beginTransaction();
-                        realm.copyToRealm(res);
-                        realm.commitTransaction();
-                        realm.close();
-                        getTranslations();
-                    }
+                    Realm realm = Realm.getDefaultInstance();
+                    realm.beginTransaction();
+                    realm.copyToRealm(res);
+                    realm.commitTransaction();
+                    realm.close();
+//                        getTranslations();
+                    progress.dismiss();
+
+                    Intent activityIntent = new Intent(LoginActivity.this, MainActivity.class);
+                    startActivity(activityIntent);
+                    finish();
+
                 } else {
                     try {
                         JSONObject jObjError = null;
@@ -338,16 +343,16 @@ public class LoginActivity extends AppCompatActivity {
                     } catch (Exception e) {
                         Toast.makeText(LoginActivity.this, e.getMessage(), Toast.LENGTH_LONG).show();
                     }
-                    Logger.d("Login Failed " + response.message());
+                    appLogger.logDebug("Login Failed " + response.message());
+                    progress.dismiss();
                 }
-                progress.dismiss();
             }
 
             @Override
             public void onFailure(Call<LoginResponse> call, Throwable t) {
                 progress.dismiss();
                 Toast.makeText(getApplicationContext(),
-                        getTranslationFromXML(locale,"LABEL_ERROR"),Toast.LENGTH_SHORT).show();
+                        getTranslationFromXML(locale, "LABEL_ERROR"), Toast.LENGTH_SHORT).show();
             }
 
         });
@@ -383,7 +388,7 @@ public class LoginActivity extends AppCompatActivity {
                         for (Map.Entry<String, JsonElement> entry : marathiEntries) {
                             RealmTranslation realmTranslation = new RealmTranslation(Constants.mr_INLocale, entry.getKey(), entry.getValue().getAsString());
                             realm.copyToRealm(realmTranslation);
-                            Logger.d(String.valueOf(entry.getValue()));
+                            appLogger.logDebug(String.valueOf(entry.getValue()));
                         }
                         realm.commitTransaction();
                         realm.close();
@@ -391,10 +396,10 @@ public class LoginActivity extends AppCompatActivity {
                     Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                     startActivity(intent);
                     finish();
-                }else {
+                } else {
                     final String locale = SharedPreferenceUtil.getLocale(getApplicationContext());
                     Toast.makeText(getApplicationContext(),
-                            getTranslationFromXML(locale,"LABEL_ERROR"),Toast.LENGTH_SHORT).show();
+                            getTranslationFromXML(locale, "LABEL_ERROR"), Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -406,7 +411,7 @@ public class LoginActivity extends AppCompatActivity {
                 realm.commitTransaction();
                 final String locale = SharedPreferenceUtil.getLocale(getApplicationContext());
                 Toast.makeText(getApplicationContext(),
-                        getTranslationFromXML(locale,"LABEL_ERROR"),Toast.LENGTH_SHORT).show();
+                        getTranslationFromXML(locale, "LABEL_ERROR"), Toast.LENGTH_SHORT).show();
 
             }
         });

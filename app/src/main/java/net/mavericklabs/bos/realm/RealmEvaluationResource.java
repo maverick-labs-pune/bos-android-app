@@ -1,0 +1,93 @@
+/*
+ * Copyright (c) 2019. Maverick Labs
+ *
+ *   This program is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU Affero General Public License as,
+ *   published by the Free Software Foundation, either version 3 of the
+ *   License, or (at your option) any later version.
+ *
+ *   This program is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU Affero General Public License for more details.
+ *
+ *   You should have received a copy of the GNU Affero General Public License
+ *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ *
+ */
+
+package net.mavericklabs.bos.realm;
+
+import net.mavericklabs.bos.model.Resource;
+
+import java.util.Date;
+
+import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
+import java.util.UUID;
+
+public class RealmEvaluationResource extends RealmObject {
+    @PrimaryKey
+    private String uuid;
+    private RealmResource resource;
+    private RealmUser user;
+    private Boolean isEvaluated;
+    private String data;
+    private Date creationTime;
+    private Date lastModificationTime;
+
+    public RealmEvaluationResource() {
+
+    }
+
+    public RealmEvaluationResource(Resource resource,RealmUser user) {
+        this.uuid = UUID.randomUUID().toString();
+        this.data = resource.getData().toString();
+        this.user = user;
+        this.creationTime = new Date(System.currentTimeMillis());
+        this.lastModificationTime = new Date(System.currentTimeMillis());
+        this.isEvaluated = false;
+
+    }
+
+    public String getUuid() {
+        return uuid;
+    }
+
+    public RealmResource getResource() {
+        return resource;
+    }
+
+    public RealmUser getUser() {
+        return user;
+    }
+
+    public Boolean getEvaluated() {
+        return isEvaluated;
+    }
+
+    public void setEvaluated(Boolean evaluated) {
+        isEvaluated = evaluated;
+    }
+
+    public String getData() {
+        return data;
+    }
+
+    public void setData(String data) {
+        this.data = data;
+    }
+
+    public Date getCreationTime() {
+        return creationTime;
+    }
+
+    public Date getLastModificationTime() {
+        return lastModificationTime;
+    }
+
+    public void setLastModificationTime(Date lastModificationTime) {
+        this.lastModificationTime = lastModificationTime;
+    }
+}

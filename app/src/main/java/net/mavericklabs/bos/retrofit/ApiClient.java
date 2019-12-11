@@ -24,8 +24,7 @@ import android.content.Context;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import net.mavericklabs.bos.util.Logger;
-import net.mavericklabs.bos.util.SharedPreferenceUtil;
+import net.mavericklabs.bos.utils.SharedPreferenceUtil;
 import net.mavericklabs.bos.realm.RealmHandler;
 
 import java.io.IOException;
@@ -40,6 +39,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ApiClient {
+//    private static final String BASE_URL = "http://192.168.0.101:8000";
     private static final String BASE_URL = "http://192.168.0.122:8000";
 //    private static final String BASE_URL = "https://api.bos.org";
 
@@ -48,7 +48,6 @@ public class ApiClient {
         String strToken = RealmHandler.getAccessToken();
         if (strToken != null)
             token = token + strToken;
-        Logger.d("Token " + token);
         return createApiInterface(token,context);
     }
 
@@ -63,7 +62,6 @@ public class ApiClient {
             @Override
             public Response intercept(Chain chain) throws IOException {
                 String locale = SharedPreferenceUtil.getLocale(context);
-                Logger.d("locale " + locale);
                 Request request = chain.request().newBuilder()
                         .addHeader("Authorization", "Bearer " + token)
                         .addHeader("Accept-Language", locale).build();

@@ -24,8 +24,6 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
@@ -39,9 +37,9 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import net.mavericklabs.bos.retrofit.ApiClient;
-import net.mavericklabs.bos.util.Logger;
-import net.mavericklabs.bos.util.NetworkConnection;
-import net.mavericklabs.bos.util.SharedPreferenceUtil;
+import net.mavericklabs.bos.utils.AppLogger;
+import net.mavericklabs.bos.utils.NetworkConnection;
+import net.mavericklabs.bos.utils.SharedPreferenceUtil;
 import net.mavericklabs.bos.R;
 import net.mavericklabs.bos.model.LoginResponse;
 import net.mavericklabs.bos.realm.RealmHandler;
@@ -62,6 +60,7 @@ public class ResetPasswordFragment extends Fragment {
     private boolean newPasswordHasFocus = false;
     private boolean confirmPasswordHasFocus = false;
     private String locale;
+    private AppLogger appLogger = new AppLogger(getClass().toString());
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -151,7 +150,7 @@ public class ResetPasswordFragment extends Fragment {
 
                     @Override
                     public void onFailure(Call<Void> call, Throwable t) {
-                        Logger.d("onFailure");
+                        appLogger.logDebug("onFailure");
                         progressDialog.dismiss();
                     }
                 });

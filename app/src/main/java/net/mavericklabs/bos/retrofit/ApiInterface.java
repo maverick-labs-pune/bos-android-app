@@ -19,12 +19,16 @@
 
 package net.mavericklabs.bos.retrofit;
 
+import net.mavericklabs.bos.model.Group;
+import net.mavericklabs.bos.model.Measurement;
 import net.mavericklabs.bos.model.Resource;
 import net.mavericklabs.bos.model.LoginResponse;
 import net.mavericklabs.bos.model.NGO;
 import net.mavericklabs.bos.model.Translation;
+import net.mavericklabs.bos.model.User;
 import net.mavericklabs.bos.retrofit.custom.LoginRequest;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import retrofit2.Call;
@@ -53,5 +57,21 @@ public interface ApiInterface {
     Call<List<NGO>> getNGOs();
 
     @GET("/ngos/{ngo_key}/coach_registration_form/")
-    Call<Resource> getCoachRegistrationForm(@Path("ngo_key") String userKey);
+    Call<Resource> getCoachRegistrationForm(@Path("ngo_key") String ngoKey);
+
+    @POST("/ngos/{ngo_key}/measurements_from_keys/")
+    Call<List<Measurement>> getMeasurementsFromKeys(@Path("ngo_key") String ngoKey, @Body ArrayList<String> measurementKeys);
+
+    @GET("/ngos/{ngo_key}/all_measurements/")
+    Call<List<Measurement>> getAllMeasurements(@Path("ngo_key") String ngoKey);
+
+    @GET("/users/{user_key}/resources/")
+    Call<List<Resource>> getUserResources(@Path("user_key") String userKey);
+
+    @GET("/users/{user_key}/groups/")
+    Call<List<Group>> getGroups(@Path("user_key") String userKey);
+
+    @GET("/users/{user_key}/athletes/")
+    Call<List<User>> getAthletes(@Path("user_key") String userKey);
+
 }

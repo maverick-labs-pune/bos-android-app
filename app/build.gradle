@@ -42,14 +42,9 @@ apply plugin: 'realm-android'
 //apply plugin: 'com.google.gms.google-services'
 
 dependencies {
-    def ANDROID_SUPPORT_LIBRARY_VERSION = "28.0.0"
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'com.android.support:appcompat-v7:' + ANDROID_SUPPORT_LIBRARY_VERSION
-    implementation 'com.android.support:support-v4:' + ANDROID_SUPPORT_LIBRARY_VERSION
-    implementation 'com.android.support:design:' + ANDROID_SUPPORT_LIBRARY_VERSION
+    implementation 'androidx.appcompat:appcompat:1.1.0'
 
-    implementation 'com.android.support:cardview-v7:' + ANDROID_SUPPORT_LIBRARY_VERSION
-    implementation 'com.android.support:recyclerview-v7:' + ANDROID_SUPPORT_LIBRARY_VERSION
 
     implementation 'com.github.bumptech.glide:glide:4.7.1'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.7.1'
@@ -62,9 +57,8 @@ dependencies {
     androidTestImplementation 'androidx.test:runner:1.2.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
     implementation 'com.github.mirrajabi:search-dialog:1.2.3'
-
-    implementation 'com.google.android.gms:play-services-vision:18.0.0'
-
+    implementation 'com.google.android.material:material:1.0.0'
+    implementation 'com.google.android.gms:play-services-vision:19.0.0'
     // Check for v11.4.2 or higher
 //    implementation 'com.google.firebase:firebase-core:17.0.1'
 
