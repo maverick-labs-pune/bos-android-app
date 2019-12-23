@@ -26,9 +26,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Curriculum {
+    private String uuid;
     private String key;
     private String label;
     private String description;
+    private boolean isEvaluated;
     private List<Day> days = new ArrayList<>();
 
 
@@ -60,4 +62,19 @@ public class Curriculum {
         this.key = key;
     }
 
+    public String getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
+    }
+
+    public boolean isEvaluated() {
+        return isEvaluated;
+    }
+
+    public void setEvaluated(boolean evaluated) {
+        isEvaluated = evaluated;
+    }
 }

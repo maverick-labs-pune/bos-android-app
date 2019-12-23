@@ -19,6 +19,7 @@
 
 package net.mavericklabs.bos.realm;
 
+import net.mavericklabs.bos.model.LoginResponse;
 import net.mavericklabs.bos.model.User;
 
 import io.realm.RealmObject;
@@ -50,6 +51,15 @@ public class RealmUser extends RealmObject {
         this.language = user.getLanguage();
     }
 
+    public RealmUser(LoginResponse loginResponse) {
+        this.key = loginResponse.getUserKey();
+        this.ngo = loginResponse.getNgoKey();
+        this.isActive = true;
+        this.firstName = loginResponse.getFirstName();
+        this.lastName = loginResponse.getLastName();
+        this.role = loginResponse.getRole();
+        this.language = loginResponse.getLanguage();
+    }
 
     public String getKey() {
         return key;

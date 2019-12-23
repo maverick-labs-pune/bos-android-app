@@ -19,24 +19,42 @@
 
 package net.mavericklabs.bos.adapter;
 
+import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import net.mavericklabs.bos.R;
+import net.mavericklabs.bos.activity.CurriculumActivity;
+import net.mavericklabs.bos.object.Curriculum;
+import net.mavericklabs.bos.object.Day;
 import net.mavericklabs.bos.realm.RealmEvaluationResource;
-import net.mavericklabs.bos.realm.RealmUser;
+import net.mavericklabs.bos.realm.RealmResource;
+import net.mavericklabs.bos.utils.AppLogger;
+import net.mavericklabs.bos.utils.EvaluationResourceType;
+import net.mavericklabs.bos.utils.Util;
 
 import java.util.List;
 
-public class DailyPlannerAdapter extends RecyclerView.Adapter<DailyPlannerAdapter.EvaluationResourceViewHolder> {
-    private List<RealmEvaluationResource> realmEvaluationResources;
+import static net.mavericklabs.bos.utils.Constants.BUNDLE_KEY_ACTIVITY_MODE;
+import static net.mavericklabs.bos.utils.Constants.BUNDLE_KEY_EVALUATION_RESOURCE_UUID;
+import static net.mavericklabs.bos.utils.Constants.CURRICULUM;
+import static net.mavericklabs.bos.utils.Constants.EVALUATION;
+import static net.mavericklabs.bos.utils.Constants.TRAINING_SESSION;
 
-    public DailyPlannerAdapter(List<RealmEvaluationResource> realmEvaluationResources) {
+public class DailyPlannerAdapter extends RecyclerView.Adapter<DailyPlannerAdapter.EvaluationResourceViewHolder> {
+    private Context context;
+    private List<RealmEvaluationResource> realmEvaluationResources;
+    private AppLogger appLogger = new AppLogger(getClass().toString());
+
+    public DailyPlannerAdapter(Context context, List<RealmEvaluationResource> realmEvaluationResources) {
+        this.context = context;
         this.realmEvaluationResources = realmEvaluationResources;
     }
 
@@ -45,14 +63,62 @@ public class DailyPlannerAdapter extends RecyclerView.Adapter<DailyPlannerAdapte
     public EvaluationResourceViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         // create a new view
         View itemView;
-        itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.view_holder_athlete, parent, false);
+        itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.view_holder_evaluated_resource, parent, false);
         return new EvaluationResourceViewHolder(itemView);
     }
 
     @Override
     public void onBindViewHolder(@NonNull EvaluationResourceViewHolder holder, int position) {
-        RealmEvaluationResource realmUser = realmEvaluationResources.get(position);
-        holder.getFullName().setText(realmUser.getUser().getFullName());
+        final RealmEvaluationResource realmEvaluationResource = realmEvaluationResources.get(position);
+        EvaluationResourceType type = Util.getEvaluationResourceType(realmEvaluationResource.getType());
+        switch (type){
+            case USER:
+                holder.getLabelTextView().setText(realmEvaluationResource.getUser().getFullName());
+
+                break;
+            case GROUP:
+                holder.getLabelTextView().setText(realmEvaluationResource.getGroup().getLabel());
+                break;
+            case UNKNOWN:
+        }
+        String data = realmEvaluationResource.getData();
+        final RealmResource realmResource = realmEvaluationResource.getResource();
+        switch (realmEvaluationResource.getResource().getType()) {
+            case CURRICULUM:
+                Curriculum curriculum = Util.convertRealmResourceToCurriculum(realmEvaluationResource);
+                appLogger.logInformation("realmEvaluationResource");
+                appLogger.logInformation(realmEvaluationResource.getUuid());
+                int totalNumberOfDays = curriculum.getDays().size();
+                int completedDays = 0;
+                for (Day day : curriculum.getDays()){
+                    appLogger.logInformation(day.getUuid());
+                    appLogger.logInformation(String.valueOf(day.isEvaluated()));
+                    if (day.isEvaluated()){
+                        completedDays++;
+                    }
+                }
+
+                holder.getProgressTextView().setText("Progress : " + completedDays+ "/" + totalNumberOfDays );
+                holder.getCardView().setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent = new Intent(context, CurriculumActivity.class);
+                        intent.putExtra(BUNDLE_KEY_ACTIVITY_MODE, EVALUATION);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        intent.putExtra(BUNDLE_KEY_EVALUATION_RESOURCE_UUID,realmEvaluationResource.getUuid());
+                        context.startActivity(intent);
+                    }
+                });
+                break;
+            case TRAINING_SESSION:
+
+
+                break;
+
+            default:
+                break;
+        }
+
     }
 
     @Override
@@ -62,15 +128,33 @@ public class DailyPlannerAdapter extends RecyclerView.Adapter<DailyPlannerAdapte
 
     class EvaluationResourceViewHolder extends RecyclerView.ViewHolder {
 
-        private final TextView fullName;
+        private final TextView labelTextView;
+        private final TextView progressTextView;
+        private final TextView lastUpdatedTextView;
+        private final CardView cardView;
 
         EvaluationResourceViewHolder(@NonNull View itemView) {
             super(itemView);
-            fullName = itemView.findViewById(R.id.text_view_full_name);
+            labelTextView = itemView.findViewById(R.id.text_view_label);
+            progressTextView = itemView.findViewById(R.id.text_view_progress);
+            lastUpdatedTextView = itemView.findViewById(R.id.text_view_last_updated);
+            cardView = itemView.findViewById(R.id.card_view);
         }
 
-        TextView getFullName() {
-            return fullName;
+        TextView getLabelTextView() {
+            return labelTextView;
+        }
+
+        public TextView getProgressTextView() {
+            return progressTextView;
+        }
+
+        public TextView getLastUpdatedTextView() {
+            return lastUpdatedTextView;
+        }
+
+        public CardView getCardView() {
+            return cardView;
         }
     }
 

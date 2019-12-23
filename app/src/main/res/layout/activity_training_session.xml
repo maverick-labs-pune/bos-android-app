@@ -17,7 +17,7 @@
   ~
   -->
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -27,52 +27,74 @@
     tools:context=".activity.TrainingSessionActivity">
 
     <RelativeLayout
-        android:id="@+id/relative_layout_data"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginStart="@dimen/activity_horizontal_margin"
-        android:layout_marginTop="@dimen/activity_vertical_margin"
-        android:layout_marginEnd="@dimen/activity_horizontal_margin"
-        android:layout_marginBottom="@dimen/activity_vertical_margin">
+        android:layout_height="wrap_content">
 
         <RelativeLayout
-            android:id="@+id/relative_layout"
+            android:id="@+id/relative_layout_data"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/white"
-            android:paddingStart="@dimen/nav_header_vertical_spacing"
-            android:paddingTop="@dimen/nav_header_vertical_spacing"
-            android:paddingEnd="@dimen/nav_header_vertical_spacing"
-            android:paddingBottom="@dimen/nav_header_vertical_spacing">
+            android:layout_height="match_parent"
+            android:layout_marginStart="@dimen/activity_horizontal_margin"
+            android:layout_marginTop="@dimen/nav_header_vertical_spacing"
+            android:layout_marginEnd="@dimen/activity_horizontal_margin"
+            android:layout_marginBottom="@dimen/nav_header_vertical_spacing">
+
+            <RelativeLayout
+                android:id="@+id/relative_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/white"
+                android:paddingStart="@dimen/nav_header_vertical_spacing"
+                android:paddingTop="@dimen/nav_header_vertical_spacing"
+                android:paddingEnd="@dimen/nav_header_vertical_spacing"
+                android:paddingBottom="@dimen/nav_header_vertical_spacing">
 
 
+                <TextView
+                    android:id="@+id/text_view_description"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="start"
+                    android:text="No data"
+                    android:textColor="@color/black" />
 
+            </RelativeLayout>
 
-            <TextView
-                android:id="@+id/text_view_description"
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recycler_view_measurements"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/relative_layout"
+                android:layout_marginTop="@dimen/nav_header_vertical_spacing" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recycler_view_users"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                android:layout_below="@id/recycler_view_measurements"
+                android:layout_marginTop="@dimen/nav_header_vertical_spacing" />
+
+            <Button
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/text_view_label"
-                android:gravity="start"
-                android:text="No data"
-                android:textColor="@color/black" />
+                android:id="@+id/button_evaluate_training_session"
+                android:layout_below="@id/recycler_view_users"
+                android:visibility="gone"
+                android:text="Submit"
+                android:layout_centerHorizontal="true"
+                android:layout_marginBottom="@dimen/nav_header_vertical_spacing"
+                android:layout_marginTop="@dimen/nav_header_vertical_spacing"/>
 
         </RelativeLayout>
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recycler_view_measurements"
+        <TextView
+            android:id="@+id/empty_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@id/relative_layout"
-            android:layout_marginTop="@dimen/activity_vertical_margin" />
+            android:gravity="center"
+            android:text="No data"
+            android:visibility="gone" />
+
     </RelativeLayout>
-
-    <TextView
-        android:id="@+id/empty_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center"
-        android:text="No data"
-        android:visibility="gone" />
-
-</RelativeLayout>
+</ScrollView>

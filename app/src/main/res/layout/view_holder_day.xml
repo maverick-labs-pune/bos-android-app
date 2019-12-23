@@ -54,6 +54,15 @@
             />
 
         <ImageView
+            android:id="@+id/image_view_evaluated"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/activity_horizontal_margin"
+            android:layout_toStartOf="@id/image_view_expand"
+            android:src="@drawable/baseline_attachment_black_18"
+            android:visibility="gone"/>
+
+        <ImageView
             android:id="@+id/image_view_expand"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

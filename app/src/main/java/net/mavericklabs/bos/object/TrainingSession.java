@@ -27,16 +27,25 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TrainingSession implements Parcelable {
+    private String uuid;
     private String label;
     private String description;
     private String type;
+    private boolean isEvaluated;
     private List<File> files = new ArrayList<>();
+
+    public void setMeasurements(List<Measurement> measurements) {
+        this.measurements = measurements;
+    }
+
     private List<Measurement> measurements = new ArrayList<>();
 
-    protected TrainingSession(Parcel in) {
+    private TrainingSession(Parcel in) {
+        uuid = in.readString();
         label = in.readString();
         description = in.readString();
         type = in.readString();
+        isEvaluated = in.readInt() != 0;
         in.readTypedList(files,File.CREATOR);
         in.readTypedList(measurements,Measurement.CREATOR);
     }
@@ -73,6 +82,10 @@ public class TrainingSession implements Parcelable {
         return measurements;
     }
 
+    public void setEvaluated(boolean evaluated) {
+        isEvaluated = evaluated;
+    }
+
     @Override
     public int describeContents() {
         return hashCode();
@@ -80,10 +93,25 @@ public class TrainingSession implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(uuid);
         dest.writeString(label);
         dest.writeString(description);
         dest.writeString(type);
+        dest.writeInt(isEvaluated ? 1 : 0);
         dest.writeTypedList(files);
         dest.writeTypedList(measurements);
+    }
+
+
+    public String getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
+    }
+
+    public boolean isEvaluated() {
+        return isEvaluated;
     }
 }

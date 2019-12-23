@@ -157,7 +157,7 @@ public class ApplyCoachActivity extends AppCompatActivity {
         for (int i = 0; i < ngos.size(); i++) {
             ngoNames.add(ngos.get(i).getName());
         }
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, ngoNames);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, ngoNames);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         ngo_spinner.setAdapter(adapter);
         ngo_spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {

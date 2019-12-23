@@ -33,16 +33,24 @@ import com.google.gson.Gson;
 import net.mavericklabs.bos.R;
 import net.mavericklabs.bos.adapter.CurriculumDayAdapter;
 import net.mavericklabs.bos.object.Curriculum;
+import net.mavericklabs.bos.realm.RealmEvaluationResource;
 import net.mavericklabs.bos.realm.RealmHandler;
 import net.mavericklabs.bos.realm.RealmResource;
+import net.mavericklabs.bos.utils.ActivityMode;
 import net.mavericklabs.bos.utils.AppLogger;
 import net.mavericklabs.bos.utils.Util;
+
+import static net.mavericklabs.bos.utils.Constants.BUNDLE_KEY_ACTIVITY_MODE;
+import static net.mavericklabs.bos.utils.Constants.BUNDLE_KEY_EVALUATION_RESOURCE_UUID;
+import static net.mavericklabs.bos.utils.Constants.BUNDLE_KEY_RESOURCE_KEY;
 
 public class CurriculumActivity extends AppCompatActivity {
     private AppLogger appLogger = new AppLogger(getClass().toString());
     private RecyclerView recyclerView;
     private TextView emptyView;
     private RealmResource realmResource;
+    private RealmEvaluationResource realmEvaluationResource;
+    private ActivityMode activityMode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,31 +58,43 @@ public class CurriculumActivity extends AppCompatActivity {
         setContentView(R.layout.activity_curriculum);
         setTitle("Curriculum");
         // add back arrow to toolbar
-        if (getSupportActionBar() != null){
+        if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
 
-        String resourceKey = getIntent().getStringExtra("resourceKey");
-        realmResource = RealmHandler.getResourceByKey(resourceKey);
+        activityMode = Util.getActivityMode(getIntent().getStringExtra(BUNDLE_KEY_ACTIVITY_MODE));
         TextView label = findViewById(R.id.text_view_label);
         TextView description = findViewById(R.id.text_view_description);
         recyclerView = findViewById(R.id.recycler_view_days);
         emptyView = findViewById(R.id.empty_view);
-
-
         recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+        Curriculum curriculum;
+        switch (activityMode) {
+            case READ:
+                String resourceKey = getIntent().getStringExtra(BUNDLE_KEY_RESOURCE_KEY);
+                realmResource = RealmHandler.getResourceByKey(resourceKey);
+                curriculum = Util.convertRealmResourceToCurriculum(realmResource);
+                label.setText(curriculum.getLabel());
+                description.setText(curriculum.getDescription());
+                recyclerView.setAdapter(new CurriculumDayAdapter(getApplicationContext(), curriculum, activityMode));
+                break;
 
-        Curriculum curriculum = Util.convertRealmResourceToCurriculum(realmResource);
+            case EVALUATION:
+                String evaluationResourceUUID = getIntent().getStringExtra(BUNDLE_KEY_EVALUATION_RESOURCE_UUID);
+                realmEvaluationResource = RealmHandler.getEvaluationResourceByUUID(evaluationResourceUUID);
+                curriculum = Util.convertRealmResourceToCurriculum(realmEvaluationResource);
+                label.setText(curriculum.getLabel());
+                description.setText(curriculum.getDescription());
+                recyclerView.setAdapter(new CurriculumDayAdapter(getApplicationContext(), curriculum, activityMode));
+                break;
 
-        label.setText(curriculum.getLabel());
-        description.setText(curriculum.getDescription());
-        appLogger.logDebug(realmResource.getData());
-        appLogger.logDebug(String.valueOf(curriculum.getDays().size()));
-        appLogger.logDebug(curriculum.getDescription());
-
-        recyclerView.setAdapter(new CurriculumDayAdapter(getApplicationContext(), curriculum));
+            case UNKNOWN:
+                break;
+        }
         Util.setEmptyMessageIfNeeded(recyclerView, recyclerView, emptyView);
+
+
     }
 
     @Override

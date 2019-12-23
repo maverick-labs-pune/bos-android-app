@@ -23,8 +23,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Day {
+    private String uuid;
     private String label;
     private String description;
+    private boolean isEvaluated;
     private List<TrainingSession> sessions = new ArrayList<>();
 
     public String getLabel() {
@@ -37,5 +39,21 @@ public class Day {
 
     public List<TrainingSession> getSessions() {
         return sessions;
+    }
+
+    public String getUuid() {
+        return uuid;
+    }
+
+    public void setUuid(String uuid) {
+        this.uuid = uuid;
+    }
+
+    public boolean isEvaluated() {
+        return isEvaluated;
+    }
+
+    public void setEvaluated(boolean evaluated) {
+        isEvaluated = evaluated;
     }
 }

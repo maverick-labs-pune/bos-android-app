@@ -21,29 +21,46 @@ package net.mavericklabs.bos.activity;
 
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import net.mavericklabs.bos.R;
-import net.mavericklabs.bos.adapter.CurriculumDayAdapter;
 import net.mavericklabs.bos.adapter.MeasurementAdapter;
+import net.mavericklabs.bos.adapter.MeasurementReadingAdapter;
+import net.mavericklabs.bos.adapter.SelectAthleteAdapter;
 import net.mavericklabs.bos.object.Curriculum;
 import net.mavericklabs.bos.object.Measurement;
 import net.mavericklabs.bos.object.TrainingSession;
+import net.mavericklabs.bos.realm.RealmEvaluationResource;
 import net.mavericklabs.bos.realm.RealmHandler;
-import net.mavericklabs.bos.realm.RealmResource;
+import net.mavericklabs.bos.realm.RealmMeasurement;
+import net.mavericklabs.bos.realm.RealmReading;
+import net.mavericklabs.bos.realm.RealmUser;
+import net.mavericklabs.bos.utils.ActivityMode;
 import net.mavericklabs.bos.utils.AppLogger;
+import net.mavericklabs.bos.utils.ToastUtils;
 import net.mavericklabs.bos.utils.Util;
 
+import java.util.List;
+
+import io.realm.Realm;
+
+import static net.mavericklabs.bos.utils.Constants.BUNDLE_KEY_ACTIVITY_MODE;
+import static net.mavericklabs.bos.utils.Constants.BUNDLE_KEY_EVALUATION_RESOURCE_UUID;
 import static net.mavericklabs.bos.utils.Constants.BUNDLE_KEY_TRAINING_SESSION;
 
 public class TrainingSessionActivity extends AppCompatActivity {
     private AppLogger appLogger = new AppLogger(getClass().toString());
-    private RecyclerView recyclerView;
+    private RecyclerView measurementsRecyclerView;
     private TextView emptyView;
+    private ActivityMode activityMode;
+    private RecyclerView usersRecyclerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,29 +68,99 @@ public class TrainingSessionActivity extends AppCompatActivity {
         setContentView(R.layout.activity_training_session);
         setTitle("Training session");
         // add back arrow to toolbar
-        if (getSupportActionBar() != null){
+        if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
 
-        TrainingSession trainingSession = getIntent().getParcelableExtra(BUNDLE_KEY_TRAINING_SESSION);
+        final TrainingSession trainingSession = getIntent().getParcelableExtra(BUNDLE_KEY_TRAINING_SESSION);
+        activityMode = Util.getActivityMode(getIntent().getStringExtra(BUNDLE_KEY_ACTIVITY_MODE));
         TextView label = findViewById(R.id.text_view_label);
         TextView description = findViewById(R.id.text_view_description);
-        recyclerView = findViewById(R.id.recycler_view_measurements);
+        Button evaluateTrainingSessionButton = findViewById(R.id.button_evaluate_training_session);
+        measurementsRecyclerView = findViewById(R.id.recycler_view_measurements);
+        usersRecyclerView = findViewById(R.id.recycler_view_users);
         emptyView = findViewById(R.id.empty_view);
+        measurementsRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
 
+        switch (activityMode) {
+            case READ:
+                measurementsRecyclerView.setAdapter(new MeasurementAdapter(getApplicationContext(), trainingSession.getMeasurements(), activityMode));
+                break;
+            case EVALUATION:
+                String evaluationResourceUUID = getIntent().getStringExtra(BUNDLE_KEY_EVALUATION_RESOURCE_UUID);
+                appLogger.logInformation(evaluationResourceUUID);
+                final RealmEvaluationResource realmEvaluationResource = RealmHandler.getEvaluationResourceByUUID(evaluationResourceUUID);
+                final Curriculum curriculum = Util.convertRealmResourceToCurriculum(realmEvaluationResource);
+                final MeasurementReadingAdapter measurementReadingAdapter =
+                        new MeasurementReadingAdapter(getApplicationContext(), trainingSession.getMeasurements(), curriculum);
+                measurementsRecyclerView.setAdapter(measurementReadingAdapter);
 
-        recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+                usersRecyclerView.setVisibility(View.VISIBLE);
+                List<RealmUser> athletes = Util.getAthletes(realmEvaluationResource.getGroup().getUsers());
+                final SelectAthleteAdapter selectAthleteAdapter = new SelectAthleteAdapter(athletes);
+                usersRecyclerView.setAdapter(selectAthleteAdapter);
+                usersRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+                evaluateTrainingSessionButton.setVisibility(View.VISIBLE);
+                evaluateTrainingSessionButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (!measurementReadingAdapter.verifyReadings()) {
+                            ToastUtils.showToast(getApplicationContext(), "Incorrect", Toast.LENGTH_SHORT);
+                            return;
+                        }
+//                        ToastUtils.showToast(getApplicationContext(), "Correct", Toast.LENGTH_SHORT);
 
-//        Curriculum curriculum = Util.convertRealmResourceToCurriculum(realmResource);
+                        if (realmEvaluationResource.getGroup() != null) {
+                            appLogger.logInformation("This is for a group.");
+                            List<RealmUser> selectedAthletes = selectAthleteAdapter.getSelectedAthletes();
+                            if (selectedAthletes.size() == 0) {
+                                ToastUtils.showToast(getApplicationContext(), "Did not select any athlete", Toast.LENGTH_SHORT);
+                                return;
+                            }
+//                                Save data and mark as evaluated
+                            RealmUser selfRealmUser = RealmHandler.getSelfRealmUser();
+                            if (selfRealmUser == null) {
+                                appLogger.logError("Self user is null");
+                                return;
+                            }
+                            List<Measurement> measurementsWithReadings = measurementReadingAdapter.getMeasurementsWithReadings();
+                            Realm realm = Realm.getDefaultInstance();
 
-//        label.setText(trainingSession.getLabel());
-//        description.setText(trainingSession.getDescription());
+                            for (Measurement measurementWithReading : measurementsWithReadings) {
+                                RealmMeasurement realmMeasurement = RealmHandler.getMeasurementFromKey(measurementWithReading.getKey());
+                                for (RealmUser athlete : selectedAthletes) {
+
+                                    // Add reading
+                                    RealmReading realmReading = new RealmReading(realmMeasurement,
+                                            athlete, selfRealmUser, realmEvaluationResource,measurementWithReading);
+                                    realm.beginTransaction();
+                                    realm.copyToRealm(realmReading);
+                                    realm.commitTransaction();
+                                }
+
+                            }
+                            String data = Util.updateCurriculum(curriculum,trainingSession.getUuid(),
+                                    measurementReadingAdapter.getMeasurementsWithReadings());
+                            realm.beginTransaction();
+                            realmEvaluationResource.setData(data);
+                            realm.copyToRealmOrUpdate(realmEvaluationResource);
+                            realm.commitTransaction();
+                            realm.close();
+                            finish();
+
+                        } else if (realmEvaluationResource.getUser() != null) {
+
+                        }
+
+                    }
+                });
+
+                break;
+        }
         appLogger.logDebug(String.valueOf(trainingSession.getMeasurements().size()));
-//        appLogger.logDebug(curriculum.getDescription());
 
-        recyclerView.setAdapter(new MeasurementAdapter(getApplicationContext(), trainingSession.getMeasurements()));
-        Util.setEmptyMessageIfNeeded(recyclerView, recyclerView, emptyView);
+        Util.setEmptyMessageIfNeeded(measurementsRecyclerView, measurementsRecyclerView, emptyView);
     }
 
     @Override

@@ -47,6 +47,7 @@ import net.mavericklabs.bos.R;
 import net.mavericklabs.bos.model.LoginResponse;
 import net.mavericklabs.bos.realm.RealmTranslation;
 import net.mavericklabs.bos.model.Translation;
+import net.mavericklabs.bos.realm.RealmUser;
 import net.mavericklabs.bos.retrofit.ApiClient;
 import net.mavericklabs.bos.retrofit.ApiInterface;
 import net.mavericklabs.bos.retrofit.custom.LoginRequest;
@@ -318,10 +319,12 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
                 if (response.isSuccessful()) {
-                    LoginResponse res = response.body();
+                    LoginResponse loginResponse = response.body();
                     Realm realm = Realm.getDefaultInstance();
                     realm.beginTransaction();
-                    realm.copyToRealm(res);
+                    realm.copyToRealm(loginResponse);
+                    RealmUser selfUser = new RealmUser(loginResponse);
+                    realm.copyToRealmOrUpdate(selfUser);
                     realm.commitTransaction();
                     realm.close();
 //                        getTranslations();

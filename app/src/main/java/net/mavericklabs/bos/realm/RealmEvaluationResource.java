@@ -20,6 +20,8 @@
 package net.mavericklabs.bos.realm;
 
 import net.mavericklabs.bos.model.Resource;
+import net.mavericklabs.bos.utils.Constants;
+import net.mavericklabs.bos.utils.Util;
 
 import java.util.Date;
 
@@ -32,25 +34,42 @@ public class RealmEvaluationResource extends RealmObject {
     private String uuid;
     private RealmResource resource;
     private RealmUser user;
+    private RealmGroup group;
     private Boolean isEvaluated;
     private String data;
     private Date creationTime;
     private Date lastModificationTime;
+    private String type;
 
     public RealmEvaluationResource() {
 
     }
 
-    public RealmEvaluationResource(Resource resource,RealmUser user) {
+    public RealmEvaluationResource(RealmResource realmResource,RealmUser user) {
         this.uuid = UUID.randomUUID().toString();
-        this.data = resource.getData().toString();
+        this.data = Util.convertRealmResourceDataToRealmEvaluationResourceData(realmResource,uuid,true);
         this.user = user;
+        this.group = null;
         this.creationTime = new Date(System.currentTimeMillis());
         this.lastModificationTime = new Date(System.currentTimeMillis());
         this.isEvaluated = false;
+        this.type = Constants.USER;
 
     }
 
+    public RealmEvaluationResource(RealmResource realmResource,RealmGroup group) {
+        this.uuid = UUID.randomUUID().toString();
+        this.resource = realmResource;
+        // Add uuid and is evaluated fields to the data.
+        this.data = Util.convertRealmResourceDataToRealmEvaluationResourceData(realmResource,uuid,true);
+        this.user = null;
+        this.group = group;
+        this.creationTime = new Date(System.currentTimeMillis());
+        this.lastModificationTime = new Date(System.currentTimeMillis());
+        this.isEvaluated = false;
+        this.type = Constants.GROUP;
+
+    }
     public String getUuid() {
         return uuid;
     }
@@ -89,5 +108,13 @@ public class RealmEvaluationResource extends RealmObject {
 
     public void setLastModificationTime(Date lastModificationTime) {
         this.lastModificationTime = lastModificationTime;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public RealmGroup getGroup() {
+        return group;
     }
 }

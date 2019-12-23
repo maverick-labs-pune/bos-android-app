@@ -78,7 +78,7 @@ public class MainEmptyActivity extends AppCompatActivity {
         String expiryDate = DateUtil.dateToString(calendar.getTime(), "yyyy-MM-dd");
         String currentDate = DateUtil.dateToString(Calendar.getInstance().getTime(), "yyyy-MM-dd");
         if (expiryDate.equals(currentDate)) {
-            appLogger.logDebug("Refresh required");
+            appLogger.logDebug("Refresh isRequired");
             return true;
         } else {
             return false;

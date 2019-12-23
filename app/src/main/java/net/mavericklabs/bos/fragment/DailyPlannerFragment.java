@@ -98,7 +98,7 @@ public class DailyPlannerFragment extends Fragment {
         emptyView = view.findViewById(R.id.empty_view);
         List<RealmEvaluationResource> evaluationResources = RealmHandler.getEvaluationResources();
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        recyclerView.setAdapter(new DailyPlannerAdapter(evaluationResources));
+        recyclerView.setAdapter(new DailyPlannerAdapter(getContext(),evaluationResources));
         Util.setEmptyMessageIfNeeded(evaluationResources,recyclerView,emptyView);
 
         appLogger.logInformation(String.valueOf(evaluationResources.size()));

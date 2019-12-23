@@ -19,7 +19,6 @@
 
 package net.mavericklabs.bos.adapter;
 
-import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -35,14 +34,17 @@ import androidx.recyclerview.widget.RecyclerView;
 import net.mavericklabs.bos.R;
 import net.mavericklabs.bos.object.Curriculum;
 import net.mavericklabs.bos.object.Day;
+import net.mavericklabs.bos.utils.ActivityMode;
 
 public class CurriculumDayAdapter extends RecyclerView.Adapter<CurriculumDayAdapter.DayViewHolder> {
     private Context context;
     private Curriculum curriculum;
+    private ActivityMode activityMode;
 
-    public CurriculumDayAdapter(Context context, Curriculum curriculum) {
+    public CurriculumDayAdapter(Context context, Curriculum curriculum, ActivityMode activityMode) {
         this.context = context;
         this.curriculum = curriculum;
+        this.activityMode = activityMode;
     }
 
     @NonNull
@@ -60,7 +62,7 @@ public class CurriculumDayAdapter extends RecyclerView.Adapter<CurriculumDayAdap
         holder.getLabel().setText(day.getLabel());
         final RecyclerView recyclerView = holder.getTrainingSessionsRecyclerView();
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
-        recyclerView.setAdapter(new TrainingSessionAdapter(context, day));
+        recyclerView.setAdapter(new TrainingSessionAdapter(context, curriculum,day,activityMode));
         holder.getExpandedImageView().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -78,6 +80,21 @@ public class CurriculumDayAdapter extends RecyclerView.Adapter<CurriculumDayAdap
 //                animation.setDuration(200).start();
             }
         });
+
+        switch (activityMode){
+            case EVALUATION:
+                holder.evaluatedImageView.setVisibility(View.VISIBLE);
+                if (day.isEvaluated()){
+                    holder.evaluatedImageView.setImageResource(R.drawable.baseline_check_black_18);
+                }else{
+                    holder.evaluatedImageView.setImageResource(R.drawable.baseline_close_black_18);
+                }
+                break;
+            case READ:
+                holder.evaluatedImageView.setVisibility(View.GONE);
+                break;
+            case UNKNOWN:
+        }
     }
 
     void collapseExpandTextView() {
@@ -92,7 +109,7 @@ public class CurriculumDayAdapter extends RecyclerView.Adapter<CurriculumDayAdap
     class DayViewHolder extends RecyclerView.ViewHolder {
 
         private final TextView label;
-        private final ImageView imageView, expandedImageView;
+        private final ImageView imageView, expandedImageView,evaluatedImageView;
         private final CardView cardView;
         private final RecyclerView trainingSessionsRecyclerView;
 
@@ -100,6 +117,7 @@ public class CurriculumDayAdapter extends RecyclerView.Adapter<CurriculumDayAdap
             super(itemView);
             label = itemView.findViewById(R.id.text_view_label);
             imageView = itemView.findViewById(R.id.image_view);
+            evaluatedImageView = itemView.findViewById(R.id.image_view_evaluated);
             expandedImageView = itemView.findViewById(R.id.image_view_expand);
             cardView = itemView.findViewById(R.id.card_view);
             trainingSessionsRecyclerView = itemView.findViewById(R.id.recycler_view_training_sessions);
@@ -124,6 +142,10 @@ public class CurriculumDayAdapter extends RecyclerView.Adapter<CurriculumDayAdap
 
         public RecyclerView getTrainingSessionsRecyclerView() {
             return trainingSessionsRecyclerView;
+        }
+
+        public ImageView getEvaluatedImageView() {
+            return evaluatedImageView;
         }
     }
 

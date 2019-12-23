@@ -35,6 +35,7 @@ import net.mavericklabs.bos.adapter.ResourceAdapter;
 import net.mavericklabs.bos.adapter.UserAdapter;
 import net.mavericklabs.bos.realm.RealmGroup;
 import net.mavericklabs.bos.realm.RealmHandler;
+import net.mavericklabs.bos.utils.Activity;
 import net.mavericklabs.bos.utils.AppLogger;
 
 import static net.mavericklabs.bos.utils.Constants.BUNDLE_KEY_GROUP_KEY;
@@ -60,8 +61,6 @@ public class GroupDetailActivity extends AppCompatActivity {
         final ImageView usersExpandImageView = findViewById(R.id.image_view_users_expand);
         final ImageView resourcesExpandImageView = findViewById(R.id.image_view_resources_expand);
         TextView labelTextView = findViewById(R.id.text_view_label);
-//        Button viewResourcesButton = findViewById(R.id.button_view_resources);
-//        Button assignResourcesButton = findViewById(R.id.button_assign_resources);
         labelTextView.setText(realmGroup.getLabel());
         usersRecyclerView = findViewById(R.id.recycler_view_users);
         usersRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
@@ -69,7 +68,8 @@ public class GroupDetailActivity extends AppCompatActivity {
 
         resourcesRecyclerView = findViewById(R.id.recycler_view_resources);
         resourcesRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
-        resourcesRecyclerView.setAdapter(new ResourceAdapter(getApplicationContext(), realmGroup.getResources()));
+        resourcesRecyclerView.setAdapter(new ResourceAdapter(GroupDetailActivity.this,
+                realmGroup.getResources(), Activity.Group,realmGroup));
 
         usersExpandImageView.setOnClickListener(new View.OnClickListener() {
             @Override

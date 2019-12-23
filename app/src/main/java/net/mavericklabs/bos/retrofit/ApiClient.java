@@ -39,7 +39,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class ApiClient {
-//    private static final String BASE_URL = "http://192.168.0.101:8000";
+//    private static final String BASE_URL = "http://192.168.0.105:8000";
     private static final String BASE_URL = "http://192.168.0.122:8000";
 //    private static final String BASE_URL = "https://api.bos.org";
 

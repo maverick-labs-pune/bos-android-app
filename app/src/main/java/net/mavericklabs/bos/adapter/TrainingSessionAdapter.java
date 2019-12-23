@@ -33,19 +33,27 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import net.mavericklabs.bos.R;
 import net.mavericklabs.bos.activity.TrainingSessionActivity;
+import net.mavericklabs.bos.object.Curriculum;
 import net.mavericklabs.bos.object.Day;
 import net.mavericklabs.bos.object.TrainingSession;
+import net.mavericklabs.bos.utils.ActivityMode;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
+import static net.mavericklabs.bos.utils.Constants.BUNDLE_KEY_ACTIVITY_MODE;
+import static net.mavericklabs.bos.utils.Constants.BUNDLE_KEY_EVALUATION_RESOURCE_UUID;
 import static net.mavericklabs.bos.utils.Constants.BUNDLE_KEY_TRAINING_SESSION;
 
 public class TrainingSessionAdapter extends RecyclerView.Adapter<TrainingSessionAdapter.TrainingSessionViewHolder> {
     private Context context;
+    private Curriculum curriculum;
     private Day day;
+    private ActivityMode activityMode;
 
-    public TrainingSessionAdapter(Context context, Day day) {
+    public TrainingSessionAdapter(Context context, Curriculum curriculum, Day day, ActivityMode activityMode) {
         this.context = context;
+        this.curriculum = curriculum;
         this.day = day;
+        this.activityMode = activityMode;
     }
 
     @NonNull
@@ -60,17 +68,44 @@ public class TrainingSessionAdapter extends RecyclerView.Adapter<TrainingSession
     @Override
     public void onBindViewHolder(@NonNull TrainingSessionViewHolder holder, int position) {
         final TrainingSession trainingSession = this.day.getSessions().get(position);
-        holder.getLabel().setText(trainingSession.getLabel());
-        holder.getImageViewOpen().setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        holder.label.setText(trainingSession.getLabel());
+        switch (activityMode) {
+            case EVALUATION:
+                holder.evaluatedImageView.setVisibility(View.VISIBLE);
+                if (day.isEvaluated()) {
+                    holder.evaluatedImageView.setImageResource(R.drawable.baseline_check_black_18);
+                } else {
+                    holder.evaluatedImageView.setImageResource(R.drawable.baseline_close_black_18);
+                }
+                holder.imageViewOpen.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent = new Intent(context, TrainingSessionActivity.class);
+                        intent.putExtra(BUNDLE_KEY_TRAINING_SESSION, trainingSession);
+                        intent.putExtra(BUNDLE_KEY_ACTIVITY_MODE, activityMode.label);
+                        intent.putExtra(BUNDLE_KEY_EVALUATION_RESOURCE_UUID, curriculum.getUuid());
 
-                Intent intent = new Intent(context, TrainingSessionActivity.class);
-                intent.putExtra(BUNDLE_KEY_TRAINING_SESSION,trainingSession);
-                intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
-                context.startActivity(intent);
-            }
-        });
+                        intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
+                        context.startActivity(intent);
+                    }
+                });
+                break;
+            case READ:
+                holder.evaluatedImageView.setVisibility(View.GONE);
+                holder.imageViewOpen.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent = new Intent(context, TrainingSessionActivity.class);
+                        intent.putExtra(BUNDLE_KEY_TRAINING_SESSION, trainingSession);
+                        intent.putExtra(BUNDLE_KEY_ACTIVITY_MODE, activityMode.label);
+                        intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
+                        context.startActivity(intent);
+                    }
+                });
+                break;
+
+            case UNKNOWN:
+        }
     }
 
     @Override
@@ -81,7 +116,7 @@ public class TrainingSessionAdapter extends RecyclerView.Adapter<TrainingSession
     class TrainingSessionViewHolder extends RecyclerView.ViewHolder {
 
         private final TextView label;
-        private final ImageView imageView, expandedImageView;
+        private final ImageView imageView, expandedImageView, evaluatedImageView;
         private final ImageView imageViewOpen;
 
         TrainingSessionViewHolder(@NonNull View itemView) {
@@ -90,22 +125,7 @@ public class TrainingSessionAdapter extends RecyclerView.Adapter<TrainingSession
             imageView = itemView.findViewById(R.id.image_view);
             imageViewOpen = itemView.findViewById(R.id.image_view_open);
             expandedImageView = itemView.findViewById(R.id.image_view_expand);
-        }
-
-        TextView getLabel() {
-            return label;
-        }
-
-        public ImageView getImageView() {
-            return imageView;
-        }
-
-        public ImageView getExpandedImageView() {
-            return expandedImageView;
-        }
-
-        public ImageView getImageViewOpen() {
-            return imageViewOpen;
+            evaluatedImageView = itemView.findViewById(R.id.image_view_evaluated);
         }
     }
 

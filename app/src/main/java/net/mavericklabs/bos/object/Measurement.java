@@ -26,11 +26,13 @@ public class Measurement implements Parcelable {
     private String key;
     private String description;
     private boolean is_required;
+    private String reading;
 
     protected Measurement(Parcel in) {
         key = in.readString();
         description = in.readString();
         is_required = in.readInt() != 0;
+        reading = in.readString();
     }
 
     public static final Creator<Measurement> CREATOR = new Creator<Measurement>() {
@@ -55,9 +57,22 @@ public class Measurement implements Parcelable {
         dest.writeString(key);
         dest.writeString(description);
         dest.writeInt(is_required ? 1 : 0);
+        dest.writeString(reading);
     }
 
     public String getKey() {
         return key;
+    }
+
+    public String getReading() {
+        return reading;
+    }
+
+    public void setReading(String reading) {
+        this.reading = reading;
+    }
+
+    public boolean isRequired() {
+        return is_required;
     }
 }

@@ -128,7 +128,7 @@ public class RealmHandler {
     public static RealmResource getResourceByKey(String resourceKey) {
         Realm realm = Realm.getDefaultInstance();
         RealmResource realmResource = realm.where(RealmResource.class)
-                .equalTo("key",resourceKey).findFirst();
+                .equalTo("key", resourceKey).findFirst();
         realm.close();
         return realmResource;
     }
@@ -136,7 +136,7 @@ public class RealmHandler {
     public static RealmMeasurement getMeasurementFromKey(String measurementKey) {
         Realm realm = Realm.getDefaultInstance();
         RealmMeasurement realmMeasurement = realm.where(RealmMeasurement.class)
-                .equalTo("key",measurementKey).findFirst();
+                .equalTo("key", measurementKey).findFirst();
         realm.close();
         return realmMeasurement;
     }
@@ -144,8 +144,34 @@ public class RealmHandler {
     public static RealmGroup getGroup(String groupKey) {
         Realm realm = Realm.getDefaultInstance();
         RealmGroup realmGroup = realm.where(RealmGroup.class)
-                .equalTo("key",groupKey).findFirst();
+                .equalTo("key", groupKey).findFirst();
         realm.close();
         return realmGroup;
+    }
+
+    public static void copyToRealm(RealmEvaluationResource realmEvaluationResource) {
+        Realm realm = Realm.getDefaultInstance();
+        realm.beginTransaction();
+        realm.copyToRealm(realmEvaluationResource);
+        realm.commitTransaction();
+        realm.close();
+    }
+
+    public static RealmEvaluationResource getEvaluationResourceByUUID(String uuid) {
+        Realm realm = Realm.getDefaultInstance();
+        RealmEvaluationResource realmEvaluationResource = realm.where(RealmEvaluationResource.class)
+                .equalTo("uuid", uuid).findFirst();
+        realm.close();
+        return realmEvaluationResource;
+    }
+
+    public static RealmUser getSelfRealmUser() {
+        LoginResponse loginResponse = getLoginResponse();
+        Realm realm = Realm.getDefaultInstance();
+        RealmUser realmUser = realm.where(RealmUser.class)
+                .equalTo("key", loginResponse.getUserKey()).findFirst();
+        realm.close();
+        return realmUser;
+
     }
 }

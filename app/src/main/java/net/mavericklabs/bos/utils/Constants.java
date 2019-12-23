@@ -25,7 +25,11 @@ public interface Constants {
     String ADMIN = "admin";
     String UNKNOWN = "unknown";
 
-    String text_normal ="normal";
+
+    String USER = "user";
+    String GROUP = "group";
+
+    String text_normal = "normal";
     String text_bold = "bold";
     String en_INLocale = "en_IN";
     String mr_INLocale = "mr_IN";
@@ -35,9 +39,14 @@ public interface Constants {
     String FILE = "file";
     String TRAINING_SESSION = "session";
 
+    String READ = "read";
+    String EVALUATION = "evaluation";
 
 
     String BUNDLE_KEY_TRAINING_SESSION = "trainingSession";
     String BUNDLE_KEY_GROUP_KEY = "groupKey";
+    String BUNDLE_KEY_RESOURCE_KEY = "resourceKey";
+    String BUNDLE_KEY_EVALUATION_RESOURCE_UUID = "evaluationResourceUUID";
+    String BUNDLE_KEY_ACTIVITY_MODE = "activityMode";
 
 }

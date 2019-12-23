@@ -34,6 +34,7 @@ import net.mavericklabs.bos.R;
 import net.mavericklabs.bos.object.Measurement;
 import net.mavericklabs.bos.realm.RealmHandler;
 import net.mavericklabs.bos.realm.RealmMeasurement;
+import net.mavericklabs.bos.utils.ActivityMode;
 import net.mavericklabs.bos.utils.AppLogger;
 
 import java.util.List;
@@ -43,7 +44,7 @@ public class MeasurementAdapter extends RecyclerView.Adapter<MeasurementAdapter.
     private List<Measurement> measurements;
     private final AppLogger appLogger = new AppLogger(getClass().toString());
 
-    public MeasurementAdapter(Context context, List<Measurement> measurements) {
+    public MeasurementAdapter(Context context, List<Measurement> measurements, ActivityMode activityMode) {
         this.context = context;
         this.measurements = measurements;
     }
@@ -97,11 +98,11 @@ public class MeasurementAdapter extends RecyclerView.Adapter<MeasurementAdapter.
             return label;
         }
 
-        public TextView getUom() {
+        TextView getUom() {
             return uom;
         }
 
-        public ImageView getImageView() {
+        ImageView getImageView() {
             return imageView;
         }
 
