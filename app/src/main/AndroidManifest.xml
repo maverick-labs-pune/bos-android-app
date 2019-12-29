@@ -64,10 +64,16 @@
             android:name=".activity.ApplyCoachActivity"
             android:screenOrientation="portrait" />
         <activity
+            android:name=".activity.SelectResourceActivity"
+            android:screenOrientation="portrait" />
+        <activity
             android:name=".activity.ApplyNGOActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name=".activity.LoginActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.AthleteActivity"
             android:screenOrientation="portrait" />
 
         <service

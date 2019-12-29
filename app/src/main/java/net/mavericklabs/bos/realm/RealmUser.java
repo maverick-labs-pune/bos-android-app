@@ -22,6 +22,9 @@ package net.mavericklabs.bos.realm;
 import net.mavericklabs.bos.model.LoginResponse;
 import net.mavericklabs.bos.model.User;
 
+import java.util.List;
+
+import io.realm.RealmList;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
@@ -36,11 +39,12 @@ public class RealmUser extends RealmObject {
     private String language;
     private String role;
     private Boolean isActive;
+    private RealmList<RealmResource> resources;
 
     public RealmUser() {
 
     }
-    public RealmUser(User user) {
+    public RealmUser(User user, RealmList<RealmResource> realmResources) {
         this.key = user.getKey();
         this.ngo = user.getNgo();
         this.isActive = user.getActive();
@@ -48,6 +52,7 @@ public class RealmUser extends RealmObject {
         this.middleName = user.getMiddleName();
         this.lastName = user.getLastName();
         this.role = user.getRole();
+        this.resources = realmResources;
         this.language = user.getLanguage();
     }
 
@@ -139,5 +144,13 @@ public class RealmUser extends RealmObject {
         }else{
             return firstName + ' ' + middleName + ' ' + lastName;
         }
+    }
+
+    public RealmList<RealmResource> getResources() {
+        return resources;
+    }
+
+    public void setResources(RealmList<RealmResource> resources) {
+        this.resources = resources;
     }
 }

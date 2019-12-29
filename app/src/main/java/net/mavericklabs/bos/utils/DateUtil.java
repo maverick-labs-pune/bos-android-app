@@ -56,6 +56,12 @@ public class DateUtil {
         return sdf.format(date);
     }
 
+    public static String dateToString(Date date) {
+        SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy hh:mm aa", Locale.UK);
+//        sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+        return sdf.format(date);
+    }
+
     public static String formatDate(String startDateString, String endDateString) {
         Date startDate = getDateTimeFromString(startDateString);
         Date endDate = getDateTimeFromString(endDateString);
@@ -82,7 +88,7 @@ public class DateUtil {
         }
     }
 
-    public static Date getCurrentTime(){
+    public static Date getCurrentTime() {
         return Calendar.getInstance().getTime();
     }
 }

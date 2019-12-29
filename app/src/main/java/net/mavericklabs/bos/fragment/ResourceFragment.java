@@ -35,8 +35,8 @@ import net.mavericklabs.bos.R;
 import net.mavericklabs.bos.adapter.ResourceAdapter;
 import net.mavericklabs.bos.realm.RealmHandler;
 import net.mavericklabs.bos.realm.RealmResource;
-import net.mavericklabs.bos.utils.Activity;
 import net.mavericklabs.bos.utils.AppLogger;
+import net.mavericklabs.bos.utils.EvaluationResourceType;
 import net.mavericklabs.bos.utils.Util;
 
 import java.util.List;
@@ -67,7 +67,7 @@ public class ResourceFragment extends Fragment {
         emptyView = view.findViewById(R.id.empty_view);
         List<RealmResource> realmResources = RealmHandler.getAllResources();
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        recyclerView.setAdapter(new ResourceAdapter(getActivity(),realmResources, Activity.Resource));
+        recyclerView.setAdapter(new ResourceAdapter(getActivity(),realmResources, EvaluationResourceType.RESOURCE));
         appLogger.logInformation(String.valueOf(realmResources.size()));
         Util.setEmptyMessageIfNeeded(realmResources,recyclerView,emptyView);
     }

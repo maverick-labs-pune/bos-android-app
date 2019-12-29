@@ -24,6 +24,7 @@ import android.os.Parcelable;
 
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class TrainingSession implements Parcelable {
@@ -33,12 +34,20 @@ public class TrainingSession implements Parcelable {
     private String type;
     private boolean isEvaluated;
     private List<File> files = new ArrayList<>();
+    private List<Measurement> measurements = new ArrayList<>();
+    private Date lastModificationTime;
+
+    public Date getLastModificationTime() {
+        return lastModificationTime;
+    }
+
+    public void setLastModificationTime(Date lastModificationTime) {
+        this.lastModificationTime = lastModificationTime;
+    }
 
     public void setMeasurements(List<Measurement> measurements) {
         this.measurements = measurements;
     }
-
-    private List<Measurement> measurements = new ArrayList<>();
 
     private TrainingSession(Parcel in) {
         uuid = in.readString();
@@ -48,6 +57,7 @@ public class TrainingSession implements Parcelable {
         isEvaluated = in.readInt() != 0;
         in.readTypedList(files,File.CREATOR);
         in.readTypedList(measurements,Measurement.CREATOR);
+        lastModificationTime = new Date(in.readLong());
     }
 
     public static final Creator<TrainingSession> CREATOR = new Creator<TrainingSession>() {
@@ -100,6 +110,7 @@ public class TrainingSession implements Parcelable {
         dest.writeInt(isEvaluated ? 1 : 0);
         dest.writeTypedList(files);
         dest.writeTypedList(measurements);
+        dest.writeLong(lastModificationTime !=null ? lastModificationTime.getTime() : 0);
     }
 
 

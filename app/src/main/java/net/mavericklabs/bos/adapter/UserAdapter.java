@@ -22,6 +22,7 @@ package net.mavericklabs.bos.adapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -53,20 +54,23 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
     @Override
     public void onBindViewHolder(@NonNull UserViewHolder holder, int position) {
         RealmUser realmUser = realmUsers.get(position);
-        holder.getFullName().setText(realmUser.getFullName());
+        holder.fullNameTextView.setText(realmUser.getFullName());
         UserRole userRole = Util.getRole(realmUser.getRole());
         switch (userRole){
             case ADMIN:
-                holder.getRole().setText("Admin");
+                holder.roleTextView.setText("Admin");
+                holder.imageView.setImageResource(R.drawable.ic_athlete_female);
                 break;
             case COACH:
-                holder.getRole().setText("Coach");
+                holder.roleTextView.setText("Coach");
+                holder.imageView.setImageResource(R.drawable.ic_coach);
                 break;
             case ATHLETE:
-                holder.getRole().setText("Athlete");
+                holder.roleTextView.setText("Athlete");
+                holder.imageView.setImageResource(R.drawable.ic_athlete_male);
                 break;
             case UNKNOWN:
-                holder.getRole().setText("Unknown role");
+                holder.roleTextView.setText("Unknown role");
                 break;
         }
     }
@@ -78,21 +82,16 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
 
     class UserViewHolder extends RecyclerView.ViewHolder {
 
-        private final TextView fullName,role;
+        private final TextView fullNameTextView, roleTextView;
+        private final ImageView imageView;
 
         UserViewHolder(@NonNull View itemView) {
             super(itemView);
-            fullName = itemView.findViewById(R.id.text_view_full_name);
-            role = itemView.findViewById(R.id.text_view_role);
+            fullNameTextView = itemView.findViewById(R.id.text_view_full_name);
+            roleTextView = itemView.findViewById(R.id.text_view_role);
+            imageView = itemView.findViewById(R.id.image_view);
         }
 
-        TextView getFullName() {
-            return fullName;
-        }
-
-        public TextView getRole() {
-            return role;
-        }
     }
 
 }

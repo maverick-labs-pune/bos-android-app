@@ -64,11 +64,16 @@ public class AthleteFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         recyclerView = view.findViewById(R.id.recycler_view);
         emptyView = view.findViewById(R.id.empty_view);
-        List<RealmUser> athletes = RealmHandler.getAllAthletes();
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        recyclerView.setAdapter(new AthleteAdapter(athletes));
-        appLogger.logInformation(String.valueOf(athletes.size()));
-        Util.setEmptyMessageIfNeeded(athletes,recyclerView,emptyView);
+
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        List<RealmUser> athletes = RealmHandler.getAllAthletes();
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        recyclerView.setAdapter(new AthleteAdapter(athletes,getContext()));
+        Util.setEmptyMessageIfNeeded(athletes,recyclerView,emptyView);
+        appLogger.logInformation(String.valueOf(athletes.size()));
+    }
 }

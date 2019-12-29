@@ -19,24 +19,34 @@
 
 package net.mavericklabs.bos.adapter;
 
+import android.content.Context;
+import android.content.Intent;
+import android.media.Image;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import net.mavericklabs.bos.R;
+import net.mavericklabs.bos.activity.AthleteActivity;
 import net.mavericklabs.bos.realm.RealmUser;
 
 import java.util.List;
 
+import static net.mavericklabs.bos.utils.Constants.BUNDLE_KEY_ATHLETE_KEY;
+
 public class AthleteAdapter extends RecyclerView.Adapter<AthleteAdapter.AthleteViewHolder> {
     private List<RealmUser> athletes;
+    private Context context;
 
-    public AthleteAdapter(List<RealmUser> athletes) {
+    public AthleteAdapter(List<RealmUser> athletes, Context context) {
         this.athletes = athletes;
+        this.context = context;
     }
 
     @NonNull
@@ -50,8 +60,18 @@ public class AthleteAdapter extends RecyclerView.Adapter<AthleteAdapter.AthleteV
 
     @Override
     public void onBindViewHolder(@NonNull AthleteViewHolder holder, int position) {
-        RealmUser realmUser = athletes.get(position);
-        holder.getFullName().setText(realmUser.getFullName());
+        final RealmUser realmUser = athletes.get(position);
+        holder.fullNameTextView.setText(realmUser.getFullName());
+        holder.imageView.setImageResource(R.drawable.ic_athlete_male);
+        holder.cardView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(context, AthleteActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                intent.putExtra(BUNDLE_KEY_ATHLETE_KEY, realmUser.getKey());
+                context.startActivity(intent);
+            }
+        });
     }
 
     @Override
@@ -61,16 +81,18 @@ public class AthleteAdapter extends RecyclerView.Adapter<AthleteAdapter.AthleteV
 
     class AthleteViewHolder extends RecyclerView.ViewHolder {
 
-        private final TextView fullName;
+        private final TextView fullNameTextView;
+        private final CardView cardView;
+        private final ImageView imageView;
 
         AthleteViewHolder(@NonNull View itemView) {
             super(itemView);
-            fullName = itemView.findViewById(R.id.text_view_full_name);
+            fullNameTextView = itemView.findViewById(R.id.text_view_full_name);
+            cardView = itemView.findViewById(R.id.card_view);
+            imageView = itemView.findViewById(R.id.image_view);
+
         }
 
-        TextView getFullName() {
-            return fullName;
-        }
     }
 
 }

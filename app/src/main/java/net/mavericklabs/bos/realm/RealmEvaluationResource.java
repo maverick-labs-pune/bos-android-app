@@ -19,14 +19,15 @@
 
 package net.mavericklabs.bos.realm;
 
-import net.mavericklabs.bos.model.Resource;
 import net.mavericklabs.bos.utils.Constants;
+import net.mavericklabs.bos.utils.DateUtil;
 import net.mavericklabs.bos.utils.Util;
 
 import java.util.Date;
 
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
+
 import java.util.UUID;
 
 public class RealmEvaluationResource extends RealmObject {
@@ -45,31 +46,35 @@ public class RealmEvaluationResource extends RealmObject {
 
     }
 
-    public RealmEvaluationResource(RealmResource realmResource,RealmUser user) {
+    public RealmEvaluationResource(RealmResource realmResource, RealmUser user) {
+        Date currentTime = DateUtil.getCurrentTime();
         this.uuid = UUID.randomUUID().toString();
-        this.data = Util.convertRealmResourceDataToRealmEvaluationResourceData(realmResource,uuid,true);
+        this.resource = realmResource;
+        this.data = Util.convertRealmResourceDataToRealmEvaluationResourceData(realmResource, uuid, true, currentTime);
         this.user = user;
         this.group = null;
-        this.creationTime = new Date(System.currentTimeMillis());
-        this.lastModificationTime = new Date(System.currentTimeMillis());
+        this.creationTime = currentTime;
+        this.lastModificationTime = currentTime;
         this.isEvaluated = false;
         this.type = Constants.USER;
 
     }
 
-    public RealmEvaluationResource(RealmResource realmResource,RealmGroup group) {
+    public RealmEvaluationResource(RealmResource realmResource, RealmGroup group) {
+        Date currentTime = DateUtil.getCurrentTime();
         this.uuid = UUID.randomUUID().toString();
         this.resource = realmResource;
         // Add uuid and is evaluated fields to the data.
-        this.data = Util.convertRealmResourceDataToRealmEvaluationResourceData(realmResource,uuid,true);
+        this.data = Util.convertRealmResourceDataToRealmEvaluationResourceData(realmResource, uuid, true, currentTime);
         this.user = null;
         this.group = group;
-        this.creationTime = new Date(System.currentTimeMillis());
-        this.lastModificationTime = new Date(System.currentTimeMillis());
+        this.creationTime = currentTime;
+        this.lastModificationTime = currentTime;
         this.isEvaluated = false;
         this.type = Constants.GROUP;
 
     }
+
     public String getUuid() {
         return uuid;
     }

@@ -35,16 +35,20 @@ import net.mavericklabs.bos.R;
 import net.mavericklabs.bos.object.Curriculum;
 import net.mavericklabs.bos.object.Day;
 import net.mavericklabs.bos.utils.ActivityMode;
+import net.mavericklabs.bos.utils.EvaluationResourceType;
 
 public class CurriculumDayAdapter extends RecyclerView.Adapter<CurriculumDayAdapter.DayViewHolder> {
     private Context context;
     private Curriculum curriculum;
     private ActivityMode activityMode;
+    private EvaluationResourceType evaluatingResourceType;
 
-    public CurriculumDayAdapter(Context context, Curriculum curriculum, ActivityMode activityMode) {
+    public CurriculumDayAdapter(Context context, Curriculum curriculum, ActivityMode activityMode,
+                                EvaluationResourceType evaluatingResourceType) {
         this.context = context;
         this.curriculum = curriculum;
         this.activityMode = activityMode;
+        this.evaluatingResourceType = evaluatingResourceType;
     }
 
     @NonNull
@@ -59,21 +63,22 @@ public class CurriculumDayAdapter extends RecyclerView.Adapter<CurriculumDayAdap
     @Override
     public void onBindViewHolder(@NonNull final DayViewHolder holder, int position) {
         final Day day = curriculum.getDays().get(position);
-        holder.getLabel().setText(day.getLabel());
-        final RecyclerView recyclerView = holder.getTrainingSessionsRecyclerView();
+        holder.labelTextView.setText(day.getLabel());
+        final RecyclerView recyclerView = holder.trainingSessionsRecyclerView;
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
-        recyclerView.setAdapter(new TrainingSessionAdapter(context, curriculum,day,activityMode));
-        holder.getExpandedImageView().setOnClickListener(new View.OnClickListener() {
+        recyclerView.setAdapter(new TrainingSessionAdapter(context, curriculum,day,activityMode,
+                evaluatingResourceType));
+        holder.expandedImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (recyclerView.getVisibility() == View.GONE) {
                     // it's collapsed - expand it
                     recyclerView.setVisibility(View.VISIBLE);
-                    holder.getExpandedImageView().setImageResource(R.drawable.baseline_expand_less_black_24);
+                    holder.expandedImageView.setImageResource(R.drawable.baseline_expand_less_black_24);
                 } else {
                     // it's expanded - collapse it
                     recyclerView.setVisibility(View.GONE);
-                    holder.getExpandedImageView().setImageResource(R.drawable.baseline_expand_more_black_24);
+                    holder.expandedImageView.setImageResource(R.drawable.baseline_expand_more_black_24);
                 }
 
 //                ObjectAnimator animation = ObjectAnimator.of(mItemDescription, "maxLines", mItemDescription.getMaxLines());
@@ -97,10 +102,6 @@ public class CurriculumDayAdapter extends RecyclerView.Adapter<CurriculumDayAdap
         }
     }
 
-    void collapseExpandTextView() {
-
-    }
-
     @Override
     public int getItemCount() {
         return curriculum.getDays().size();
@@ -108,44 +109,19 @@ public class CurriculumDayAdapter extends RecyclerView.Adapter<CurriculumDayAdap
 
     class DayViewHolder extends RecyclerView.ViewHolder {
 
-        private final TextView label;
+        private final TextView labelTextView;
         private final ImageView imageView, expandedImageView,evaluatedImageView;
         private final CardView cardView;
         private final RecyclerView trainingSessionsRecyclerView;
 
         DayViewHolder(@NonNull View itemView) {
             super(itemView);
-            label = itemView.findViewById(R.id.text_view_label);
+            labelTextView = itemView.findViewById(R.id.text_view_label);
             imageView = itemView.findViewById(R.id.image_view);
             evaluatedImageView = itemView.findViewById(R.id.image_view_evaluated);
             expandedImageView = itemView.findViewById(R.id.image_view_expand);
             cardView = itemView.findViewById(R.id.card_view);
             trainingSessionsRecyclerView = itemView.findViewById(R.id.recycler_view_training_sessions);
-        }
-
-        TextView getLabel() {
-            return label;
-        }
-
-
-        public ImageView getImageView() {
-            return imageView;
-        }
-
-        public CardView getCardView() {
-            return cardView;
-        }
-
-        public ImageView getExpandedImageView() {
-            return expandedImageView;
-        }
-
-        public RecyclerView getTrainingSessionsRecyclerView() {
-            return trainingSessionsRecyclerView;
-        }
-
-        public ImageView getEvaluatedImageView() {
-            return evaluatedImageView;
         }
     }
 

@@ -28,6 +28,7 @@ public interface Constants {
 
     String USER = "user";
     String GROUP = "group";
+    String RESOURCE = "resource";
 
     String text_normal = "normal";
     String text_bold = "bold";
@@ -48,5 +49,7 @@ public interface Constants {
     String BUNDLE_KEY_RESOURCE_KEY = "resourceKey";
     String BUNDLE_KEY_EVALUATION_RESOURCE_UUID = "evaluationResourceUUID";
     String BUNDLE_KEY_ACTIVITY_MODE = "activityMode";
+    String BUNDLE_KEY_EVALUATION_RESOURCE_TYPE = "evaluationResourceType";
+    String BUNDLE_KEY_ATHLETE_KEY = "athleteKey";
 
 }

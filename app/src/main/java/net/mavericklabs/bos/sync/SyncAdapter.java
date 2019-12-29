@@ -51,11 +51,13 @@ import net.mavericklabs.bos.realm.RealmHandler;
 import net.mavericklabs.bos.retrofit.ApiClient;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import io.realm.Realm;
+import io.realm.RealmList;
 import retrofit2.Response;
 
 import static android.content.Context.ACCOUNT_SERVICE;
@@ -160,14 +162,14 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 List<Measurement> measurements = response.body();
                 Realm realm = Realm.getDefaultInstance();
                 List<RealmMeasurement> realmMeasurements = RealmHandler.getAllMeasurements();
-                appLogger.logInformation("Realm measurements "  + realmMeasurements.size());
+                appLogger.logInformation("Realm measurements " + realmMeasurements.size());
 
 
-                if (measurements == null){
+                if (measurements == null) {
                     return;
                 }
                 realm.beginTransaction();
-                for (Measurement measurement : measurements){
+                for (Measurement measurement : measurements) {
                     RealmMeasurement realmMeasurement = new RealmMeasurement(measurement);
                     realm.copyToRealmOrUpdate(realmMeasurement);
                 }
@@ -191,15 +193,15 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 List<Resource> resources = response.body();
                 Realm realm = Realm.getDefaultInstance();
                 List<RealmResource> realmResources = RealmHandler.getAllResources();
-                appLogger.logInformation("Realm resources "  + realmResources.size());
+                appLogger.logInformation("Realm resources " + realmResources.size());
 
 
-                if (resources == null){
+                if (resources == null) {
                     return;
                 }
                 realm.beginTransaction();
 
-                for (Resource resource : resources){
+                for (Resource resource : resources) {
                     RealmResource realmResource = new RealmResource(resource);
                     realm.copyToRealmOrUpdate(realmResource);
                 }
@@ -223,19 +225,28 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 List<Group> groups = response.body();
                 Realm realm = Realm.getDefaultInstance();
                 List<RealmGroup> realmGroups = RealmHandler.getAllGroups();
-                appLogger.logInformation("Realm groups "  + realmGroups.size());
+                appLogger.logInformation("Realm groups " + realmGroups.size());
 
-                if (groups == null){
+                if (groups == null) {
                     return;
                 }
-                realm.beginTransaction();
 
-                for (Group group : groups){
+                for (Group group : groups) {
                     appLogger.logInformation(String.valueOf(group.getResources().size()));
-                    RealmGroup realmGroup = new RealmGroup(group);
+
+                    // Get Realm users
+                    RealmList<RealmUser> realmUsers = new RealmList<>();
+                    for (User user : group.getUsers()){
+                        RealmUser realmUser = RealmHandler.findUserOrCreate(user);
+                        realmUsers.add(realmUser);
+                    }
+                    realm.beginTransaction();
+
+                    RealmGroup realmGroup = new RealmGroup(group,realmUsers);
                     realm.copyToRealmOrUpdate(realmGroup);
+                    realm.commitTransaction();
+
                 }
-                realm.commitTransaction();
                 realm.close();
                 ContentResolver contentResolver = getContext().getContentResolver();
                 Uri uri = Uri.withAppendedPath(BosApplication.BASE_URI, BosApplication.TRANSLATIONS);
@@ -255,23 +266,49 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 List<User> athletes = response.body();
                 Realm realm = Realm.getDefaultInstance();
                 List<RealmUser> realmAthletes = RealmHandler.getAllAthletes();
-                appLogger.logInformation("Realm athletes "  + realmAthletes.size());
+                appLogger.logInformation("Realm athletes " + realmAthletes.size());
 
-                if (athletes == null){
+                if (athletes == null) {
                     return;
                 }
-                realm.beginTransaction();
 
-                for (User athlete : athletes){
-                    RealmUser realmUser = new RealmUser(athlete);
-                    realm.copyToRealmOrUpdate(realmUser);
+                for (User athlete : athletes) {
+                    fetchUserResources(athlete);
                 }
-                realm.commitTransaction();
-                realm.close();
                 ContentResolver contentResolver = getContext().getContentResolver();
                 Uri uri = Uri.withAppendedPath(BosApplication.BASE_URI, BosApplication.TRANSLATIONS);
                 contentResolver.notifyChange(uri, null);
                 appLogger.logDebug("notifyChange TRANSLATIONS");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void fetchUserResources(User athlete) {
+
+        try {
+            Response<List<Resource>> response = ApiClient.getApiInterface(getContext()).getUserResources(athlete.getKey()).execute();
+            if (response.isSuccessful()) {
+                List<Resource> resources = response.body();
+                Realm realm = Realm.getDefaultInstance();
+
+                if (resources == null) {
+                    return;
+                }
+                realm.beginTransaction();
+
+                RealmList<RealmResource> realmResources = new RealmList<>();
+                for (Resource resource : resources) {
+                    RealmResource realmResource = new RealmResource(resource);
+                    realm.copyToRealmOrUpdate(realmResource);
+                    realmResources.add(realmResource);
+                }
+                RealmUser realmUser = new RealmUser(athlete, realmResources);
+                realm.copyToRealmOrUpdate(realmUser);
+
+                realm.commitTransaction();
+                realm.close();
             }
         } catch (IOException e) {
             e.printStackTrace();

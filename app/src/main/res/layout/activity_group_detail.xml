@@ -48,7 +48,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
-                    android:src="@drawable/baseline_group_black_48" />
+                    android:src="@drawable/ic_group" />
 
                 <TextView
                     android:id="@+id/text_view_label"
@@ -59,8 +59,7 @@
                     android:layout_toEndOf="@id/image_view"
                     android:text="Group Name"
                     android:textColor="@color/black"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
+                    />
 
             </RelativeLayout>
         </androidx.cardview.widget.CardView>
@@ -84,8 +83,7 @@
                     android:layout_marginStart="@dimen/activity_horizontal_margin"
                     android:text="Users in the group"
                     android:textColor="@color/black"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
+                     />
 
                 <ImageView
                     android:id="@+id/image_view_users_expand"
@@ -124,7 +122,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/relative_layout_users_data"
             android:layout_marginTop="@dimen/nav_header_vertical_spacing"
-            android:layout_marginBottom="@dimen/nav_header_vertical_spacing">
+            >
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -138,8 +136,7 @@
                     android:layout_marginStart="@dimen/activity_horizontal_margin"
                     android:text="Resources in the group"
                     android:textColor="@color/black"
-                    android:textSize="18sp"
-                    android:textStyle="bold" />
+                    />
 
                 <ImageView
                     android:id="@+id/image_view_resources_expand"

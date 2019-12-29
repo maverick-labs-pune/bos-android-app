@@ -65,10 +65,16 @@ public class GroupFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         recyclerView = view.findViewById(R.id.recycler_view);
         emptyView = view.findViewById(R.id.empty_view);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
         List<RealmGroup> realmGroups = RealmHandler.getAllGroups();
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        recyclerView.setAdapter(new GroupAdapter(getContext(),realmGroups));
+        recyclerView.setAdapter(new GroupAdapter(getContext(), realmGroups));
         appLogger.logInformation(String.valueOf(realmGroups.size()));
-        Util.setEmptyMessageIfNeeded(realmGroups,recyclerView,emptyView);
+        Util.setEmptyMessageIfNeeded(realmGroups, recyclerView, emptyView);
+
     }
 }

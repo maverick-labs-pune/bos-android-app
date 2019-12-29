@@ -19,11 +19,7 @@
 
 package net.mavericklabs.bos.realm;
 
-import com.google.gson.annotations.SerializedName;
-
 import net.mavericklabs.bos.model.Group;
-import net.mavericklabs.bos.model.Measurement;
-import net.mavericklabs.bos.model.MeasurementType;
 import net.mavericklabs.bos.model.Resource;
 import net.mavericklabs.bos.model.User;
 
@@ -48,14 +44,12 @@ public class RealmGroup extends RealmObject {
     public RealmGroup() {
 
     }
-    public RealmGroup(Group group) {
+
+    public RealmGroup(Group group, RealmList<RealmUser> realmUsers) {
         this.key = group.getKey();
         this.ngo = group.getNgo();
         this.label = group.getLabel();
-        users = new RealmList<>();
-        for (User user : group.getUsers()){
-            users.add(new RealmUser(user));
-        }
+        users = realmUsers;
         resources = new RealmList<>();
         for (Resource resource : group.getResources()){
             resources.add(new RealmResource(resource));

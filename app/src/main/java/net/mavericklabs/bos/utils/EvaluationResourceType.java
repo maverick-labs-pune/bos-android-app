@@ -22,6 +22,7 @@ package net.mavericklabs.bos.utils;
 public enum EvaluationResourceType {
     USER(Constants.USER),
     GROUP(Constants.GROUP),
+    RESOURCE(Constants.RESOURCE),
     UNKNOWN(Constants.UNKNOWN);
     public final String label;
     EvaluationResourceType(String label) {

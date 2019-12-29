@@ -38,15 +38,15 @@ import net.mavericklabs.bos.realm.RealmEvaluationResource;
 import net.mavericklabs.bos.realm.RealmGroup;
 import net.mavericklabs.bos.realm.RealmHandler;
 import net.mavericklabs.bos.realm.RealmResource;
-import net.mavericklabs.bos.utils.Activity;
+import net.mavericklabs.bos.realm.RealmUser;
 import net.mavericklabs.bos.utils.AlertCallback;
 import net.mavericklabs.bos.utils.AlertUtil;
+import net.mavericklabs.bos.utils.EvaluationResourceType;
 
 import java.util.List;
 
-import io.realm.Realm;
-
 import static net.mavericklabs.bos.utils.Constants.BUNDLE_KEY_ACTIVITY_MODE;
+import static net.mavericklabs.bos.utils.Constants.BUNDLE_KEY_EVALUATION_RESOURCE_TYPE;
 import static net.mavericklabs.bos.utils.Constants.BUNDLE_KEY_RESOURCE_KEY;
 import static net.mavericklabs.bos.utils.Constants.CURRICULUM;
 import static net.mavericklabs.bos.utils.Constants.FILE;
@@ -56,24 +56,34 @@ import static net.mavericklabs.bos.utils.Constants.TRAINING_SESSION;
 public class ResourceAdapter extends RecyclerView.Adapter<ResourceAdapter.ResourceViewHolder> {
     private Context context;
     private List<RealmResource> resources;
-    private Activity activityType;
+    private EvaluationResourceType evaluationResourceType;
+    private RealmUser realmUser;
     private android.app.Activity activity;
     private RealmGroup group;
 
     public ResourceAdapter(android.app.Activity activity, List<RealmResource> resources,
-                           Activity activityType) {
+                           EvaluationResourceType evaluationResourceType, RealmUser realmUser) {
         this.context = activity.getApplicationContext();
         this.resources = resources;
         this.activity = activity;
-        this.activityType = activityType;
+        this.evaluationResourceType = evaluationResourceType;
+        this.realmUser = realmUser;
     }
 
     public ResourceAdapter(android.app.Activity activity, List<RealmResource> resources,
-                           Activity activityType, RealmGroup group) {
+                           EvaluationResourceType evaluationResourceType) {
         this.context = activity.getApplicationContext();
         this.resources = resources;
         this.activity = activity;
-        this.activityType = activityType;
+        this.evaluationResourceType = evaluationResourceType;
+    }
+
+    public ResourceAdapter(android.app.Activity activity, List<RealmResource> resources,
+                           EvaluationResourceType evaluationResourceType, RealmGroup group) {
+        this.context = activity.getApplicationContext();
+        this.resources = resources;
+        this.activity = activity;
+        this.evaluationResourceType = evaluationResourceType;
         this.group = group;
     }
 
@@ -82,9 +92,10 @@ public class ResourceAdapter extends RecyclerView.Adapter<ResourceAdapter.Resour
     public ResourceViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         // create a new view
         View itemView;
-        switch (activityType) {
-            case Group:
-            case Resource:
+        switch (evaluationResourceType) {
+            case GROUP:
+            case RESOURCE:
+            case USER:
                 itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.view_holder_resource, parent, false);
                 return new ResourceViewHolder(itemView);
         }
@@ -94,22 +105,22 @@ public class ResourceAdapter extends RecyclerView.Adapter<ResourceAdapter.Resour
     @Override
     public void onBindViewHolder(@NonNull ResourceViewHolder holder, int position) {
         final RealmResource realmResource = resources.get(position);
-        holder.getLabel().setText(realmResource.getLabel());
+        holder.labelTextView.setText(realmResource.getLabel());
         switch (realmResource.getType()) {
             case CURRICULUM:
-                holder.getImageView().setImageResource(R.drawable.baseline_calendar_today_black_48);
-                holder.getResourceType().setText("Curriculum");
+                holder.imageView.setImageResource(R.drawable.baseline_calendar_today_black_48);
+                holder.resourceTypeTextView.setText("Curriculum");
                 setOnClickListener(holder, realmResource);
                 break;
 
             case FILE:
-                holder.getImageView().setImageResource(R.drawable.baseline_attachment_black_48);
-                holder.getResourceType().setText("File");
+                holder.imageView.setImageResource(R.drawable.baseline_attachment_black_48);
+                holder.resourceTypeTextView.setText("File");
                 break;
 
             case TRAINING_SESSION:
-                holder.getImageView().setImageResource(R.drawable.baseline_calendar_today_black_48);
-                holder.getResourceType().setText("Training session");
+                holder.imageView.setImageResource(R.drawable.baseline_calendar_today_black_48);
+                holder.resourceTypeTextView.setText("Training session");
                 setOnClickListener(holder, realmResource);
                 break;
 
@@ -120,31 +131,33 @@ public class ResourceAdapter extends RecyclerView.Adapter<ResourceAdapter.Resour
     }
 
     private void setOnClickListener(ResourceViewHolder holder, final RealmResource realmResource) {
-        switch (activityType) {
-            case Resource:
-                holder.getViewResourceButton().setOnClickListener(new View.OnClickListener() {
+        switch (evaluationResourceType) {
+            case RESOURCE:
+                holder.viewResourceImageView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         Intent intent = new Intent(context, CurriculumActivity.class);
-                        intent.putExtra(BUNDLE_KEY_ACTIVITY_MODE,READ);
+                        intent.putExtra(BUNDLE_KEY_ACTIVITY_MODE, READ);
+                        intent.putExtra(BUNDLE_KEY_EVALUATION_RESOURCE_TYPE, evaluationResourceType.label);
                         intent.putExtra(BUNDLE_KEY_RESOURCE_KEY, realmResource.getKey());
                         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         context.startActivity(intent);
                     }
                 });
                 break;
-            case Group:
-                holder.getViewResourceButton().setOnClickListener(new View.OnClickListener() {
+            case GROUP:
+                holder.viewResourceImageView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         Intent intent = new Intent(context, CurriculumActivity.class);
-                        intent.putExtra(BUNDLE_KEY_ACTIVITY_MODE,READ);
+                        intent.putExtra(BUNDLE_KEY_ACTIVITY_MODE, READ);
+                        intent.putExtra(BUNDLE_KEY_EVALUATION_RESOURCE_TYPE, evaluationResourceType.label);
                         intent.putExtra(BUNDLE_KEY_RESOURCE_KEY, realmResource.getKey());
                         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         context.startActivity(intent);
                     }
                 });
-                holder.getAssignResourceButton().setOnClickListener(new View.OnClickListener() {
+                holder.assignResourceImageView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         AlertUtil.showAlert(activity, "Are you sure", new AlertCallback() {
@@ -152,6 +165,37 @@ public class ResourceAdapter extends RecyclerView.Adapter<ResourceAdapter.Resour
                             public void positiveButton() {
                                 RealmEvaluationResource realmEvaluationResource =
                                         new RealmEvaluationResource(realmResource, group);
+                                RealmHandler.copyToRealm(realmEvaluationResource);
+                            }
+
+                            @Override
+                            public void negativeButton() {
+
+                            }
+                        });
+                    }
+                });
+                break;
+            case USER:
+                holder.viewResourceImageView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent = new Intent(context, CurriculumActivity.class);
+                        intent.putExtra(BUNDLE_KEY_ACTIVITY_MODE, READ);
+                        intent.putExtra(BUNDLE_KEY_EVALUATION_RESOURCE_TYPE, evaluationResourceType.label);
+                        intent.putExtra(BUNDLE_KEY_RESOURCE_KEY, realmResource.getKey());
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        context.startActivity(intent);
+                    }
+                });
+                holder.assignResourceImageView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        AlertUtil.showAlert(activity, "Are you sure", new AlertCallback() {
+                            @Override
+                            public void positiveButton() {
+                                RealmEvaluationResource realmEvaluationResource =
+                                        new RealmEvaluationResource(realmResource, realmUser);
                                 RealmHandler.copyToRealm(realmEvaluationResource);
                             }
 
@@ -173,44 +217,20 @@ public class ResourceAdapter extends RecyclerView.Adapter<ResourceAdapter.Resour
 
     class ResourceViewHolder extends RecyclerView.ViewHolder {
 
-        private final TextView label;
-        private final TextView resourceType;
+        private final TextView labelTextView;
+        private final TextView resourceTypeTextView;
         private final ImageView imageView;
         private final CardView cardView;
-        private final Button viewResourceButton, assignResourceButton;
+        private final ImageView viewResourceImageView, assignResourceImageView;
 
         ResourceViewHolder(@NonNull View itemView) {
             super(itemView);
-            label = itemView.findViewById(R.id.text_view_label);
-            resourceType = itemView.findViewById(R.id.text_view_type);
+            labelTextView = itemView.findViewById(R.id.text_view_label);
+            resourceTypeTextView = itemView.findViewById(R.id.text_view_type);
             imageView = itemView.findViewById(R.id.image_view);
             cardView = itemView.findViewById(R.id.card_view);
-            assignResourceButton = itemView.findViewById(R.id.button_assign_resource);
-            viewResourceButton = itemView.findViewById(R.id.button_view_resource);
-        }
-
-        TextView getLabel() {
-            return label;
-        }
-
-        TextView getResourceType() {
-            return resourceType;
-        }
-
-        ImageView getImageView() {
-            return imageView;
-        }
-
-        CardView getCardView() {
-            return cardView;
-        }
-
-        public Button getAssignResourceButton() {
-            return assignResourceButton;
-        }
-
-        public Button getViewResourceButton() {
-            return viewResourceButton;
+            assignResourceImageView = itemView.findViewById(R.id.image_view_assign_resource);
+            viewResourceImageView = itemView.findViewById(R.id.image_view_view_resource);
         }
     }
 

@@ -28,7 +28,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import net.mavericklabs.bos.R;
@@ -37,9 +36,11 @@ import net.mavericklabs.bos.object.Curriculum;
 import net.mavericklabs.bos.object.Day;
 import net.mavericklabs.bos.object.TrainingSession;
 import net.mavericklabs.bos.utils.ActivityMode;
+import net.mavericklabs.bos.utils.EvaluationResourceType;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static net.mavericklabs.bos.utils.Constants.BUNDLE_KEY_ACTIVITY_MODE;
+import static net.mavericklabs.bos.utils.Constants.BUNDLE_KEY_EVALUATION_RESOURCE_TYPE;
 import static net.mavericklabs.bos.utils.Constants.BUNDLE_KEY_EVALUATION_RESOURCE_UUID;
 import static net.mavericklabs.bos.utils.Constants.BUNDLE_KEY_TRAINING_SESSION;
 
@@ -48,12 +49,16 @@ public class TrainingSessionAdapter extends RecyclerView.Adapter<TrainingSession
     private Curriculum curriculum;
     private Day day;
     private ActivityMode activityMode;
+    private EvaluationResourceType evaluatingResourceType;
 
-    public TrainingSessionAdapter(Context context, Curriculum curriculum, Day day, ActivityMode activityMode) {
+    TrainingSessionAdapter(Context context, Curriculum curriculum, Day day,
+                           ActivityMode activityMode,
+                           EvaluationResourceType evaluatingResourceType) {
         this.context = context;
         this.curriculum = curriculum;
         this.day = day;
         this.activityMode = activityMode;
+        this.evaluatingResourceType = evaluatingResourceType;
     }
 
     @NonNull
@@ -68,7 +73,7 @@ public class TrainingSessionAdapter extends RecyclerView.Adapter<TrainingSession
     @Override
     public void onBindViewHolder(@NonNull TrainingSessionViewHolder holder, int position) {
         final TrainingSession trainingSession = this.day.getSessions().get(position);
-        holder.label.setText(trainingSession.getLabel());
+        holder.labelTextView.setText(trainingSession.getLabel());
         switch (activityMode) {
             case EVALUATION:
                 holder.evaluatedImageView.setVisibility(View.VISIBLE);
@@ -83,8 +88,8 @@ public class TrainingSessionAdapter extends RecyclerView.Adapter<TrainingSession
                         Intent intent = new Intent(context, TrainingSessionActivity.class);
                         intent.putExtra(BUNDLE_KEY_TRAINING_SESSION, trainingSession);
                         intent.putExtra(BUNDLE_KEY_ACTIVITY_MODE, activityMode.label);
+                        intent.putExtra(BUNDLE_KEY_EVALUATION_RESOURCE_TYPE, evaluatingResourceType.label);
                         intent.putExtra(BUNDLE_KEY_EVALUATION_RESOURCE_UUID, curriculum.getUuid());
-
                         intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
                         context.startActivity(intent);
                     }
@@ -98,6 +103,7 @@ public class TrainingSessionAdapter extends RecyclerView.Adapter<TrainingSession
                         Intent intent = new Intent(context, TrainingSessionActivity.class);
                         intent.putExtra(BUNDLE_KEY_TRAINING_SESSION, trainingSession);
                         intent.putExtra(BUNDLE_KEY_ACTIVITY_MODE, activityMode.label);
+                        intent.putExtra(BUNDLE_KEY_EVALUATION_RESOURCE_TYPE, evaluatingResourceType.label);
                         intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
                         context.startActivity(intent);
                     }
@@ -115,13 +121,13 @@ public class TrainingSessionAdapter extends RecyclerView.Adapter<TrainingSession
 
     class TrainingSessionViewHolder extends RecyclerView.ViewHolder {
 
-        private final TextView label;
+        private final TextView labelTextView;
         private final ImageView imageView, expandedImageView, evaluatedImageView;
         private final ImageView imageViewOpen;
 
         TrainingSessionViewHolder(@NonNull View itemView) {
             super(itemView);
-            label = itemView.findViewById(R.id.text_view_label);
+            labelTextView = itemView.findViewById(R.id.text_view_label);
             imageView = itemView.findViewById(R.id.image_view);
             imageViewOpen = itemView.findViewById(R.id.image_view_open);
             expandedImageView = itemView.findViewById(R.id.image_view_expand);

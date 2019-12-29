@@ -44,6 +44,7 @@ import net.mavericklabs.bos.realm.RealmReading;
 import net.mavericklabs.bos.realm.RealmUser;
 import net.mavericklabs.bos.utils.ActivityMode;
 import net.mavericklabs.bos.utils.AppLogger;
+import net.mavericklabs.bos.utils.EvaluationResourceType;
 import net.mavericklabs.bos.utils.ToastUtils;
 import net.mavericklabs.bos.utils.Util;
 
@@ -52,6 +53,7 @@ import java.util.List;
 import io.realm.Realm;
 
 import static net.mavericklabs.bos.utils.Constants.BUNDLE_KEY_ACTIVITY_MODE;
+import static net.mavericklabs.bos.utils.Constants.BUNDLE_KEY_EVALUATION_RESOURCE_TYPE;
 import static net.mavericklabs.bos.utils.Constants.BUNDLE_KEY_EVALUATION_RESOURCE_UUID;
 import static net.mavericklabs.bos.utils.Constants.BUNDLE_KEY_TRAINING_SESSION;
 
@@ -61,6 +63,7 @@ public class TrainingSessionActivity extends AppCompatActivity {
     private TextView emptyView;
     private ActivityMode activityMode;
     private RecyclerView usersRecyclerView;
+    private EvaluationResourceType evaluationResourceType;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,6 +78,7 @@ public class TrainingSessionActivity extends AppCompatActivity {
 
         final TrainingSession trainingSession = getIntent().getParcelableExtra(BUNDLE_KEY_TRAINING_SESSION);
         activityMode = Util.getActivityMode(getIntent().getStringExtra(BUNDLE_KEY_ACTIVITY_MODE));
+        evaluationResourceType = Util.getEvaluationResourceType(getIntent().getStringExtra(BUNDLE_KEY_EVALUATION_RESOURCE_TYPE));
         TextView label = findViewById(R.id.text_view_label);
         TextView description = findViewById(R.id.text_view_description);
         Button evaluateTrainingSessionButton = findViewById(R.id.button_evaluate_training_session);
@@ -97,64 +101,119 @@ public class TrainingSessionActivity extends AppCompatActivity {
                 measurementsRecyclerView.setAdapter(measurementReadingAdapter);
 
                 usersRecyclerView.setVisibility(View.VISIBLE);
-                List<RealmUser> athletes = Util.getAthletes(realmEvaluationResource.getGroup().getUsers());
-                final SelectAthleteAdapter selectAthleteAdapter = new SelectAthleteAdapter(athletes);
-                usersRecyclerView.setAdapter(selectAthleteAdapter);
-                usersRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-                evaluateTrainingSessionButton.setVisibility(View.VISIBLE);
-                evaluateTrainingSessionButton.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if (!measurementReadingAdapter.verifyReadings()) {
-                            ToastUtils.showToast(getApplicationContext(), "Incorrect", Toast.LENGTH_SHORT);
-                            return;
-                        }
+
+                // Check if evaluationResourceType
+                switch (evaluationResourceType) {
+                    case GROUP: {
+                        List<RealmUser> athletes = Util.getAthletes(realmEvaluationResource.getGroup().getUsers());
+                        final SelectAthleteAdapter selectAthleteAdapter = new SelectAthleteAdapter(athletes);
+                        usersRecyclerView.setAdapter(selectAthleteAdapter);
+                        usersRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+                        evaluateTrainingSessionButton.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                if (!measurementReadingAdapter.verifyReadings()) {
+                                    ToastUtils.showToast(getApplicationContext(), "Incorrect", Toast.LENGTH_SHORT);
+                                    return;
+                                }
 //                        ToastUtils.showToast(getApplicationContext(), "Correct", Toast.LENGTH_SHORT);
 
-                        if (realmEvaluationResource.getGroup() != null) {
-                            appLogger.logInformation("This is for a group.");
-                            List<RealmUser> selectedAthletes = selectAthleteAdapter.getSelectedAthletes();
-                            if (selectedAthletes.size() == 0) {
-                                ToastUtils.showToast(getApplicationContext(), "Did not select any athlete", Toast.LENGTH_SHORT);
-                                return;
-                            }
+                                if (realmEvaluationResource.getGroup() != null) {
+                                    appLogger.logInformation("This is for a group.");
+                                    List<RealmUser> selectedAthletes = selectAthleteAdapter.getSelectedAthletes();
+                                    if (selectedAthletes.size() == 0) {
+                                        ToastUtils.showToast(getApplicationContext(), "Did not select any athlete", Toast.LENGTH_SHORT);
+                                        return;
+                                    }
 //                                Save data and mark as evaluated
-                            RealmUser selfRealmUser = RealmHandler.getSelfRealmUser();
-                            if (selfRealmUser == null) {
-                                appLogger.logError("Self user is null");
-                                return;
-                            }
-                            List<Measurement> measurementsWithReadings = measurementReadingAdapter.getMeasurementsWithReadings();
-                            Realm realm = Realm.getDefaultInstance();
+                                    RealmUser selfRealmUser = RealmHandler.getSelfRealmUser();
+                                    if (selfRealmUser == null) {
+                                        appLogger.logError("Self user is null");
+                                        return;
+                                    }
+                                    List<Measurement> measurementsWithReadings = measurementReadingAdapter.getMeasurementsWithReadings();
+                                    Realm realm = Realm.getDefaultInstance();
 
-                            for (Measurement measurementWithReading : measurementsWithReadings) {
-                                RealmMeasurement realmMeasurement = RealmHandler.getMeasurementFromKey(measurementWithReading.getKey());
-                                for (RealmUser athlete : selectedAthletes) {
+                                    for (Measurement measurementWithReading : measurementsWithReadings) {
+                                        RealmMeasurement realmMeasurement = RealmHandler.getMeasurementFromKey(measurementWithReading.getKey());
+                                        for (RealmUser athlete : selectedAthletes) {
 
-                                    // Add reading
-                                    RealmReading realmReading = new RealmReading(realmMeasurement,
-                                            athlete, selfRealmUser, realmEvaluationResource,measurementWithReading);
+                                            // Add reading
+                                            RealmReading realmReading = new RealmReading(realmMeasurement,
+                                                    athlete, selfRealmUser, realmEvaluationResource, measurementWithReading);
+                                            realm.beginTransaction();
+                                            realm.copyToRealm(realmReading);
+                                            realm.commitTransaction();
+                                        }
+
+                                    }
+                                    String data = Util.updateCurriculum(curriculum, trainingSession.getUuid(),
+                                            measurementReadingAdapter.getMeasurementsWithReadings());
                                     realm.beginTransaction();
-                                    realm.copyToRealm(realmReading);
+                                    realmEvaluationResource.setData(data);
+                                    realm.copyToRealmOrUpdate(realmEvaluationResource);
                                     realm.commitTransaction();
+                                    realm.close();
+                                    finish();
+
                                 }
 
                             }
-                            String data = Util.updateCurriculum(curriculum,trainingSession.getUuid(),
-                                    measurementReadingAdapter.getMeasurementsWithReadings());
-                            realm.beginTransaction();
-                            realmEvaluationResource.setData(data);
-                            realm.copyToRealmOrUpdate(realmEvaluationResource);
-                            realm.commitTransaction();
-                            realm.close();
-                            finish();
-
-                        } else if (realmEvaluationResource.getUser() != null) {
-
-                        }
-
+                        });
                     }
-                });
+                    break;
+                    case USER:
+
+                        final RealmUser athlete = realmEvaluationResource.getUser();
+                        usersRecyclerView.setVisibility(View.GONE);
+                        evaluateTrainingSessionButton.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                if (!measurementReadingAdapter.verifyReadings()) {
+                                    ToastUtils.showToast(getApplicationContext(), "Incorrect", Toast.LENGTH_SHORT);
+                                    return;
+                                }
+
+                                if (athlete != null) {
+                                    appLogger.logInformation("This is for an athlete.");
+//                                Save data and mark as evaluated
+                                    RealmUser selfRealmUser = RealmHandler.getSelfRealmUser();
+                                    if (selfRealmUser == null) {
+                                        appLogger.logError("Self user is null");
+                                        return;
+                                    }
+                                    List<Measurement> measurementsWithReadings = measurementReadingAdapter.getMeasurementsWithReadings();
+                                    Realm realm = Realm.getDefaultInstance();
+
+                                    for (Measurement measurementWithReading : measurementsWithReadings) {
+                                        RealmMeasurement realmMeasurement = RealmHandler.getMeasurementFromKey(measurementWithReading.getKey());
+
+                                        // Add reading
+                                        RealmReading realmReading = new RealmReading(realmMeasurement,
+                                                athlete, selfRealmUser, realmEvaluationResource, measurementWithReading);
+                                        realm.beginTransaction();
+                                        realm.copyToRealm(realmReading);
+                                        realm.commitTransaction();
+
+                                    }
+                                    String data = Util.updateCurriculum(curriculum, trainingSession.getUuid(),
+                                            measurementReadingAdapter.getMeasurementsWithReadings());
+                                    realm.beginTransaction();
+                                    realmEvaluationResource.setData(data);
+                                    realm.copyToRealmOrUpdate(realmEvaluationResource);
+                                    realm.commitTransaction();
+                                    realm.close();
+                                    finish();
+
+                                }
+                            }
+                        });
+
+                        break;
+
+                }
+
+                evaluateTrainingSessionButton.setVisibility(View.VISIBLE);
 
                 break;
         }

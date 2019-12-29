@@ -35,6 +35,7 @@ import net.mavericklabs.bos.realm.RealmResource;
 import net.mavericklabs.bos.realm.RealmUser;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -117,25 +118,32 @@ public class Util {
         return ActivityMode.UNKNOWN;
     }
 
-    public static String getRandomUUID(){
+    public static String getRandomUUID() {
         return UUID.randomUUID().toString();
     }
 
-    public static String convertRealmResourceDataToRealmEvaluationResourceData(RealmResource realmResource, String uuid, boolean isInit) {
+    public static String convertRealmResourceDataToRealmEvaluationResourceData(RealmResource realmResource,
+                                                                               String uuid,
+                                                                               boolean isInit,
+                                                                               Date currentTime) {
 
         switch (realmResource.getType().toLowerCase()) {
             case CURRICULUM:
                 Curriculum curriculum = convertRealmResourceToCurriculum(realmResource);
-                if (isInit){
+                curriculum.setLastModificationTime(currentTime);
+                if (isInit) {
                     curriculum.setUuid(uuid);
                     curriculum.setEvaluated(false);
-                    for (Day day : curriculum.getDays()){
+                    for (Day day : curriculum.getDays()) {
                         day.setUuid(getRandomUUID());
                         day.setEvaluated(false);
-                        for (TrainingSession trainingSession : day.getSessions()){
+                        day.setLastModificationTime(currentTime);
+
+                        for (TrainingSession trainingSession : day.getSessions()) {
                             trainingSession.setUuid(getRandomUUID());
                             trainingSession.setEvaluated(false);
-                            for (Measurement measurement : trainingSession.getMeasurements()){
+                            trainingSession.setLastModificationTime(currentTime);
+                            for (Measurement measurement : trainingSession.getMeasurements()) {
                                 measurement.setReading("");
                             }
                         }
@@ -150,8 +158,8 @@ public class Util {
 
     public static List<RealmUser> getAthletes(List<RealmUser> users) {
         List<RealmUser> athletes = new ArrayList<>();
-        for (RealmUser user : users){
-            if (Util.getRole(user.getRole()) == UserRole.ATHLETE){
+        for (RealmUser user : users) {
+            if (Util.getRole(user.getRole()) == UserRole.ATHLETE) {
                 athletes.add(user);
             }
         }
@@ -162,34 +170,50 @@ public class Util {
                                           List<Measurement> measurementsWithReadings) {
         // Find the day and training session in the curriculum
         Day dayToBeCheckedIfEvaluated = null;
+        Date modifiedTime = DateUtil.getCurrentTime();
         List<Day> days = curriculum.getDays();
-        for (Day day : days){
-            for (TrainingSession trainingSession : day.getSessions()){
-                if (trainingSession.getUuid().equals(uuid)){
+        for (Day day : days) {
+            for (TrainingSession trainingSession : day.getSessions()) {
+                if (trainingSession.getUuid().equals(uuid)) {
                     // Found the day and training session
                     trainingSession.setMeasurements(measurementsWithReadings);
                     trainingSession.setEvaluated(true);
+                    trainingSession.setLastModificationTime(modifiedTime);
                     dayToBeCheckedIfEvaluated = day;
                     break;
                 }
             }
         }
-        if (dayToBeCheckedIfEvaluated != null){
+        if (dayToBeCheckedIfEvaluated != null) {
             boolean isDayEvaluated = true;
-            for (TrainingSession trainingSession : dayToBeCheckedIfEvaluated.getSessions()){
-                if (!trainingSession.isEvaluated()){
+            for (TrainingSession trainingSession : dayToBeCheckedIfEvaluated.getSessions()) {
+                if (!trainingSession.isEvaluated()) {
                     isDayEvaluated = false;
                     break;
                 }
             }
             dayToBeCheckedIfEvaluated.setEvaluated(isDayEvaluated);
+            dayToBeCheckedIfEvaluated.setLastModificationTime(modifiedTime);
+            if (isDayEvaluated) {
+                // Check if curriculum is evaluated
+                boolean isCurriculumEvaluated = true;
+                for (Day day : days) {
+                    if (!day.isEvaluated()) {
+                        isCurriculumEvaluated = false;
+                        break;
+                    }
+                }
+                curriculum.setEvaluated(isCurriculumEvaluated);
+            }
+            curriculum.setLastModificationTime(modifiedTime);
         }
         return convertToJson(curriculum);
     }
 
-    public static String convertToJson(Object object){
+    public static String convertToJson(Object object) {
         Gson gson = new Gson();
         return gson.toJson(object);
 
     }
+
 }

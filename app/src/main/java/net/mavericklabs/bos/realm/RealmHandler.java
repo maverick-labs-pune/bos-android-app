@@ -20,11 +20,14 @@
 package net.mavericklabs.bos.realm;
 
 import net.mavericklabs.bos.model.LoginResponse;
+import net.mavericklabs.bos.model.User;
 import net.mavericklabs.bos.utils.Constants;
 
 import java.util.List;
 
 import io.realm.Realm;
+import io.realm.RealmList;
+import io.realm.Sort;
 
 public class RealmHandler {
 
@@ -116,10 +119,12 @@ public class RealmHandler {
 
     }
 
-    public static List<RealmEvaluationResource> getEvaluationResources() {
+    public static List<RealmEvaluationResource> getUnevaluatedResources() {
         Realm realm = Realm.getDefaultInstance();
         List<RealmEvaluationResource> realmEvaluationResources =
-                realm.where(RealmEvaluationResource.class).findAll();
+                realm.where(RealmEvaluationResource.class)
+                        .equalTo("isEvaluated", false)
+                        .findAll();
         realm.close();
         return realmEvaluationResources;
 
@@ -173,5 +178,45 @@ public class RealmHandler {
         realm.close();
         return realmUser;
 
+    }
+
+    public static RealmUser getAthleteByKey(String athleteKey) {
+        Realm realm = Realm.getDefaultInstance();
+        RealmUser realmUser = realm.where(RealmUser.class)
+                .equalTo("key", athleteKey).findFirst();
+        realm.close();
+        return realmUser;
+    }
+
+    public static List<RealmReading> getReadingsForAthlete(String athleteKey) {
+        Realm realm = Realm.getDefaultInstance();
+        List<RealmReading> realmReading = realm.where(RealmReading.class)
+                .equalTo("user.key", athleteKey)
+                .sort("creationTime", Sort.DESCENDING).findAll();
+        realm.close();
+        return realmReading;
+    }
+
+    public static List<RealmResource> getResourcesForAthlete(String athleteKey) {
+        Realm realm = Realm.getDefaultInstance();
+        List<RealmResource> realmResources = realm.where(RealmResource.class)
+                .equalTo("user.key", athleteKey)
+                .sort("creationTime", Sort.DESCENDING).findAll();
+        realm.close();
+        return realmResources;
+    }
+
+    public static RealmUser findUserOrCreate(User user) {
+        Realm realm = Realm.getDefaultInstance();
+        RealmUser realmUser = realm.where(RealmUser.class)
+                .equalTo("key", user.getKey()).findFirst();
+        if (realmUser == null){
+            realm.beginTransaction();
+            realmUser = new RealmUser(user,new RealmList<RealmResource>());
+            realm.copyToRealmOrUpdate(realmUser);
+            realm.commitTransaction();
+        }
+        realm.close();
+        return realmUser;
     }
 }

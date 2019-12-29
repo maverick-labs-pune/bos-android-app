@@ -22,7 +22,6 @@ package net.mavericklabs.bos.activity;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -35,8 +34,8 @@ import net.mavericklabs.bos.adapter.ResourceAdapter;
 import net.mavericklabs.bos.adapter.UserAdapter;
 import net.mavericklabs.bos.realm.RealmGroup;
 import net.mavericklabs.bos.realm.RealmHandler;
-import net.mavericklabs.bos.utils.Activity;
 import net.mavericklabs.bos.utils.AppLogger;
+import net.mavericklabs.bos.utils.EvaluationResourceType;
 
 import static net.mavericklabs.bos.utils.Constants.BUNDLE_KEY_GROUP_KEY;
 
@@ -69,7 +68,7 @@ public class GroupDetailActivity extends AppCompatActivity {
         resourcesRecyclerView = findViewById(R.id.recycler_view_resources);
         resourcesRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
         resourcesRecyclerView.setAdapter(new ResourceAdapter(GroupDetailActivity.this,
-                realmGroup.getResources(), Activity.Group,realmGroup));
+                realmGroup.getResources(), EvaluationResourceType.GROUP,realmGroup));
 
         usersExpandImageView.setOnClickListener(new View.OnClickListener() {
             @Override

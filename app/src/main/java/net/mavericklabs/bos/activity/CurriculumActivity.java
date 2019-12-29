@@ -28,8 +28,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
-import com.google.gson.Gson;
-
 import net.mavericklabs.bos.R;
 import net.mavericklabs.bos.adapter.CurriculumDayAdapter;
 import net.mavericklabs.bos.object.Curriculum;
@@ -38,9 +36,11 @@ import net.mavericklabs.bos.realm.RealmHandler;
 import net.mavericklabs.bos.realm.RealmResource;
 import net.mavericklabs.bos.utils.ActivityMode;
 import net.mavericklabs.bos.utils.AppLogger;
+import net.mavericklabs.bos.utils.EvaluationResourceType;
 import net.mavericklabs.bos.utils.Util;
 
 import static net.mavericklabs.bos.utils.Constants.BUNDLE_KEY_ACTIVITY_MODE;
+import static net.mavericklabs.bos.utils.Constants.BUNDLE_KEY_EVALUATION_RESOURCE_TYPE;
 import static net.mavericklabs.bos.utils.Constants.BUNDLE_KEY_EVALUATION_RESOURCE_UUID;
 import static net.mavericklabs.bos.utils.Constants.BUNDLE_KEY_RESOURCE_KEY;
 
@@ -48,9 +48,10 @@ public class CurriculumActivity extends AppCompatActivity {
     private AppLogger appLogger = new AppLogger(getClass().toString());
     private RecyclerView recyclerView;
     private TextView emptyView;
-    private RealmResource realmResource;
-    private RealmEvaluationResource realmEvaluationResource;
     private ActivityMode activityMode;
+    private EvaluationResourceType evaluatingResourceType;
+    private TextView labelTextView;
+    private TextView descriptionTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,8 +65,17 @@ public class CurriculumActivity extends AppCompatActivity {
         }
 
         activityMode = Util.getActivityMode(getIntent().getStringExtra(BUNDLE_KEY_ACTIVITY_MODE));
-        TextView label = findViewById(R.id.text_view_label);
-        TextView description = findViewById(R.id.text_view_description);
+        evaluatingResourceType = Util.getEvaluationResourceType(getIntent().getStringExtra(BUNDLE_KEY_EVALUATION_RESOURCE_TYPE));
+        labelTextView = findViewById(R.id.text_view_label);
+        descriptionTextView = findViewById(R.id.text_view_description);
+
+
+    }
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
         recyclerView = findViewById(R.id.recycler_view_days);
         emptyView = findViewById(R.id.empty_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
@@ -73,27 +83,28 @@ public class CurriculumActivity extends AppCompatActivity {
         switch (activityMode) {
             case READ:
                 String resourceKey = getIntent().getStringExtra(BUNDLE_KEY_RESOURCE_KEY);
-                realmResource = RealmHandler.getResourceByKey(resourceKey);
+                RealmResource realmResource = RealmHandler.getResourceByKey(resourceKey);
                 curriculum = Util.convertRealmResourceToCurriculum(realmResource);
-                label.setText(curriculum.getLabel());
-                description.setText(curriculum.getDescription());
-                recyclerView.setAdapter(new CurriculumDayAdapter(getApplicationContext(), curriculum, activityMode));
+                labelTextView.setText(curriculum.getLabel());
+                descriptionTextView.setText(curriculum.getDescription());
+                recyclerView.setAdapter(new CurriculumDayAdapter(getApplicationContext(), curriculum,
+                        activityMode, evaluatingResourceType));
                 break;
 
             case EVALUATION:
                 String evaluationResourceUUID = getIntent().getStringExtra(BUNDLE_KEY_EVALUATION_RESOURCE_UUID);
-                realmEvaluationResource = RealmHandler.getEvaluationResourceByUUID(evaluationResourceUUID);
+                RealmEvaluationResource realmEvaluationResource = RealmHandler.getEvaluationResourceByUUID(evaluationResourceUUID);
                 curriculum = Util.convertRealmResourceToCurriculum(realmEvaluationResource);
-                label.setText(curriculum.getLabel());
-                description.setText(curriculum.getDescription());
-                recyclerView.setAdapter(new CurriculumDayAdapter(getApplicationContext(), curriculum, activityMode));
+                labelTextView.setText(curriculum.getLabel());
+                descriptionTextView.setText(curriculum.getDescription());
+                recyclerView.setAdapter(new CurriculumDayAdapter(getApplicationContext(), curriculum,
+                        activityMode, evaluatingResourceType));
                 break;
 
             case UNKNOWN:
                 break;
         }
         Util.setEmptyMessageIfNeeded(recyclerView, recyclerView, emptyView);
-
 
     }
 

@@ -96,13 +96,7 @@ public class DailyPlannerFragment extends Fragment {
         loginResponse = RealmHandler.getLoginResponse();
         recyclerView = view.findViewById(R.id.recycler_view);
         emptyView = view.findViewById(R.id.empty_view);
-        List<RealmEvaluationResource> evaluationResources = RealmHandler.getEvaluationResources();
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        recyclerView.setAdapter(new DailyPlannerAdapter(getContext(),evaluationResources));
-        Util.setEmptyMessageIfNeeded(evaluationResources,recyclerView,emptyView);
-
-        appLogger.logInformation(String.valueOf(evaluationResources.size()));
-        FloatingActionButton floatActionButtonSync = view.findViewById(R.id.floating_action_button_sync);
+                FloatingActionButton floatActionButtonSync = view.findViewById(R.id.floating_action_button_sync);
 
         floatActionButtonSync.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -154,6 +148,16 @@ public class DailyPlannerFragment extends Fragment {
                 appLogger.logDebug("Registered observers");
             }
         }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        List<RealmEvaluationResource> evaluationResources = RealmHandler.getUnevaluatedResources();
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        recyclerView.setAdapter(new DailyPlannerAdapter(getContext(),evaluationResources));
+        Util.setEmptyMessageIfNeeded(evaluationResources,recyclerView,emptyView);
+
     }
 
     @Override

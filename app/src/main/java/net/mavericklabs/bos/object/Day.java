@@ -20,6 +20,7 @@
 package net.mavericklabs.bos.object;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 public class Day {
@@ -28,6 +29,8 @@ public class Day {
     private String description;
     private boolean isEvaluated;
     private List<TrainingSession> sessions = new ArrayList<>();
+    private Date lastModificationTime;
+
 
     public String getLabel() {
         return label;
@@ -55,5 +58,13 @@ public class Day {
 
     public void setEvaluated(boolean evaluated) {
         isEvaluated = evaluated;
+    }
+
+    public Date getLastModificationTime() {
+        return lastModificationTime;
+    }
+
+    public void setLastModificationTime(Date lastModificationTime) {
+        this.lastModificationTime = lastModificationTime;
     }
 }

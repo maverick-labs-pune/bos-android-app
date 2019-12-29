@@ -25,6 +25,9 @@
     <color name="colorAccent">#FF8C00</color>
     <color name="white">#ffffff</color>
     <color name="gray">#efefef</color>
+    <color name="secondaryText">#757575</color>
     <color name="black">#000000</color>
+    <color name="light_green">#C5E1A5</color>
+    <color name="dark_green">#689F38</color>
     <color name="pink">#f27a7b</color>
 </resources>

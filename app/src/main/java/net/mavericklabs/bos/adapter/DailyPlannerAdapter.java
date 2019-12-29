@@ -24,11 +24,14 @@ import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.sasank.roundedhorizontalprogress.RoundedHorizontalProgressBar;
 
 import net.mavericklabs.bos.R;
 import net.mavericklabs.bos.activity.CurriculumActivity;
@@ -37,12 +40,14 @@ import net.mavericklabs.bos.object.Day;
 import net.mavericklabs.bos.realm.RealmEvaluationResource;
 import net.mavericklabs.bos.realm.RealmResource;
 import net.mavericklabs.bos.utils.AppLogger;
+import net.mavericklabs.bos.utils.DateUtil;
 import net.mavericklabs.bos.utils.EvaluationResourceType;
 import net.mavericklabs.bos.utils.Util;
 
 import java.util.List;
 
 import static net.mavericklabs.bos.utils.Constants.BUNDLE_KEY_ACTIVITY_MODE;
+import static net.mavericklabs.bos.utils.Constants.BUNDLE_KEY_EVALUATION_RESOURCE_TYPE;
 import static net.mavericklabs.bos.utils.Constants.BUNDLE_KEY_EVALUATION_RESOURCE_UUID;
 import static net.mavericklabs.bos.utils.Constants.CURRICULUM;
 import static net.mavericklabs.bos.utils.Constants.EVALUATION;
@@ -70,48 +75,56 @@ public class DailyPlannerAdapter extends RecyclerView.Adapter<DailyPlannerAdapte
     @Override
     public void onBindViewHolder(@NonNull EvaluationResourceViewHolder holder, int position) {
         final RealmEvaluationResource realmEvaluationResource = realmEvaluationResources.get(position);
-        EvaluationResourceType type = Util.getEvaluationResourceType(realmEvaluationResource.getType());
-        switch (type){
+        final EvaluationResourceType type = Util.getEvaluationResourceType(realmEvaluationResource.getType());
+        switch (type) {
             case USER:
-                holder.getLabelTextView().setText(realmEvaluationResource.getUser().getFullName());
+                holder.resourceLabelTextView.setText(realmEvaluationResource.getUser().getFullName());
 
                 break;
             case GROUP:
-                holder.getLabelTextView().setText(realmEvaluationResource.getGroup().getLabel());
+                holder.resourceLabelTextView.setText(realmEvaluationResource.getResource().getLabel());
+                holder.entityTextView.setText(realmEvaluationResource.getGroup().getLabel());
                 break;
             case UNKNOWN:
         }
         String data = realmEvaluationResource.getData();
         final RealmResource realmResource = realmEvaluationResource.getResource();
-        switch (realmEvaluationResource.getResource().getType()) {
+        switch (realmResource.getType()) {
             case CURRICULUM:
                 Curriculum curriculum = Util.convertRealmResourceToCurriculum(realmEvaluationResource);
                 appLogger.logInformation("realmEvaluationResource");
                 appLogger.logInformation(realmEvaluationResource.getUuid());
                 int totalNumberOfDays = curriculum.getDays().size();
                 int completedDays = 0;
-                for (Day day : curriculum.getDays()){
+                for (Day day : curriculum.getDays()) {
                     appLogger.logInformation(day.getUuid());
                     appLogger.logInformation(String.valueOf(day.isEvaluated()));
-                    if (day.isEvaluated()){
+                    if (day.isEvaluated()) {
                         completedDays++;
                     }
                 }
 
-                holder.getProgressTextView().setText("Progress : " + completedDays+ "/" + totalNumberOfDays );
-                holder.getCardView().setOnClickListener(new View.OnClickListener() {
+                holder.imageView.setImageResource(R.drawable.ic_training_session);
+                holder.resourceTypeTextView.setText("Curriculum");
+                holder.lastUpdatedTextView.setText("Last changed : " + DateUtil.dateToString(curriculum.getLastModificationTime()));
+                int progress = (int) ((double) completedDays / totalNumberOfDays * 100);
+                holder.progressBar.animateProgress(1000, 0, progress);
+//                holder.progressTextView.setText("Progress : " + completedDays+ "/" + totalNumberOfDays );
+                holder.cardView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         Intent intent = new Intent(context, CurriculumActivity.class);
                         intent.putExtra(BUNDLE_KEY_ACTIVITY_MODE, EVALUATION);
+                        intent.putExtra(BUNDLE_KEY_EVALUATION_RESOURCE_TYPE, type.label);
                         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        intent.putExtra(BUNDLE_KEY_EVALUATION_RESOURCE_UUID,realmEvaluationResource.getUuid());
+                        intent.putExtra(BUNDLE_KEY_EVALUATION_RESOURCE_UUID, realmEvaluationResource.getUuid());
                         context.startActivity(intent);
                     }
                 });
                 break;
             case TRAINING_SESSION:
-
+                holder.resourceTypeTextView.setText("Training Session");
+                holder.imageView.setImageResource(R.drawable.ic_training_session);
 
                 break;
 
@@ -128,34 +141,23 @@ public class DailyPlannerAdapter extends RecyclerView.Adapter<DailyPlannerAdapte
 
     class EvaluationResourceViewHolder extends RecyclerView.ViewHolder {
 
-        private final TextView labelTextView;
-        private final TextView progressTextView;
-        private final TextView lastUpdatedTextView;
+        private final TextView resourceLabelTextView, entityTextView, resourceTypeTextView,
+                lastUpdatedTextView;
+        private final RoundedHorizontalProgressBar progressBar;
         private final CardView cardView;
+        private final ImageView imageView;
 
         EvaluationResourceViewHolder(@NonNull View itemView) {
             super(itemView);
-            labelTextView = itemView.findViewById(R.id.text_view_label);
-            progressTextView = itemView.findViewById(R.id.text_view_progress);
+            resourceLabelTextView = itemView.findViewById(R.id.text_view_resource_label);
+            resourceTypeTextView = itemView.findViewById(R.id.text_view_resource_type);
+            entityTextView = itemView.findViewById(R.id.text_view_entity_name);
+            progressBar = itemView.findViewById(R.id.progress_bar);
             lastUpdatedTextView = itemView.findViewById(R.id.text_view_last_updated);
             cardView = itemView.findViewById(R.id.card_view);
+            imageView = itemView.findViewById(R.id.image_view);
         }
 
-        TextView getLabelTextView() {
-            return labelTextView;
-        }
-
-        public TextView getProgressTextView() {
-            return progressTextView;
-        }
-
-        public TextView getLastUpdatedTextView() {
-            return lastUpdatedTextView;
-        }
-
-        public CardView getCardView() {
-            return cardView;
-        }
     }
 
 }
