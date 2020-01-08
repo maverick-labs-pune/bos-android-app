@@ -19,6 +19,7 @@
 
 package net.mavericklabs.bos.utils;
 
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
@@ -26,11 +27,13 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.gson.Gson;
 
+import net.mavericklabs.bos.model.UserReading;
 import net.mavericklabs.bos.object.Curriculum;
 import net.mavericklabs.bos.object.Day;
 import net.mavericklabs.bos.object.Measurement;
 import net.mavericklabs.bos.object.TrainingSession;
 import net.mavericklabs.bos.realm.RealmEvaluationResource;
+import net.mavericklabs.bos.realm.RealmReading;
 import net.mavericklabs.bos.realm.RealmResource;
 import net.mavericklabs.bos.realm.RealmUser;
 
@@ -74,6 +77,15 @@ public class Util {
         return curriculum;
     }
 
+    public static TrainingSession convertRealmResourceToTrainingSession(RealmResource realmResource) {
+        Gson gson = new Gson();
+        TrainingSession trainingSession = gson.fromJson(realmResource.getData(), TrainingSession.class);
+        trainingSession.setKey(realmResource.getKey());
+        trainingSession.setLabel(realmResource.getLabel());
+        trainingSession.setDescription(realmResource.getDescription());
+        return trainingSession;
+    }
+
     public static Curriculum convertRealmResourceToCurriculum(RealmEvaluationResource realmEvaluationResource) {
         Gson gson = new Gson();
         Curriculum curriculum = gson.fromJson(realmEvaluationResource.getData(), Curriculum.class);
@@ -84,6 +96,15 @@ public class Util {
         return curriculum;
     }
 
+    public static TrainingSession convertRealmResourceToTrainingSession(RealmEvaluationResource realmEvaluationResource) {
+        Gson gson = new Gson();
+        TrainingSession trainingSession = gson.fromJson(realmEvaluationResource.getData(), TrainingSession.class);
+        trainingSession.setUuid(realmEvaluationResource.getUuid());
+        trainingSession.setKey(realmEvaluationResource.getResource().getKey());
+        trainingSession.setLabel(realmEvaluationResource.getResource().getLabel());
+        trainingSession.setDescription(realmEvaluationResource.getResource().getDescription());
+        return trainingSession;
+    }
 
     public static UserRole getRole(String role) {
         if (role.toLowerCase().equals(UserRole.ADMIN.label)) {
@@ -151,7 +172,16 @@ public class Util {
                 }
                 return Util.convertToJson(curriculum);
             case TRAINING_SESSION:
-                break;
+                TrainingSession trainingSession = convertRealmResourceToTrainingSession(realmResource);
+                trainingSession.setLastModificationTime(currentTime);
+                if (isInit) {
+                    trainingSession.setUuid(uuid);
+                    trainingSession.setEvaluated(false);
+                    for (Measurement measurement : trainingSession.getMeasurements()) {
+                        measurement.setReading("");
+                    }
+                }
+                return Util.convertToJson(trainingSession);
         }
         return null;
     }
@@ -210,10 +240,20 @@ public class Util {
         return convertToJson(curriculum);
     }
 
+    public static String updateTrainingSession(TrainingSession trainingSession,
+                                               List<Measurement> measurementsWithReadings) {
+        // Find the day and training session in the curriculum
+        Date modifiedTime = DateUtil.getCurrentTime();
+        // Found the day and training session
+        trainingSession.setMeasurements(measurementsWithReadings);
+        trainingSession.setEvaluated(true);
+        trainingSession.setLastModificationTime(modifiedTime);
+        return convertToJson(trainingSession);
+    }
+
     public static String convertToJson(Object object) {
         Gson gson = new Gson();
         return gson.toJson(object);
 
     }
-
 }

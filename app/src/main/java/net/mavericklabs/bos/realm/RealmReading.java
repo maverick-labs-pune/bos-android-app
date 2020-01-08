@@ -24,10 +24,14 @@ import net.mavericklabs.bos.object.Measurement;
 import net.mavericklabs.bos.utils.DateUtil;
 
 import java.util.Date;
+import java.util.UUID;
 
 import io.realm.RealmObject;
+import io.realm.annotations.PrimaryKey;
 
 public class RealmReading extends RealmObject {
+    @PrimaryKey
+    private String uuid;
     private String key;
     private RealmUser user;
     private String ngo;
@@ -44,6 +48,7 @@ public class RealmReading extends RealmObject {
 
     public RealmReading(RealmMeasurement realmMeasurement, RealmUser realmUser, RealmUser enteredByUser,
                         RealmEvaluationResource realmEvaluationResource, Measurement measurement) {
+        this.uuid = UUID.randomUUID().toString();
         this.key = null;
         this.user = realmUser;
         this.ngo = realmUser.getNgo();
@@ -65,6 +70,12 @@ public class RealmReading extends RealmObject {
 
     public String getNgo() {
         return ngo;
+    }
+
+    public void setKey(String key) {
+        if (this.key == null) {
+            this.key = key;
+        }
     }
 
     public RealmUser getEnteredByUser() {

@@ -68,7 +68,7 @@ public class MeasurementAdapter extends RecyclerView.Adapter<MeasurementAdapter.
         holder.getLabel().setText(realmMeasurement.getLabel());
         holder.getUom().setText(realmMeasurement.getUnitOfMeasurement());
 
-        holder.getImageView().setImageResource(R.drawable.baseline_calendar_today_black_48);
+        holder.getImageView().setImageResource(R.drawable.ic_measurement);
 
 
 

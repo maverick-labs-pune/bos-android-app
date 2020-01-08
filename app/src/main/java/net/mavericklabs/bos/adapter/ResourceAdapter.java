@@ -21,6 +21,7 @@ package net.mavericklabs.bos.adapter;
 
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -108,7 +109,7 @@ public class ResourceAdapter extends RecyclerView.Adapter<ResourceAdapter.Resour
         holder.labelTextView.setText(realmResource.getLabel());
         switch (realmResource.getType()) {
             case CURRICULUM:
-                holder.imageView.setImageResource(R.drawable.baseline_calendar_today_black_48);
+                holder.imageView.setImageResource(R.drawable.ic_curriculum);
                 holder.resourceTypeTextView.setText("Curriculum");
                 setOnClickListener(holder, realmResource);
                 break;
@@ -119,7 +120,7 @@ public class ResourceAdapter extends RecyclerView.Adapter<ResourceAdapter.Resour
                 break;
 
             case TRAINING_SESSION:
-                holder.imageView.setImageResource(R.drawable.baseline_calendar_today_black_48);
+                holder.imageView.setImageResource(R.drawable.ic_training_session);
                 holder.resourceTypeTextView.setText("Training session");
                 setOnClickListener(holder, realmResource);
                 break;

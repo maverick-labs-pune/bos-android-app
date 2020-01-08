@@ -42,6 +42,7 @@ import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static net.mavericklabs.bos.utils.Constants.BUNDLE_KEY_ACTIVITY_MODE;
 import static net.mavericklabs.bos.utils.Constants.BUNDLE_KEY_EVALUATION_RESOURCE_TYPE;
 import static net.mavericklabs.bos.utils.Constants.BUNDLE_KEY_EVALUATION_RESOURCE_UUID;
+import static net.mavericklabs.bos.utils.Constants.BUNDLE_KEY_IS_PART_OF_CURRICULUM;
 import static net.mavericklabs.bos.utils.Constants.BUNDLE_KEY_TRAINING_SESSION;
 
 public class TrainingSessionAdapter extends RecyclerView.Adapter<TrainingSessionAdapter.TrainingSessionViewHolder> {
@@ -90,6 +91,7 @@ public class TrainingSessionAdapter extends RecyclerView.Adapter<TrainingSession
                         intent.putExtra(BUNDLE_KEY_ACTIVITY_MODE, activityMode.label);
                         intent.putExtra(BUNDLE_KEY_EVALUATION_RESOURCE_TYPE, evaluatingResourceType.label);
                         intent.putExtra(BUNDLE_KEY_EVALUATION_RESOURCE_UUID, curriculum.getUuid());
+                        intent.putExtra(BUNDLE_KEY_IS_PART_OF_CURRICULUM, true);
                         intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
                         context.startActivity(intent);
                     }
@@ -104,6 +106,7 @@ public class TrainingSessionAdapter extends RecyclerView.Adapter<TrainingSession
                         intent.putExtra(BUNDLE_KEY_TRAINING_SESSION, trainingSession);
                         intent.putExtra(BUNDLE_KEY_ACTIVITY_MODE, activityMode.label);
                         intent.putExtra(BUNDLE_KEY_EVALUATION_RESOURCE_TYPE, evaluatingResourceType.label);
+                        intent.putExtra(BUNDLE_KEY_IS_PART_OF_CURRICULUM, true);
                         intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
                         context.startActivity(intent);
                     }

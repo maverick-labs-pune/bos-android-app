@@ -56,6 +56,12 @@ public class DateUtil {
         return sdf.format(date);
     }
 
+    public static String getTZDateString(Date date) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.UK);
+        sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+        return sdf.format(date);
+    }
+
     public static String dateToString(Date date) {
         SimpleDateFormat sdf = new SimpleDateFormat("dd MMM yyyy hh:mm aa", Locale.UK);
 //        sdf.setTimeZone(TimeZone.getTimeZone("GMT"));

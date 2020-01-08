@@ -35,8 +35,10 @@ import com.sasank.roundedhorizontalprogress.RoundedHorizontalProgressBar;
 
 import net.mavericklabs.bos.R;
 import net.mavericklabs.bos.activity.CurriculumActivity;
+import net.mavericklabs.bos.activity.TrainingSessionActivity;
 import net.mavericklabs.bos.object.Curriculum;
 import net.mavericklabs.bos.object.Day;
+import net.mavericklabs.bos.object.TrainingSession;
 import net.mavericklabs.bos.realm.RealmEvaluationResource;
 import net.mavericklabs.bos.realm.RealmResource;
 import net.mavericklabs.bos.utils.AppLogger;
@@ -46,9 +48,12 @@ import net.mavericklabs.bos.utils.Util;
 
 import java.util.List;
 
+import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static net.mavericklabs.bos.utils.Constants.BUNDLE_KEY_ACTIVITY_MODE;
 import static net.mavericklabs.bos.utils.Constants.BUNDLE_KEY_EVALUATION_RESOURCE_TYPE;
 import static net.mavericklabs.bos.utils.Constants.BUNDLE_KEY_EVALUATION_RESOURCE_UUID;
+import static net.mavericklabs.bos.utils.Constants.BUNDLE_KEY_IS_PART_OF_CURRICULUM;
+import static net.mavericklabs.bos.utils.Constants.BUNDLE_KEY_TRAINING_SESSION;
 import static net.mavericklabs.bos.utils.Constants.CURRICULUM;
 import static net.mavericklabs.bos.utils.Constants.EVALUATION;
 import static net.mavericklabs.bos.utils.Constants.TRAINING_SESSION;
@@ -79,7 +84,6 @@ public class DailyPlannerAdapter extends RecyclerView.Adapter<DailyPlannerAdapte
         switch (type) {
             case USER:
                 holder.resourceLabelTextView.setText(realmEvaluationResource.getUser().getFullName());
-
                 break;
             case GROUP:
                 holder.resourceLabelTextView.setText(realmEvaluationResource.getResource().getLabel());
@@ -104,7 +108,7 @@ public class DailyPlannerAdapter extends RecyclerView.Adapter<DailyPlannerAdapte
                     }
                 }
 
-                holder.imageView.setImageResource(R.drawable.ic_training_session);
+                holder.imageView.setImageResource(R.drawable.ic_curriculum);
                 holder.resourceTypeTextView.setText("Curriculum");
                 holder.lastUpdatedTextView.setText("Last changed : " + DateUtil.dateToString(curriculum.getLastModificationTime()));
                 int progress = (int) ((double) completedDays / totalNumberOfDays * 100);
@@ -123,15 +127,42 @@ public class DailyPlannerAdapter extends RecyclerView.Adapter<DailyPlannerAdapte
                 });
                 break;
             case TRAINING_SESSION:
-                holder.resourceTypeTextView.setText("Training Session");
+
+                final TrainingSession trainingSession = Util.convertRealmResourceToTrainingSession(realmEvaluationResource);
+                appLogger.logInformation("realmEvaluationResource");
+                appLogger.logInformation(realmEvaluationResource.getUuid());
                 holder.imageView.setImageResource(R.drawable.ic_training_session);
+                holder.resourceTypeTextView.setText("Training Session");
+                holder.lastUpdatedTextView.setText("Last changed : " + DateUtil.dateToString(trainingSession.getLastModificationTime()));
+                holder.progressBar.setVisibility(View.GONE);
+                holder.progressTextView.setVisibility(View.GONE);
+//                holder.progressTextView.setText("Progress : " + completedDays+ "/" + totalNumberOfDays );
+                holder.cardView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent = new Intent(context, TrainingSessionActivity.class);
+                        intent.putExtra(BUNDLE_KEY_TRAINING_SESSION, trainingSession);
+                        intent.putExtra(BUNDLE_KEY_ACTIVITY_MODE, EVALUATION);
+                        intent.putExtra(BUNDLE_KEY_EVALUATION_RESOURCE_TYPE, type.label);
+                        intent.putExtra(BUNDLE_KEY_EVALUATION_RESOURCE_UUID, trainingSession.getUuid());
+                        intent.putExtra(BUNDLE_KEY_IS_PART_OF_CURRICULUM, false);
+                        intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
+                        context.startActivity(intent);
+                    }
+                });
+
 
                 break;
 
             default:
                 break;
-        }
 
+        }
+        if (realmEvaluationResource.getSynced()) {
+            holder.syncStatusImageView.setImageResource(R.drawable.baseline_check_black_18);
+        } else {
+            holder.syncStatusImageView.setImageResource(R.drawable.ic_unsynced);
+        }
     }
 
     @Override
@@ -142,20 +173,23 @@ public class DailyPlannerAdapter extends RecyclerView.Adapter<DailyPlannerAdapte
     class EvaluationResourceViewHolder extends RecyclerView.ViewHolder {
 
         private final TextView resourceLabelTextView, entityTextView, resourceTypeTextView,
-                lastUpdatedTextView;
+                lastUpdatedTextView, progressTextView;
         private final RoundedHorizontalProgressBar progressBar;
         private final CardView cardView;
         private final ImageView imageView;
+        private final ImageView syncStatusImageView;
 
         EvaluationResourceViewHolder(@NonNull View itemView) {
             super(itemView);
             resourceLabelTextView = itemView.findViewById(R.id.text_view_resource_label);
             resourceTypeTextView = itemView.findViewById(R.id.text_view_resource_type);
             entityTextView = itemView.findViewById(R.id.text_view_entity_name);
+            progressTextView = itemView.findViewById(R.id.text_view_progress);
             progressBar = itemView.findViewById(R.id.progress_bar);
             lastUpdatedTextView = itemView.findViewById(R.id.text_view_last_updated);
             cardView = itemView.findViewById(R.id.card_view);
             imageView = itemView.findViewById(R.id.image_view);
+            syncStatusImageView = itemView.findViewById(R.id.image_view_sync_status);
         }
 
     }

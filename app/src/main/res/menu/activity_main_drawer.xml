@@ -25,19 +25,19 @@
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/nav_home"
-            android:icon="@drawable/ic_home"
+            android:icon="@drawable/ic_daily_planner"
             android:title="Home" />
         <item
             android:id="@+id/nav_athletes"
-            android:icon="@drawable/baseline_person_black_18"
+            android:icon="@drawable/ic_athletes"
             android:title="Athletes" />
         <item
             android:id="@+id/nav_resources"
-            android:icon="@drawable/baseline_calendar_today_black_18"
+            android:icon="@drawable/ic_resources"
             android:title="Resources" />
         <item
             android:id="@+id/nav_groups"
-            android:icon="@drawable/baseline_group_black_18"
+            android:icon="@drawable/ic_group"
             android:title="Groups" />
         <item
             android:id="@+id/nav_language"
@@ -46,7 +46,7 @@
 
         <item
             android:id="@+id/nav_change_password"
-            android:icon="@drawable/ic_language"
+            android:icon="@drawable/ic_change_password"
             android:title="Change Password" />
         <item
             android:id="@+id/nav_logout"

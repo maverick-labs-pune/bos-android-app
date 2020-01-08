@@ -21,6 +21,7 @@ package net.mavericklabs.bos.realm;
 
 import net.mavericklabs.bos.model.LoginResponse;
 import net.mavericklabs.bos.model.User;
+import net.mavericklabs.bos.utils.AppLogger;
 import net.mavericklabs.bos.utils.Constants;
 
 import java.util.List;
@@ -30,7 +31,7 @@ import io.realm.RealmList;
 import io.realm.Sort;
 
 public class RealmHandler {
-
+    static AppLogger appLogger = new AppLogger("RealmHandler");
     public static String getAccessToken() {
         Realm realm = Realm.getDefaultInstance();
         LoginResponse loginResponse = realm.where(LoginResponse.class).findFirst();
@@ -119,11 +120,14 @@ public class RealmHandler {
 
     }
 
-    public static List<RealmEvaluationResource> getUnevaluatedResources() {
+    public static List<RealmEvaluationResource> getUnevaluatedOrUnSyncedResources() {
         Realm realm = Realm.getDefaultInstance();
         List<RealmEvaluationResource> realmEvaluationResources =
                 realm.where(RealmEvaluationResource.class)
                         .equalTo("isEvaluated", false)
+                        .or()
+                        .equalTo("isSynced", false)
+                        .sort("lastModificationTime",Sort.DESCENDING)
                         .findAll();
         realm.close();
         return realmEvaluationResources;
@@ -165,7 +169,8 @@ public class RealmHandler {
     public static RealmEvaluationResource getEvaluationResourceByUUID(String uuid) {
         Realm realm = Realm.getDefaultInstance();
         RealmEvaluationResource realmEvaluationResource = realm.where(RealmEvaluationResource.class)
-                .equalTo("uuid", uuid).findFirst();
+                .equalTo("uuid", uuid)
+                .findFirst();
         realm.close();
         return realmEvaluationResource;
     }
@@ -174,7 +179,8 @@ public class RealmHandler {
         LoginResponse loginResponse = getLoginResponse();
         Realm realm = Realm.getDefaultInstance();
         RealmUser realmUser = realm.where(RealmUser.class)
-                .equalTo("key", loginResponse.getUserKey()).findFirst();
+                .equalTo("key", loginResponse.getUserKey())
+                .findFirst();
         realm.close();
         return realmUser;
 
@@ -183,7 +189,8 @@ public class RealmHandler {
     public static RealmUser getAthleteByKey(String athleteKey) {
         Realm realm = Realm.getDefaultInstance();
         RealmUser realmUser = realm.where(RealmUser.class)
-                .equalTo("key", athleteKey).findFirst();
+                .equalTo("key", athleteKey)
+                .findFirst();
         realm.close();
         return realmUser;
     }
@@ -192,7 +199,8 @@ public class RealmHandler {
         Realm realm = Realm.getDefaultInstance();
         List<RealmReading> realmReading = realm.where(RealmReading.class)
                 .equalTo("user.key", athleteKey)
-                .sort("creationTime", Sort.DESCENDING).findAll();
+                .sort("creationTime", Sort.DESCENDING)
+                .findAll();
         realm.close();
         return realmReading;
     }
@@ -201,7 +209,8 @@ public class RealmHandler {
         Realm realm = Realm.getDefaultInstance();
         List<RealmResource> realmResources = realm.where(RealmResource.class)
                 .equalTo("user.key", athleteKey)
-                .sort("creationTime", Sort.DESCENDING).findAll();
+                .sort("creationTime", Sort.DESCENDING)
+                .findAll();
         realm.close();
         return realmResources;
     }
@@ -209,14 +218,51 @@ public class RealmHandler {
     public static RealmUser findUserOrCreate(User user) {
         Realm realm = Realm.getDefaultInstance();
         RealmUser realmUser = realm.where(RealmUser.class)
-                .equalTo("key", user.getKey()).findFirst();
-        if (realmUser == null){
+                .equalTo("key", user.getKey())
+                .findFirst();
+        if (realmUser == null) {
             realm.beginTransaction();
-            realmUser = new RealmUser(user,new RealmList<RealmResource>());
+            realmUser = new RealmUser(user, new RealmList<RealmResource>());
             realm.copyToRealmOrUpdate(realmUser);
             realm.commitTransaction();
         }
         realm.close();
         return realmUser;
+    }
+
+    public static List<RealmReading> getUnSyncedReadings() {
+        Realm realm = Realm.getDefaultInstance();
+        List<RealmReading> realmReadings = realm.where(RealmReading.class)
+                .isNull("key")
+                .sort("creationTime", Sort.DESCENDING)
+                .findAll();
+        realm.close();
+        return realmReadings;
+    }
+
+    public static  List<RealmReading> getUnSyncedReadingsForEvaluationResource(RealmEvaluationResource realmEvaluationResource) {
+        Realm realm = Realm.getDefaultInstance();
+        List<RealmReading> realmReadings = realm.where(RealmReading.class)
+                .isNull("key")
+                .equalTo("evaluationResource.uuid",realmEvaluationResource.getUuid())
+                .findAll();
+        realm.close();
+        appLogger.logInformation(String.valueOf(realmReadings.size()));
+        return realmReadings;
+    }
+
+    public static boolean areReadingsForEvaluatedResourceSynced(RealmEvaluationResource realmEvaluationResource) {
+        return getUnSyncedReadingsForEvaluationResource(realmEvaluationResource).size() == 0;
+    }
+
+    public static List<RealmEvaluationResource> getUnSyncedEvaluatedResources() {
+        Realm realm = Realm.getDefaultInstance();
+        List<RealmEvaluationResource> realmEvaluationResources =
+                realm.where(RealmEvaluationResource.class)
+                        .equalTo("isSynced", false)
+                        .findAll();
+        realm.close();
+        return realmEvaluationResources;
+
     }
 }

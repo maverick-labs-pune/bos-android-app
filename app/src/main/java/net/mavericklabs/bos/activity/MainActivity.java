@@ -88,6 +88,7 @@ public class MainActivity extends AppCompatActivity
 
         locale = SharedPreferenceUtil.getLocale(getApplicationContext());
         navigationView = findViewById(R.id.nav_view);
+        navigationView.setItemIconTintList(null);
         navigationView.setNavigationItemSelectedListener(this);
 
         View headerView = navigationView.getHeaderView(0);

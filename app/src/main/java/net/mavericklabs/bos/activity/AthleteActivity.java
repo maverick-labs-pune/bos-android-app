@@ -30,16 +30,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.evrencoskun.tableview.TableView;
-
 import net.mavericklabs.bos.R;
 import net.mavericklabs.bos.adapter.AthleteReadingAdapter;
-import net.mavericklabs.bos.realm.RealmEvaluationResource;
 import net.mavericklabs.bos.realm.RealmHandler;
 import net.mavericklabs.bos.realm.RealmReading;
-import net.mavericklabs.bos.realm.RealmResource;
 import net.mavericklabs.bos.realm.RealmUser;
-import net.mavericklabs.bos.utils.ActivityMode;
 import net.mavericklabs.bos.utils.AppLogger;
 import net.mavericklabs.bos.utils.Util;
 

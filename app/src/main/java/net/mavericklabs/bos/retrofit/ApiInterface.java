@@ -26,6 +26,7 @@ import net.mavericklabs.bos.model.LoginResponse;
 import net.mavericklabs.bos.model.NGO;
 import net.mavericklabs.bos.model.Translation;
 import net.mavericklabs.bos.model.User;
+import net.mavericklabs.bos.model.UserReading;
 import net.mavericklabs.bos.retrofit.custom.LoginRequest;
 
 import java.util.ArrayList;
@@ -36,6 +37,7 @@ import retrofit2.http.Body;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
+import retrofit2.http.Headers;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
 
@@ -74,4 +76,7 @@ public interface ApiInterface {
     @GET("/users/{user_key}/athletes/")
     Call<List<User>> getAthletes(@Path("user_key") String userKey);
 
+    @Headers("Content-Type: application/json")
+    @POST("/readings/")
+    Call<UserReading> createUserReading(@Body String body);
 }

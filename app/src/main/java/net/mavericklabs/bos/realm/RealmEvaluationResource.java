@@ -37,6 +37,7 @@ public class RealmEvaluationResource extends RealmObject {
     private RealmUser user;
     private RealmGroup group;
     private Boolean isEvaluated;
+    private Boolean isSynced;
     private String data;
     private Date creationTime;
     private Date lastModificationTime;
@@ -56,6 +57,7 @@ public class RealmEvaluationResource extends RealmObject {
         this.creationTime = currentTime;
         this.lastModificationTime = currentTime;
         this.isEvaluated = false;
+        this.isSynced = false;
         this.type = Constants.USER;
 
     }
@@ -71,6 +73,7 @@ public class RealmEvaluationResource extends RealmObject {
         this.creationTime = currentTime;
         this.lastModificationTime = currentTime;
         this.isEvaluated = false;
+        this.isSynced = false;
         this.type = Constants.GROUP;
 
     }
@@ -121,5 +124,13 @@ public class RealmEvaluationResource extends RealmObject {
 
     public RealmGroup getGroup() {
         return group;
+    }
+
+    public Boolean getSynced() {
+        return isSynced;
+    }
+
+    public void setSynced(Boolean synced) {
+        isSynced = synced;
     }
 }

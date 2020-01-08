@@ -29,6 +29,7 @@ import java.util.List;
 
 public class TrainingSession implements Parcelable {
     private String uuid;
+    private String key;
     private String label;
     private String description;
     private String type;
@@ -51,6 +52,7 @@ public class TrainingSession implements Parcelable {
 
     private TrainingSession(Parcel in) {
         uuid = in.readString();
+        key = in.readString();
         label = in.readString();
         description = in.readString();
         type = in.readString();
@@ -104,6 +106,7 @@ public class TrainingSession implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(uuid);
+        dest.writeString(key);
         dest.writeString(label);
         dest.writeString(description);
         dest.writeString(type);
@@ -113,6 +116,21 @@ public class TrainingSession implements Parcelable {
         dest.writeLong(lastModificationTime !=null ? lastModificationTime.getTime() : 0);
     }
 
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
+    }
+
+    public void setLabel(String label) {
+        this.label = label;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
     public String getUuid() {
         return uuid;

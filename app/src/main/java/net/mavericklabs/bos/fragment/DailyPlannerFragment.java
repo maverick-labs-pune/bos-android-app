@@ -30,7 +30,6 @@ import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -153,7 +152,7 @@ public class DailyPlannerFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        List<RealmEvaluationResource> evaluationResources = RealmHandler.getUnevaluatedResources();
+        List<RealmEvaluationResource> evaluationResources = RealmHandler.getUnevaluatedOrUnSyncedResources();
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setAdapter(new DailyPlannerAdapter(getContext(),evaluationResources));
         Util.setEmptyMessageIfNeeded(evaluationResources,recyclerView,emptyView);

@@ -50,6 +50,7 @@ public interface Constants {
     String BUNDLE_KEY_EVALUATION_RESOURCE_UUID = "evaluationResourceUUID";
     String BUNDLE_KEY_ACTIVITY_MODE = "activityMode";
     String BUNDLE_KEY_EVALUATION_RESOURCE_TYPE = "evaluationResourceType";
+    String BUNDLE_KEY_IS_PART_OF_CURRICULUM = "isPartOfCurriculum";
     String BUNDLE_KEY_ATHLETE_KEY = "athleteKey";
 
 }

@@ -55,6 +55,7 @@ import io.realm.Realm;
 import static net.mavericklabs.bos.utils.Constants.BUNDLE_KEY_ACTIVITY_MODE;
 import static net.mavericklabs.bos.utils.Constants.BUNDLE_KEY_EVALUATION_RESOURCE_TYPE;
 import static net.mavericklabs.bos.utils.Constants.BUNDLE_KEY_EVALUATION_RESOURCE_UUID;
+import static net.mavericklabs.bos.utils.Constants.BUNDLE_KEY_IS_PART_OF_CURRICULUM;
 import static net.mavericklabs.bos.utils.Constants.BUNDLE_KEY_TRAINING_SESSION;
 
 public class TrainingSessionActivity extends AppCompatActivity {
@@ -64,6 +65,7 @@ public class TrainingSessionActivity extends AppCompatActivity {
     private ActivityMode activityMode;
     private RecyclerView usersRecyclerView;
     private EvaluationResourceType evaluationResourceType;
+    private boolean isPartOfCurriculum;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,6 +81,7 @@ public class TrainingSessionActivity extends AppCompatActivity {
         final TrainingSession trainingSession = getIntent().getParcelableExtra(BUNDLE_KEY_TRAINING_SESSION);
         activityMode = Util.getActivityMode(getIntent().getStringExtra(BUNDLE_KEY_ACTIVITY_MODE));
         evaluationResourceType = Util.getEvaluationResourceType(getIntent().getStringExtra(BUNDLE_KEY_EVALUATION_RESOURCE_TYPE));
+        isPartOfCurriculum = getIntent().getBooleanExtra(BUNDLE_KEY_IS_PART_OF_CURRICULUM,false);
         TextView label = findViewById(R.id.text_view_label);
         TextView description = findViewById(R.id.text_view_description);
         Button evaluateTrainingSessionButton = findViewById(R.id.button_evaluate_training_session);
@@ -147,10 +150,24 @@ public class TrainingSessionActivity extends AppCompatActivity {
                                         }
 
                                     }
-                                    String data = Util.updateCurriculum(curriculum, trainingSession.getUuid(),
-                                            measurementReadingAdapter.getMeasurementsWithReadings());
+
+                                    String data;
+                                    boolean isEvaluated;
+                                    if (isPartOfCurriculum){
+                                        data = Util.updateCurriculum(curriculum, trainingSession.getUuid(),
+                                                measurementReadingAdapter.getMeasurementsWithReadings());
+                                        isEvaluated = curriculum.isEvaluated();
+                                    }else{
+                                        data = Util.updateTrainingSession(trainingSession,
+                                                measurementReadingAdapter.getMeasurementsWithReadings());
+                                        isEvaluated = true;
+                                    }
+
+
                                     realm.beginTransaction();
                                     realmEvaluationResource.setData(data);
+                                    realmEvaluationResource.setEvaluated(isEvaluated);
+                                    realmEvaluationResource.setSynced(false);
                                     realm.copyToRealmOrUpdate(realmEvaluationResource);
                                     realm.commitTransaction();
                                     realm.close();
@@ -196,10 +213,24 @@ public class TrainingSessionActivity extends AppCompatActivity {
                                         realm.commitTransaction();
 
                                     }
-                                    String data = Util.updateCurriculum(curriculum, trainingSession.getUuid(),
-                                            measurementReadingAdapter.getMeasurementsWithReadings());
+
+                                    // Check if resource is a curriculum or a standalone training session
+                                    String data;
+                                    boolean isEvaluated;
+                                    if (isPartOfCurriculum){
+                                        data = Util.updateCurriculum(curriculum, trainingSession.getUuid(),
+                                                measurementReadingAdapter.getMeasurementsWithReadings());
+                                        isEvaluated = curriculum.isEvaluated();
+                                    }else{
+                                        data = Util.updateTrainingSession(trainingSession,
+                                                measurementReadingAdapter.getMeasurementsWithReadings());
+                                        isEvaluated = true;
+                                    }
+
                                     realm.beginTransaction();
                                     realmEvaluationResource.setData(data);
+                                    realmEvaluationResource.setEvaluated(isEvaluated);
+                                    realmEvaluationResource.setSynced(false);
                                     realm.copyToRealmOrUpdate(realmEvaluationResource);
                                     realm.commitTransaction();
                                     realm.close();
