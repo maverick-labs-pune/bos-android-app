@@ -39,6 +39,7 @@ public interface Constants {
     String CURRICULUM = "curriculum";
     String FILE = "file";
     String TRAINING_SESSION = "session";
+    String REGISTRATION_FORM = "registration";
 
     String READ = "read";
     String EVALUATION = "evaluation";
@@ -51,6 +52,6 @@ public interface Constants {
     String BUNDLE_KEY_ACTIVITY_MODE = "activityMode";
     String BUNDLE_KEY_EVALUATION_RESOURCE_TYPE = "evaluationResourceType";
     String BUNDLE_KEY_IS_PART_OF_CURRICULUM = "isPartOfCurriculum";
-    String BUNDLE_KEY_ATHLETE_KEY = "athleteKey";
+    String BUNDLE_KEY_ATHLETE_UUID = "athleteUUID";
 
 }

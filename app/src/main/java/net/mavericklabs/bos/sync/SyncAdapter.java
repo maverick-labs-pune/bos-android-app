@@ -148,7 +148,9 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 syncGroups(loginResponse.getUserKey());
                 syncAthletes(loginResponse.getUserKey());
 //                sync(loginResponse.getNgoKey());
+                syncOfflineAthletes();
                 syncEvaluationResourceReadings();
+                syncAthleteBaseline();
                 notifySyncStopped();
                 break;
         }
@@ -183,9 +185,9 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 realm.commitTransaction();
                 realm.close();
                 ContentResolver contentResolver = getContext().getContentResolver();
-                Uri uri = Uri.withAppendedPath(BosApplication.BASE_URI, BosApplication.TRANSLATIONS);
+                Uri uri = Uri.withAppendedPath(BosApplication.BASE_URI, BosApplication.MEASUREMENTS);
                 contentResolver.notifyChange(uri, null);
-                appLogger.logDebug("notifyChange TRANSLATIONS");
+                appLogger.logDebug("notifyChange GROUPS");
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -215,9 +217,9 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 realm.commitTransaction();
                 realm.close();
                 ContentResolver contentResolver = getContext().getContentResolver();
-                Uri uri = Uri.withAppendedPath(BosApplication.BASE_URI, BosApplication.TRANSLATIONS);
+                Uri uri = Uri.withAppendedPath(BosApplication.BASE_URI, BosApplication.RESOURCES);
                 contentResolver.notifyChange(uri, null);
-                appLogger.logDebug("notifyChange TRANSLATIONS");
+                appLogger.logDebug("notifyChange RESOURCES");
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -256,9 +258,9 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 }
                 realm.close();
                 ContentResolver contentResolver = getContext().getContentResolver();
-                Uri uri = Uri.withAppendedPath(BosApplication.BASE_URI, BosApplication.TRANSLATIONS);
+                Uri uri = Uri.withAppendedPath(BosApplication.BASE_URI, BosApplication.GROUPS);
                 contentResolver.notifyChange(uri, null);
-                appLogger.logDebug("notifyChange TRANSLATIONS");
+                appLogger.logDebug("notifyChange GROUPS");
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -284,7 +286,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 }
                 realm.close();
                 ContentResolver contentResolver = getContext().getContentResolver();
-                Uri uri = Uri.withAppendedPath(BosApplication.BASE_URI, BosApplication.TRANSLATIONS);
+                Uri uri = Uri.withAppendedPath(BosApplication.BASE_URI, BosApplication.ATHLETES);
                 contentResolver.notifyChange(uri, null);
                 appLogger.logDebug("notifyChange TRANSLATIONS");
             }
@@ -304,17 +306,18 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 if (resources == null) {
                     return;
                 }
-                realm.beginTransaction();
 
+                RealmUser realmUser = RealmHandler.findUserOrCreate(athlete);
+                realm.beginTransaction();
                 RealmList<RealmResource> realmResources = new RealmList<>();
                 for (Resource resource : resources) {
                     RealmResource realmResource = new RealmResource(resource);
-                    realm.copyToRealmOrUpdate(realmResource);
+                    realmResource = realm.copyToRealmOrUpdate(realmResource);
                     realmResources.add(realmResource);
                 }
-                RealmUser realmUser = new RealmUser(athlete, realmResources);
+                appLogger.logInformation("realmResources :" + realmResources.size());
+                realmUser.setResources(realmResources);
                 realm.copyToRealmOrUpdate(realmUser);
-
                 realm.commitTransaction();
                 realm.close();
             }
@@ -335,63 +338,132 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             List<RealmReading> unSyncedRealmReadings = RealmHandler.getUnSyncedReadingsForEvaluationResource(unSyncedEvaluatedResource);
             appLogger.logInformation("unsynced readings " + unSyncedRealmReadings.size());
 
+            for (RealmReading unSyncedRealmReading : unSyncedRealmReadings) {
+                createUserReading(unSyncedRealmReading);
+            }
+
+            realm.beginTransaction();
+            unSyncedEvaluatedResource.setSynced(true);
+            realm.copyToRealmOrUpdate(unSyncedEvaluatedResource);
+            realm.commitTransaction();
+
+
+        }
+        realm.close();
+
+
+    }
+
+    private void syncAthleteBaseline() {
+        //        Get unsynced user readings
+        Realm realm = Realm.getDefaultInstance();
+        List<RealmReading> unSyncedBaselineReadings = RealmHandler.getUnSyncedBaselinesForAthletes();
+        appLogger.logInformation("unSyncedBaselineReadings :" + unSyncedBaselineReadings.size());
+        for (RealmReading unSyncedRealmReading : unSyncedBaselineReadings) {
+            createUserReading(unSyncedRealmReading);
+        }
+        realm.close();
+
+    }
+
+
+    private void syncOfflineAthletes() {
+
+        Realm realm = Realm.getDefaultInstance();
+        List<RealmUser> offlineAthletes = RealmHandler.getOfflineAthletes();
+        appLogger.logInformation("offline athletes " + offlineAthletes.size());
+
+        for (RealmUser offlineAthlete : offlineAthletes) {
+
             try {
-                for (RealmReading unSyncedRealmReading : unSyncedRealmReadings) {
+                JSONObject paramObject = new JSONObject();
+                paramObject.put("first_name", offlineAthlete.getFirstName());
+                paramObject.put("middle_name", offlineAthlete.getMiddleName());
+                paramObject.put("last_name", offlineAthlete.getLastName());
+                paramObject.put("email", offlineAthlete.getEmail());
+                paramObject.put("ngo", offlineAthlete.getNgo());
+                paramObject.put("is_active", true);
 
-                    String userKey = unSyncedRealmReading.getUser() != null ? unSyncedRealmReading.getUser().getKey() : null;
-                    String ngoKey = unSyncedRealmReading.getNgo();
-//                String enteredBy =  unSyncedRealmReading.getEnteredByUser() != null ? unSyncedRealmReading.getEnteredByUser().getKey() : null;
-                    String measurementKey = unSyncedRealmReading.getMeasurement().getKey();
-                    String resourceKey = unSyncedRealmReading.getResource().getKey();
-//                String resourceSessionKey = unSyncedRealmReading.getMeasurement().getKey();
-                    String value = unSyncedRealmReading.getValue();
-                    String enteredDateTime = DateUtil.getTZDateString(unSyncedRealmReading.getCreationTime());
-
-
-                    try {
-                        JSONObject paramObject = new JSONObject();
-                        paramObject.put("user", userKey);
-                        paramObject.put("ngo", ngoKey);
-                        paramObject.put("measurement", measurementKey);
-                        paramObject.put("resource", resourceKey);
-                        paramObject.put("value", value);
-                        paramObject.put("entered_date_time", enteredDateTime);
-
-                        Response<UserReading> response = ApiClient.getApiInterface(getContext())
-                                .createUserReading(paramObject.toString()).execute();
-                        if (response.isSuccessful()) {
-                            UserReading userReading = response.body();
-                            List<RealmResource> realmResources = RealmHandler.getAllResources();
-                            appLogger.logInformation("Realm resources " + realmResources.size());
-
-                            if (userReading == null) {
-                                return;
-                            }
-                            realm = Realm.getDefaultInstance();
-                            realm.beginTransaction();
-                            unSyncedRealmReading.setKey(userReading.getKey());
-                            realm.copyToRealmOrUpdate(unSyncedRealmReading);
-                            realm.commitTransaction();
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                Response<User> response = ApiClient.getApiInterface(getContext())
+                        .createAthlete(paramObject.toString()).execute();
+                if (response.isSuccessful()) {
+                    User user = response.body();
+                    if (user == null) {
+                        return;
                     }
+                    Realm realmInstance = Realm.getDefaultInstance();
+                    realmInstance.beginTransaction();
+                    offlineAthlete.setKey(user.getKey());
+                    realmInstance.copyToRealmOrUpdate(offlineAthlete);
+                    realmInstance.commitTransaction();
+                    realmInstance.close();
+
+                    // Sync baseline data for athlete
+                    syncBaselineForAthlete(offlineAthlete);
+
+
                 }
-
-                realm = Realm.getDefaultInstance();
-                realm.beginTransaction();
-                unSyncedEvaluatedResource.setSynced(true);
-                realm.copyToRealmOrUpdate(unSyncedEvaluatedResource);
-                realm.commitTransaction();
-
-
             } catch (JSONException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }
         realm.close();
 
 
+    }
+
+    private void syncBaselineForAthlete(RealmUser offlineAthlete) {
+        List<RealmReading> unSyncedRealmReadings = RealmHandler.getBaselineForAthlete(offlineAthlete);
+        for (RealmReading unSyncedRealmReading : unSyncedRealmReadings) {
+            createUserReading(unSyncedRealmReading);
+        }
+    }
+
+    private void createUserReading(RealmReading unSyncedRealmReading) {
+
+        String userKey = unSyncedRealmReading.getUser() != null ? unSyncedRealmReading.getUser().getKey() : null;
+        if (userKey == null) {
+            return;
+        }
+        String ngoKey = unSyncedRealmReading.getNgo();
+//                String enteredBy =  unSyncedRealmReading.getEnteredByUser() != null ? unSyncedRealmReading.getEnteredByUser().getKey() : null;
+        String measurementKey = unSyncedRealmReading.getMeasurement().getKey();
+        String resourceKey = unSyncedRealmReading.getResource() != null ? unSyncedRealmReading.getResource().getKey() : null;
+//                String resourceSessionKey = unSyncedRealmReading.getMeasurement().getKey();
+        String value = unSyncedRealmReading.getValue();
+        String enteredDateTime = DateUtil.getTZDateString(unSyncedRealmReading.getCreationTime());
+
+        try {
+            JSONObject paramObject = new JSONObject();
+            paramObject.put("user", userKey);
+            paramObject.put("ngo", ngoKey);
+            paramObject.put("measurement", measurementKey);
+            paramObject.put("resource", resourceKey);
+            paramObject.put("value", value);
+            paramObject.put("entered_date_time", enteredDateTime);
+
+            Response<UserReading> response = ApiClient.getApiInterface(getContext())
+                    .createUserReading(paramObject.toString()).execute();
+            if (response.isSuccessful()) {
+                UserReading userReading = response.body();
+                if (userReading == null) {
+                    return;
+                }
+
+                Realm realm = Realm.getDefaultInstance();
+                realm.beginTransaction();
+                unSyncedRealmReading.setKey(userReading.getKey());
+                realm.copyToRealmOrUpdate(unSyncedRealmReading);
+                realm.commitTransaction();
+                realm.close();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 
     private void syncTranslations() {

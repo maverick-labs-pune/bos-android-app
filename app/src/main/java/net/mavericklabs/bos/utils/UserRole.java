@@ -19,8 +19,6 @@
 
 package net.mavericklabs.bos.utils;
 
-import net.mavericklabs.bos.object.Curriculum;
-
 public enum UserRole {
     COACH(Constants.COACH),
     ATHLETE(Constants.ATHLETE),

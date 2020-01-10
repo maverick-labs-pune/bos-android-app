@@ -79,4 +79,8 @@ public interface ApiInterface {
     @Headers("Content-Type: application/json")
     @POST("/readings/")
     Call<UserReading> createUserReading(@Body String body);
+
+    @Headers("Content-Type: application/json")
+    @POST("/athletes/")
+    Call<User> createAthlete(@Body String body);
 }

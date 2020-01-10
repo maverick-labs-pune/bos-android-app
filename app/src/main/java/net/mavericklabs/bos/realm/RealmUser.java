@@ -21,6 +21,7 @@ package net.mavericklabs.bos.realm;
 
 import net.mavericklabs.bos.model.LoginResponse;
 import net.mavericklabs.bos.model.User;
+import net.mavericklabs.bos.utils.UserRole;
 
 import java.util.List;
 
@@ -28,8 +29,11 @@ import io.realm.RealmList;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
+import static net.mavericklabs.bos.utils.Util.getRandomUUID;
+
 public class RealmUser extends RealmObject {
     @PrimaryKey
+    private String uuid;
     private String key;
     private String ngo;
     private String firstName;
@@ -44,7 +48,21 @@ public class RealmUser extends RealmObject {
     public RealmUser() {
 
     }
+    public RealmUser(String firstName, String middleName, String lastName, UserRole role, String ngoKey) {
+        this.uuid = getRandomUUID();
+        this.key = null;
+        this.ngo = ngoKey;
+        this.isActive = true;
+        this.firstName = firstName;
+        this.middleName = middleName;
+        this.lastName = lastName;
+        this.role = role.label;
+        this.resources = new RealmList<>();
+        this.language = null;
+        this.email = null;
+    }
     public RealmUser(User user, RealmList<RealmResource> realmResources) {
+        this.uuid = getRandomUUID();
         this.key = user.getKey();
         this.ngo = user.getNgo();
         this.isActive = user.getActive();
@@ -57,6 +75,7 @@ public class RealmUser extends RealmObject {
     }
 
     public RealmUser(LoginResponse loginResponse) {
+        this.uuid = getRandomUUID();
         this.key = loginResponse.getUserKey();
         this.ngo = loginResponse.getNgoKey();
         this.isActive = true;
@@ -152,5 +171,9 @@ public class RealmUser extends RealmObject {
 
     public void setResources(RealmList<RealmResource> resources) {
         this.resources = resources;
+    }
+
+    public String getUuid() {
+        return uuid;
     }
 }

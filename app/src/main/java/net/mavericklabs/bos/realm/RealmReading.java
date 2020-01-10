@@ -47,15 +47,15 @@ public class RealmReading extends RealmObject {
     }
 
     public RealmReading(RealmMeasurement realmMeasurement, RealmUser realmUser, RealmUser enteredByUser,
-                        RealmEvaluationResource realmEvaluationResource, Measurement measurement) {
+                        RealmResource realmResource, RealmEvaluationResource realmEvaluationResource, Measurement measurement) {
         this.uuid = UUID.randomUUID().toString();
         this.key = null;
         this.user = realmUser;
         this.ngo = realmUser.getNgo();
         this.enteredByUser = realmUser;
         this.measurement = realmMeasurement;
-        this.resource = realmEvaluationResource.getResource();
         this.evaluationResource = realmEvaluationResource;
+        this.resource = realmResource;
         this.value = measurement.getReading();
         this.creationTime = DateUtil.getCurrentTime();
     }

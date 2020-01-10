@@ -21,6 +21,8 @@ package net.mavericklabs.bos.fragment;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -67,9 +69,15 @@ public class ResourceFragment extends Fragment {
         emptyView = view.findViewById(R.id.empty_view);
         List<RealmResource> realmResources = RealmHandler.getAllResources();
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        recyclerView.setAdapter(new ResourceAdapter(getActivity(),realmResources, EvaluationResourceType.RESOURCE));
+        recyclerView.setAdapter(new ResourceAdapter(getActivity(), realmResources, EvaluationResourceType.RESOURCE));
         appLogger.logInformation(String.valueOf(realmResources.size()));
-        Util.setEmptyMessageIfNeeded(realmResources,recyclerView,emptyView);
+        Util.setEmptyMessageIfNeeded(realmResources, recyclerView, emptyView);
+    }
+
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        menu.clear();
+        super.onCreateOptionsMenu(menu, inflater);
     }
 
 }

@@ -40,13 +40,13 @@ import net.mavericklabs.bos.utils.Util;
 
 import java.util.List;
 
-import static net.mavericklabs.bos.utils.Constants.BUNDLE_KEY_ATHLETE_KEY;
+import static net.mavericklabs.bos.utils.Constants.BUNDLE_KEY_ATHLETE_UUID;
 
 public class AthleteActivity extends AppCompatActivity {
     private AppLogger appLogger = new AppLogger(getClass().toString());
     private RecyclerView recyclerView;
     private TextView emptyView;
-    private String athleteKey;
+    private String athleteUUID;
     private TextView fullNameTextView;
     private Button viewResourcesButton;
     private TextView descriptionTextView;
@@ -62,7 +62,7 @@ public class AthleteActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
 
-        athleteKey = getIntent().getStringExtra(BUNDLE_KEY_ATHLETE_KEY);
+        athleteUUID = getIntent().getStringExtra(BUNDLE_KEY_ATHLETE_UUID);
         fullNameTextView = findViewById(R.id.text_view_full_name);
         descriptionTextView = findViewById(R.id.text_view_description);
         viewResourcesButton = findViewById(R.id.button_view_resources);
@@ -73,7 +73,7 @@ public class AthleteActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(AthleteActivity.this, SelectResourceActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                intent.putExtra(BUNDLE_KEY_ATHLETE_KEY, athleteKey);
+                intent.putExtra(BUNDLE_KEY_ATHLETE_UUID, athleteUUID);
                 startActivity(intent);
             }
         });
@@ -83,8 +83,8 @@ public class AthleteActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        RealmUser realmUser = RealmHandler.getAthleteByKey(athleteKey);
-        List<RealmReading> realmReadings = RealmHandler.getReadingsForAthlete(realmUser.getKey());
+        RealmUser realmUser = RealmHandler.getAthleteByUUID(athleteUUID);
+        List<RealmReading> realmReadings = RealmHandler.getReadingsForAthlete(realmUser);
 
         fullNameTextView.setText(realmUser.getFullName());
         recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
@@ -92,6 +92,7 @@ public class AthleteActivity extends AppCompatActivity {
 
         Util.setEmptyMessageIfNeeded(recyclerView, recyclerView, emptyView);
 
+        appLogger.logInformation("Athlete key is " + realmUser.getKey());
     }
 
     @Override

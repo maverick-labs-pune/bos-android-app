@@ -21,7 +21,6 @@ package net.mavericklabs.bos.adapter;
 
 import android.content.Context;
 import android.content.Intent;
-import android.media.Image;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,7 +37,7 @@ import net.mavericklabs.bos.realm.RealmUser;
 
 import java.util.List;
 
-import static net.mavericklabs.bos.utils.Constants.BUNDLE_KEY_ATHLETE_KEY;
+import static net.mavericklabs.bos.utils.Constants.BUNDLE_KEY_ATHLETE_UUID;
 
 public class AthleteAdapter extends RecyclerView.Adapter<AthleteAdapter.AthleteViewHolder> {
     private List<RealmUser> athletes;
@@ -68,7 +67,7 @@ public class AthleteAdapter extends RecyclerView.Adapter<AthleteAdapter.AthleteV
             public void onClick(View v) {
                 Intent intent = new Intent(context, AthleteActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                intent.putExtra(BUNDLE_KEY_ATHLETE_KEY, realmUser.getKey());
+                intent.putExtra(BUNDLE_KEY_ATHLETE_UUID, realmUser.getUuid());
                 context.startActivity(intent);
             }
         });
