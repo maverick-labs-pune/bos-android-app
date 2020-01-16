@@ -33,9 +33,14 @@ import io.realm.Realm;
 import io.realm.RealmConfiguration;
 
 public class BosApplication extends Application {
-    public static final String SYNC_COMPLETED = "sync_stop";
     private static final String NET_MAVERICKLABS_BOS_DATASYNC_PROVIDER = "net.mavericklabs.bos.datasync.provider";
+    public static final String MEASUREMENTS = "measurements";
+    public static final String SYNC_COMPLETED = "sync_stop";
+    public static final String ATHLETES = "athletes";
+    public static final String GROUPS = "groups";
     public static final String TRANSLATIONS = "translations";
+    public static final String RESOURCES = "resources";
+    public static final String DAILY_PLANNER = "daily_planner";
     private static final String BASE_URL = "content://" + NET_MAVERICKLABS_BOS_DATASYNC_PROVIDER + "/";
     public static final Uri BASE_URI = Uri.parse(BASE_URL);
 

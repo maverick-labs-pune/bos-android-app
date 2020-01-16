@@ -20,7 +20,6 @@
 package net.mavericklabs.bos.adapter;
 
 import android.content.Context;
-import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,18 +27,13 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import net.mavericklabs.bos.R;
-import net.mavericklabs.bos.activity.AthleteActivity;
 import net.mavericklabs.bos.realm.RealmReading;
-import net.mavericklabs.bos.realm.RealmUser;
 import net.mavericklabs.bos.utils.DateUtil;
 
 import java.util.List;
-
-import static net.mavericklabs.bos.utils.Constants.BUNDLE_KEY_ATHLETE_KEY;
 
 public class AthleteReadingAdapter extends RecyclerView.Adapter<AthleteReadingAdapter.AthleteReadingViewHolder> {
     private Context context;
@@ -69,7 +63,9 @@ public class AthleteReadingAdapter extends RecyclerView.Adapter<AthleteReadingAd
         } else {
             final RealmReading realmReading = realmReadings.get(position - 1);
             holder.dateTextView.setText(DateUtil.dateToString(realmReading.getCreationTime()));
-            holder.readingMeasurementTextView.setText(realmReading.getMeasurement().getLabel());
+            if (realmReading.getMeasurement() != null){
+                holder.readingMeasurementTextView.setText(realmReading.getMeasurement().getLabel());
+            }
             holder.readingValueTextView.setText(realmReading.getValue());
             if (position % 2 == 1) {
                 holder.linearLayout.setBackgroundColor(context.getResources().getColor(R.color.white));

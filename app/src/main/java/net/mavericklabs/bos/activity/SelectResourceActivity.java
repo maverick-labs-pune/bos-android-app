@@ -35,13 +35,13 @@ import net.mavericklabs.bos.utils.AppLogger;
 import net.mavericklabs.bos.utils.EvaluationResourceType;
 import net.mavericklabs.bos.utils.Util;
 
-import static net.mavericklabs.bos.utils.Constants.BUNDLE_KEY_ATHLETE_KEY;
+import static net.mavericklabs.bos.utils.Constants.BUNDLE_KEY_ATHLETE_UUID;
 
 public class SelectResourceActivity extends AppCompatActivity {
     private AppLogger appLogger = new AppLogger(getClass().toString());
     private RecyclerView recyclerView;
     private TextView emptyView;
-    private String athleteKey;
+    private String athleteUUID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,7 +54,7 @@ public class SelectResourceActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayShowHomeEnabled(true);
         }
 
-        athleteKey = getIntent().getStringExtra(BUNDLE_KEY_ATHLETE_KEY);
+        athleteUUID = getIntent().getStringExtra(BUNDLE_KEY_ATHLETE_UUID);
         recyclerView = findViewById(R.id.recycler_view);
         emptyView = findViewById(R.id.empty_view);
 
@@ -64,7 +64,7 @@ public class SelectResourceActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        RealmUser realmUser = RealmHandler.getAthleteByKey(athleteKey);
+        RealmUser realmUser = RealmHandler.getAthleteByUUID(athleteUUID);
 
         recyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
         recyclerView.setAdapter(new ResourceAdapter(SelectResourceActivity.this,

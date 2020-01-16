@@ -19,8 +19,12 @@
 
 package net.mavericklabs.bos.fragment;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -32,6 +36,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import net.mavericklabs.bos.R;
+import net.mavericklabs.bos.activity.CreateAthleteActivity;
 import net.mavericklabs.bos.adapter.AthleteAdapter;
 import net.mavericklabs.bos.realm.RealmHandler;
 import net.mavericklabs.bos.realm.RealmUser;
@@ -75,5 +80,24 @@ public class AthleteFragment extends Fragment {
         recyclerView.setAdapter(new AthleteAdapter(athletes,getContext()));
         Util.setEmptyMessageIfNeeded(athletes,recyclerView,emptyView);
         appLogger.logInformation(String.valueOf(athletes.size()));
+    }
+
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        menu.clear();
+        inflater.inflate(R.menu.athlete, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.create_athlete) {
+            appLogger.logInformation("Clicked on create athlete");
+            Intent intent = new Intent(getContext(), CreateAthleteActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

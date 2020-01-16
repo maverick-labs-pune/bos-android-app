@@ -21,8 +21,10 @@ package net.mavericklabs.bos.realm;
 
 import net.mavericklabs.bos.model.LoginResponse;
 import net.mavericklabs.bos.model.User;
+import net.mavericklabs.bos.model.UserReading;
 import net.mavericklabs.bos.utils.AppLogger;
 import net.mavericklabs.bos.utils.Constants;
+import net.mavericklabs.bos.utils.UserRole;
 
 import java.util.List;
 
@@ -30,8 +32,11 @@ import io.realm.Realm;
 import io.realm.RealmList;
 import io.realm.Sort;
 
+import static net.mavericklabs.bos.utils.Constants.REGISTRATION_FORM;
+
 public class RealmHandler {
     static AppLogger appLogger = new AppLogger("RealmHandler");
+
     public static String getAccessToken() {
         Realm realm = Realm.getDefaultInstance();
         LoginResponse loginResponse = realm.where(LoginResponse.class).findFirst();
@@ -127,7 +132,7 @@ public class RealmHandler {
                         .equalTo("isEvaluated", false)
                         .or()
                         .equalTo("isSynced", false)
-                        .sort("lastModificationTime",Sort.DESCENDING)
+                        .sort("lastModificationTime", Sort.DESCENDING)
                         .findAll();
         realm.close();
         return realmEvaluationResources;
@@ -186,19 +191,19 @@ public class RealmHandler {
 
     }
 
-    public static RealmUser getAthleteByKey(String athleteKey) {
+    public static RealmUser getAthleteByUUID(String athleteUUID) {
         Realm realm = Realm.getDefaultInstance();
         RealmUser realmUser = realm.where(RealmUser.class)
-                .equalTo("key", athleteKey)
+                .equalTo("uuid", athleteUUID)
                 .findFirst();
         realm.close();
         return realmUser;
     }
 
-    public static List<RealmReading> getReadingsForAthlete(String athleteKey) {
+    public static List<RealmReading> getReadingsForAthlete(RealmUser realmUser) {
         Realm realm = Realm.getDefaultInstance();
         List<RealmReading> realmReading = realm.where(RealmReading.class)
-                .equalTo("user.key", athleteKey)
+                .equalTo("user.uuid", realmUser.getUuid())
                 .sort("creationTime", Sort.DESCENDING)
                 .findAll();
         realm.close();
@@ -223,7 +228,17 @@ public class RealmHandler {
         if (realmUser == null) {
             realm.beginTransaction();
             realmUser = new RealmUser(user, new RealmList<RealmResource>());
-            realm.copyToRealmOrUpdate(realmUser);
+            realmUser = realm.copyToRealmOrUpdate(realmUser);
+            realm.commitTransaction();
+        } else {
+            realm.beginTransaction();
+            realmUser.setFirstName(user.getFirstName());
+            realmUser.setMiddleName(user.getMiddleName());
+            realmUser.setLastName(user.getLastName());
+            realmUser.setEmail(user.getEmail());
+            realmUser.setActive(user.getActive());
+            realmUser.setRole(user.getRole());
+            realmUser = realm.copyToRealmOrUpdate(realmUser);
             realm.commitTransaction();
         }
         realm.close();
@@ -240,11 +255,11 @@ public class RealmHandler {
         return realmReadings;
     }
 
-    public static  List<RealmReading> getUnSyncedReadingsForEvaluationResource(RealmEvaluationResource realmEvaluationResource) {
+    public static List<RealmReading> getUnSyncedReadingsForEvaluationResource(RealmEvaluationResource realmEvaluationResource) {
         Realm realm = Realm.getDefaultInstance();
         List<RealmReading> realmReadings = realm.where(RealmReading.class)
                 .isNull("key")
-                .equalTo("evaluationResource.uuid",realmEvaluationResource.getUuid())
+                .equalTo("evaluationResource.uuid", realmEvaluationResource.getUuid())
                 .findAll();
         realm.close();
         appLogger.logInformation(String.valueOf(realmReadings.size()));
@@ -264,5 +279,64 @@ public class RealmHandler {
         realm.close();
         return realmEvaluationResources;
 
+    }
+
+    public static RealmResource getAthleteRegistrationForm() {
+        Realm realm = Realm.getDefaultInstance();
+        RealmResource realmResource = realm.where(RealmResource.class)
+                .equalTo("type", REGISTRATION_FORM)
+                .findFirst();
+        realm.close();
+        return realmResource;
+    }
+
+    public static List<RealmUser> getOfflineAthletes() {
+        Realm realm = Realm.getDefaultInstance();
+        List<RealmUser> offlineAthletes =
+                realm.where(RealmUser.class)
+                        .isNull("key")
+                        .equalTo("role", UserRole.ATHLETE.label)
+                        .findAll();
+        realm.close();
+        return offlineAthletes;
+
+    }
+
+    public static List<RealmReading> getBaselineForAthlete(RealmUser offlineAthlete) {
+        Realm realm = Realm.getDefaultInstance();
+        List<RealmReading> realmReadings = realm.where(RealmReading.class)
+                .isNull("key")
+                .equalTo("user.uuid", offlineAthlete.getUuid())
+                .isNull("resource")
+                .findAll();
+        realm.close();
+        return realmReadings;
+
+    }
+
+    public static List<RealmReading> getUnSyncedBaselinesForAthletes() {
+        Realm realm = Realm.getDefaultInstance();
+        List<RealmReading> realmReadings = realm.where(RealmReading.class)
+                .isNull("key")
+                .findAll();
+        realm.close();
+        return realmReadings;
+
+    }
+
+    public static RealmReading findReadingOrCreate(UserReading userReading, RealmUser realmUser,
+                                                   RealmMeasurement realmMeasurement) {
+        Realm realm = Realm.getDefaultInstance();
+        RealmReading realmReading = realm.where(RealmReading.class)
+                .equalTo("key", userReading.getKey())
+                .findFirst();
+        if (realmReading == null) {
+            realm.beginTransaction();
+            realmReading = new RealmReading(userReading, realmUser, realmMeasurement);
+            realmReading = realm.copyToRealmOrUpdate(realmReading);
+            realm.commitTransaction();
+        }
+        realm.close();
+        return realmReading;
     }
 }

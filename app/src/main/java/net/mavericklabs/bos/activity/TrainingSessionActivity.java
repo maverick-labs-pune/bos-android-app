@@ -100,7 +100,7 @@ public class TrainingSessionActivity extends AppCompatActivity {
                 final RealmEvaluationResource realmEvaluationResource = RealmHandler.getEvaluationResourceByUUID(evaluationResourceUUID);
                 final Curriculum curriculum = Util.convertRealmResourceToCurriculum(realmEvaluationResource);
                 final MeasurementReadingAdapter measurementReadingAdapter =
-                        new MeasurementReadingAdapter(getApplicationContext(), trainingSession.getMeasurements(), curriculum);
+                        new MeasurementReadingAdapter(getApplicationContext(), trainingSession.getMeasurements());
                 measurementsRecyclerView.setAdapter(measurementReadingAdapter);
 
                 usersRecyclerView.setVisibility(View.VISIBLE);
@@ -143,7 +143,9 @@ public class TrainingSessionActivity extends AppCompatActivity {
 
                                             // Add reading
                                             RealmReading realmReading = new RealmReading(realmMeasurement,
-                                                    athlete, selfRealmUser, realmEvaluationResource, measurementWithReading);
+                                                    athlete, selfRealmUser,
+                                                    realmEvaluationResource.getResource(),
+                                                    realmEvaluationResource, measurementWithReading);
                                             realm.beginTransaction();
                                             realm.copyToRealm(realmReading);
                                             realm.commitTransaction();
@@ -207,7 +209,9 @@ public class TrainingSessionActivity extends AppCompatActivity {
 
                                         // Add reading
                                         RealmReading realmReading = new RealmReading(realmMeasurement,
-                                                athlete, selfRealmUser, realmEvaluationResource, measurementWithReading);
+                                                athlete, selfRealmUser,
+                                                realmEvaluationResource.getResource(),
+                                                realmEvaluationResource, measurementWithReading);
                                         realm.beginTransaction();
                                         realm.copyToRealm(realmReading);
                                         realm.commitTransaction();

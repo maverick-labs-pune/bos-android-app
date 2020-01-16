@@ -20,6 +20,8 @@
 package net.mavericklabs.bos.realm;
 
 
+import net.mavericklabs.bos.model.User;
+import net.mavericklabs.bos.model.UserReading;
 import net.mavericklabs.bos.object.Measurement;
 import net.mavericklabs.bos.utils.DateUtil;
 
@@ -46,19 +48,36 @@ public class RealmReading extends RealmObject {
 
     }
 
+    public RealmReading(UserReading userReading,
+                        RealmUser realmUser,
+                        RealmMeasurement realmMeasurement) {
+        this.uuid = UUID.randomUUID().toString();
+        this.key = userReading.getKey();
+        this.user = realmUser;
+        this.ngo = userReading.getNgo();
+        this.enteredByUser = null;
+        this.measurement = realmMeasurement;
+        this.evaluationResource = null;
+        this.resource = null;
+        this.value = userReading.getValue();
+//        TODO
+        this.creationTime = DateUtil.getCurrentTime();
+    }
+
     public RealmReading(RealmMeasurement realmMeasurement, RealmUser realmUser, RealmUser enteredByUser,
-                        RealmEvaluationResource realmEvaluationResource, Measurement measurement) {
+                        RealmResource realmResource, RealmEvaluationResource realmEvaluationResource, Measurement measurement) {
         this.uuid = UUID.randomUUID().toString();
         this.key = null;
         this.user = realmUser;
         this.ngo = realmUser.getNgo();
         this.enteredByUser = realmUser;
         this.measurement = realmMeasurement;
-        this.resource = realmEvaluationResource.getResource();
         this.evaluationResource = realmEvaluationResource;
+        this.resource = realmResource;
         this.value = measurement.getReading();
         this.creationTime = DateUtil.getCurrentTime();
     }
+
 
     public String getKey() {
         return key;

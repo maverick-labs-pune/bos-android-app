@@ -21,6 +21,7 @@ package net.mavericklabs.bos.adapter;
 
 import android.content.Context;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -42,6 +43,8 @@ import net.mavericklabs.bos.realm.RealmHandler;
 import net.mavericklabs.bos.realm.RealmMeasurement;
 import net.mavericklabs.bos.utils.AppLogger;
 
+import org.w3c.dom.Text;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,13 +54,11 @@ import static android.text.InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS;
 public class MeasurementReadingAdapter extends RecyclerView.Adapter<MeasurementReadingAdapter.MeasurementReadingViewHolder> {
     private Context context;
     private List<Measurement> measurements;
-    private Curriculum curriculum;
     private final AppLogger appLogger = new AppLogger(getClass().toString());
 
-    public MeasurementReadingAdapter(Context context, List<Measurement> measurements, Curriculum curriculum) {
+    public MeasurementReadingAdapter(Context context, List<Measurement> measurements) {
         this.context = context;
         this.measurements = measurements;
-        this.curriculum = curriculum;
     }
 
     @NonNull
@@ -76,8 +77,8 @@ public class MeasurementReadingAdapter extends RecyclerView.Adapter<MeasurementR
         appLogger.logDebug(realmMeasurement.getKey());
         appLogger.logDebug(realmMeasurement.getLabel());
         appLogger.logDebug(realmMeasurement.getInputType());
-        holder.labelTextView.setText(realmMeasurement.getLabel());
-        holder.uomTextView.setText(realmMeasurement.getUnitOfMeasurement());
+        holder.editTextView.setHint(realmMeasurement.getLabel());
+//        holder.uomTextView.setText(realmMeasurement.getUnitOfMeasurement());
         switch (realmMeasurement.getInputType()) {
             case "text":
                 holder.editTextView.setInputType(TYPE_TEXT_FLAG_NO_SUGGESTIONS);
@@ -163,7 +164,7 @@ public class MeasurementReadingAdapter extends RecyclerView.Adapter<MeasurementR
         for (Measurement measurement : measurements) {
             appLogger.logInformation(measurement.getReading());
             if (measurement.isRequired()) {
-                if (measurement.getReading() == null || measurement.getReading().length() == 0) {
+                if (TextUtils.isEmpty(measurement.getReading())) {
                     return false;
                 }
             }
@@ -183,7 +184,7 @@ public class MeasurementReadingAdapter extends RecyclerView.Adapter<MeasurementR
     class MeasurementReadingViewHolder extends RecyclerView.ViewHolder {
 
         private final TextView labelTextView;
-        private final TextView uomTextView;
+//        private final TextView uomTextView;
         private final CardView cardView;
         private final EditText editTextView;
         private final Spinner spinner;
@@ -191,7 +192,7 @@ public class MeasurementReadingAdapter extends RecyclerView.Adapter<MeasurementR
         MeasurementReadingViewHolder(@NonNull View itemView) {
             super(itemView);
             labelTextView = itemView.findViewById(R.id.text_view_label);
-            uomTextView = itemView.findViewById(R.id.text_view_uom);
+//            uomTextView = itemView.findViewById(R.id.text_view_uom);
             cardView = itemView.findViewById(R.id.card_view);
             editTextView = itemView.findViewById(R.id.edit_text_view);
             spinner = itemView.findViewById(R.id.spinner);

@@ -66,6 +66,7 @@ public class DailyPlannerFragment extends Fragment {
     private String locale;
     private final Object updateLock = new Object();
     private ContentObserver syncCompletedObserver;
+    private ContentObserver dailyPlannerObserver;
     private AppLogger appLogger = new AppLogger(getClass().toString());
     private RecyclerView recyclerView;
     private TextView emptyView;
@@ -77,7 +78,8 @@ public class DailyPlannerFragment extends Fragment {
     }
 
     @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        menu.clear();
         super.onCreateOptionsMenu(menu, inflater);
     }
 
@@ -95,7 +97,7 @@ public class DailyPlannerFragment extends Fragment {
         loginResponse = RealmHandler.getLoginResponse();
         recyclerView = view.findViewById(R.id.recycler_view);
         emptyView = view.findViewById(R.id.empty_view);
-                FloatingActionButton floatActionButtonSync = view.findViewById(R.id.floating_action_button_sync);
+        FloatingActionButton floatActionButtonSync = view.findViewById(R.id.floating_action_button_sync);
 
         floatActionButtonSync.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -124,8 +126,13 @@ public class DailyPlannerFragment extends Fragment {
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
+    public void onResume() {
+        super.onResume();
+        List<RealmEvaluationResource> evaluationResources = RealmHandler.getUnevaluatedOrUnSyncedResources();
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        recyclerView.setAdapter(new DailyPlannerAdapter(getContext(), evaluationResources));
+        Util.setEmptyMessageIfNeeded(evaluationResources, recyclerView, emptyView);
+
         setTranslations();
         if (loginResponse != null) {
 
@@ -137,36 +144,44 @@ public class DailyPlannerFragment extends Fragment {
                     }
                 }
             };
+            dailyPlannerObserver = new ContentObserver(new Handler(Looper.getMainLooper())) {
+                public void onChange(boolean selfChange) {
+                    appLogger.logDebug("On change syncCompletedObserver");
+                    synchronized (updateLock) {
+                        List<RealmEvaluationResource> evaluationResources = RealmHandler.getUnevaluatedOrUnSyncedResources();
+                        recyclerView.setAdapter(new DailyPlannerAdapter(getContext(), evaluationResources));
+                        Util.setEmptyMessageIfNeeded(evaluationResources, recyclerView, emptyView);
+                    }
+                }
+            };
             Uri syncCompletedURI = Uri.withAppendedPath(BosApplication.BASE_URI,
                     BosApplication.SYNC_COMPLETED);
+            Uri dailyPlannerURI = Uri.withAppendedPath(BosApplication.BASE_URI,
+                    BosApplication.DAILY_PLANNER);
             Activity activity = getActivity();
             if (activity != null) {
                 ContentResolver contentResolver = activity.getContentResolver();
                 contentResolver.registerContentObserver(syncCompletedURI,
                         true, syncCompletedObserver);
+                contentResolver.registerContentObserver(dailyPlannerURI,
+                        true, dailyPlannerObserver);
                 appLogger.logDebug("Registered observers");
             }
         }
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        List<RealmEvaluationResource> evaluationResources = RealmHandler.getUnevaluatedOrUnSyncedResources();
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        recyclerView.setAdapter(new DailyPlannerAdapter(getContext(),evaluationResources));
-        Util.setEmptyMessageIfNeeded(evaluationResources,recyclerView,emptyView);
 
     }
 
     @Override
-    public void onStop() {
-        super.onStop();
+    public void onPause() {
+        super.onPause();
         Activity activity = getActivity();
         if (activity != null) {
             ContentResolver contentResolver = activity.getContentResolver();
             if (syncCompletedObserver != null) {
                 contentResolver.unregisterContentObserver(syncCompletedObserver);
+            }
+            if (dailyPlannerObserver != null) {
+                contentResolver.unregisterContentObserver(dailyPlannerObserver);
             }
         }
     }
