@@ -70,6 +70,9 @@ public interface ApiInterface {
     @GET("/users/{user_key}/resources/")
     Call<List<Resource>> getUserResources(@Path("user_key") String userKey);
 
+    @GET("/users/{user_key}/readings/")
+    Call<List<UserReading>> getUserReadings(@Path("user_key") String userKey);
+
     @GET("/users/{user_key}/groups/")
     Call<List<Group>> getGroups(@Path("user_key") String userKey);
 

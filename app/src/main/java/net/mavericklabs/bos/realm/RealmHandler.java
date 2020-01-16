@@ -21,6 +21,7 @@ package net.mavericklabs.bos.realm;
 
 import net.mavericklabs.bos.model.LoginResponse;
 import net.mavericklabs.bos.model.User;
+import net.mavericklabs.bos.model.UserReading;
 import net.mavericklabs.bos.utils.AppLogger;
 import net.mavericklabs.bos.utils.Constants;
 import net.mavericklabs.bos.utils.UserRole;
@@ -229,7 +230,7 @@ public class RealmHandler {
             realmUser = new RealmUser(user, new RealmList<RealmResource>());
             realmUser = realm.copyToRealmOrUpdate(realmUser);
             realm.commitTransaction();
-        }else{
+        } else {
             realm.beginTransaction();
             realmUser.setFirstName(user.getFirstName());
             realmUser.setMiddleName(user.getMiddleName());
@@ -321,5 +322,21 @@ public class RealmHandler {
         realm.close();
         return realmReadings;
 
+    }
+
+    public static RealmReading findReadingOrCreate(UserReading userReading, RealmUser realmUser,
+                                                   RealmMeasurement realmMeasurement) {
+        Realm realm = Realm.getDefaultInstance();
+        RealmReading realmReading = realm.where(RealmReading.class)
+                .equalTo("key", userReading.getKey())
+                .findFirst();
+        if (realmReading == null) {
+            realm.beginTransaction();
+            realmReading = new RealmReading(userReading, realmUser, realmMeasurement);
+            realmReading = realm.copyToRealmOrUpdate(realmReading);
+            realm.commitTransaction();
+        }
+        realm.close();
+        return realmReading;
     }
 }

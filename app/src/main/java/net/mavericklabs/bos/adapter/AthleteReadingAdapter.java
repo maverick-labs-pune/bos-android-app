@@ -63,7 +63,9 @@ public class AthleteReadingAdapter extends RecyclerView.Adapter<AthleteReadingAd
         } else {
             final RealmReading realmReading = realmReadings.get(position - 1);
             holder.dateTextView.setText(DateUtil.dateToString(realmReading.getCreationTime()));
-            holder.readingMeasurementTextView.setText(realmReading.getMeasurement().getLabel());
+            if (realmReading.getMeasurement() != null){
+                holder.readingMeasurementTextView.setText(realmReading.getMeasurement().getLabel());
+            }
             holder.readingValueTextView.setText(realmReading.getValue());
             if (position % 2 == 1) {
                 holder.linearLayout.setBackgroundColor(context.getResources().getColor(R.color.white));

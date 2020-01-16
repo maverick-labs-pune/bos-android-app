@@ -282,7 +282,9 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 }
 
                 for (User athlete : athletes) {
-                    fetchUserResources(athlete);
+                    RealmUser realmUser = RealmHandler.findUserOrCreate(athlete);
+                    fetchUserResources(realmUser);
+                    fetchUserReadings(realmUser);
                 }
                 realm.close();
                 ContentResolver contentResolver = getContext().getContentResolver();
@@ -295,19 +297,40 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         }
     }
 
-    private void fetchUserResources(User athlete) {
+    private void fetchUserReadings(RealmUser realmUser) {
+        try {
+            Response<List<UserReading>> response = ApiClient.getApiInterface(getContext())
+                    .getUserReadings(realmUser.getKey()).execute();
+            if (response.isSuccessful()) {
+                List<UserReading> userReadings = response.body();
+                if (userReadings == null) {
+                    return;
+                }
+
+                for (UserReading userReading : userReadings) {
+                    RealmMeasurement realmMeasurement = RealmHandler.getMeasurementFromKey(userReading.getMeasurement());
+                    RealmHandler.findReadingOrCreate(userReading,realmUser,realmMeasurement);
+                }
+
+//                realm.close();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void fetchUserResources(RealmUser realmUser) {
 
         try {
-            Response<List<Resource>> response = ApiClient.getApiInterface(getContext()).getUserResources(athlete.getKey()).execute();
+            Response<List<Resource>> response = ApiClient.getApiInterface(getContext()).getUserResources(realmUser.getKey()).execute();
             if (response.isSuccessful()) {
                 List<Resource> resources = response.body();
-                Realm realm = Realm.getDefaultInstance();
 
                 if (resources == null) {
                     return;
                 }
 
-                RealmUser realmUser = RealmHandler.findUserOrCreate(athlete);
+                Realm realm = Realm.getDefaultInstance();
                 realm.beginTransaction();
                 RealmList<RealmResource> realmResources = new RealmList<>();
                 for (Resource resource : resources) {
@@ -350,7 +373,10 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
         }
         realm.close();
-
+        ContentResolver contentResolver = getContext().getContentResolver();
+        Uri uri = Uri.withAppendedPath(BosApplication.BASE_URI, BosApplication.DAILY_PLANNER);
+        contentResolver.notifyChange(uri, null);
+        appLogger.logDebug("notifyChange DAILY_PLANNER");
 
     }
 
