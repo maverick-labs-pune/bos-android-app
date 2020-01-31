@@ -49,6 +49,9 @@ public class LoginResponse extends RealmObject {
     @SerializedName("role")
     private String role;
 
+    @SerializedName("gender")
+    private String gender;
+
     private String language;
     private String token;
     @SerializedName("expiry_date")
@@ -149,5 +152,9 @@ public class LoginResponse extends RealmObject {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public String getGender() {
+        return gender;
     }
 }

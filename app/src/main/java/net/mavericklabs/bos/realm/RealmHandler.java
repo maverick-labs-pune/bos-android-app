@@ -26,6 +26,7 @@ import net.mavericklabs.bos.utils.AppLogger;
 import net.mavericklabs.bos.utils.Constants;
 import net.mavericklabs.bos.utils.UserRole;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import io.realm.Realm;
@@ -94,10 +95,50 @@ public class RealmHandler {
 
     public static List<RealmResource> getAllResources() {
         Realm realm = Realm.getDefaultInstance();
-        List<RealmResource> realmResource = realm.where(RealmResource.class).findAll();
+        List<RealmResource> realmResources = realm.where(RealmResource.class).findAll();
         realm.close();
-        return realmResource;
+        return realmResources;
 
+    }
+
+    public static List<RealmResource> getAllActiveResources(String userKey) {
+        Realm realm = Realm.getDefaultInstance();
+        List<RealmResource> realmResources = realm.where(RealmResource.class)
+                .equalTo("isActive", Boolean.TRUE)
+                .findAll();
+        realm.close();
+        return realmResources;
+
+    }
+
+    public static List<RealmResource> getSelfAllActiveResources() {
+        LoginResponse loginResponse = getLoginResponse();
+        if (loginResponse == null){
+            return new ArrayList<>();
+        }
+        Realm realm = Realm.getDefaultInstance();
+        List<RealmResource> realmResources = realm.where(RealmResource.class)
+                .equalTo("isActive", Boolean.TRUE)
+                .beginGroup()
+                .equalTo("realmUser.key",loginResponse.getUserKey())
+                .or()
+                .equalTo("realmGroup.user.key",loginResponse.getUserKey())
+                .endGroup()
+                .findAll();
+        realm.close();
+        return realmResources;
+
+    }
+
+    public static void deactivateResource(RealmResource deactivatedResource) {
+        Realm realm = Realm.getDefaultInstance();
+        RealmResource realmResource = realm.where(RealmResource.class)
+                .equalTo("key", deactivatedResource.getKey())
+                .findFirst();
+        if (realmResource != null) {
+            realmResource.setActive(Boolean.FALSE);
+        }
+        realm.close();
     }
 
     public static List<RealmGroup> getAllGroups() {
@@ -106,6 +147,27 @@ public class RealmHandler {
         realm.close();
         return realmGroups;
 
+    }
+
+    public static List<RealmGroup> getAllActiveGroups() {
+        Realm realm = Realm.getDefaultInstance();
+        List<RealmGroup> realmGroups = realm.where(RealmGroup.class)
+                .equalTo("isActive", Boolean.TRUE)
+                .findAll();
+        realm.close();
+        return realmGroups;
+
+    }
+
+    public static void deactivateGroup(RealmGroup deactivatedGroup) {
+        Realm realm = Realm.getDefaultInstance();
+        RealmGroup realmGroup = realm.where(RealmGroup.class)
+                .equalTo("key", deactivatedGroup.getKey())
+                .findFirst();
+        if (realmGroup != null) {
+            realmGroup.setActive(Boolean.FALSE);
+        }
+        realm.close();
     }
 
     public static List<RealmUser> getAllUsers() {
@@ -118,11 +180,34 @@ public class RealmHandler {
 
     public static List<RealmUser> getAllAthletes() {
         Realm realm = Realm.getDefaultInstance();
-        List<RealmUser> realmUsers = realm.where(RealmUser.class).equalTo("role",
-                Constants.ATHLETE).findAll();
+        List<RealmUser> realmUsers = realm.where(RealmUser.class)
+                .equalTo("role", Constants.ATHLETE)
+                .findAll();
         realm.close();
         return realmUsers;
 
+    }
+
+    public static List<RealmUser> getAllActiveAthletes() {
+        Realm realm = Realm.getDefaultInstance();
+        List<RealmUser> realmUsers = realm.where(RealmUser.class)
+                .equalTo("isActive", Boolean.TRUE)
+                .equalTo("role", Constants.ATHLETE)
+                .findAll();
+        realm.close();
+        return realmUsers;
+
+    }
+
+    public static void deactivateUser(RealmUser deactivatedUser) {
+        Realm realm = Realm.getDefaultInstance();
+        RealmUser realmUser = realm.where(RealmUser.class)
+                .equalTo("key", deactivatedUser.getKey())
+                .findFirst();
+        if (realmUser != null) {
+            realmUser.setActive(Boolean.FALSE);
+        }
+        realm.close();
     }
 
     public static List<RealmEvaluationResource> getUnevaluatedOrUnSyncedResources() {
@@ -238,6 +323,7 @@ public class RealmHandler {
             realmUser.setEmail(user.getEmail());
             realmUser.setActive(user.getActive());
             realmUser.setRole(user.getRole());
+            realmUser.setGender(user.getGender());
             realmUser = realm.copyToRealmOrUpdate(realmUser);
             realm.commitTransaction();
         }
@@ -339,4 +425,5 @@ public class RealmHandler {
         realm.close();
         return realmReading;
     }
+
 }

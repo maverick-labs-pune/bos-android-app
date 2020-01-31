@@ -67,7 +67,7 @@ public class ResourceFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         recyclerView = view.findViewById(R.id.recycler_view);
         emptyView = view.findViewById(R.id.empty_view);
-        List<RealmResource> realmResources = RealmHandler.getAllResources();
+        List<RealmResource> realmResources = RealmHandler.getSelfAllActiveResources();
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setAdapter(new ResourceAdapter(getActivity(), realmResources, EvaluationResourceType.RESOURCE));
         appLogger.logInformation(String.valueOf(realmResources.size()));

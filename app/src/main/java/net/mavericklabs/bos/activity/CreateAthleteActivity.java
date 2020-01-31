@@ -23,6 +23,7 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.text.InputType;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
@@ -59,6 +60,7 @@ import net.mavericklabs.bos.realm.RealmUser;
 import net.mavericklabs.bos.retrofit.ApiClient;
 import net.mavericklabs.bos.utils.ActivityMode;
 import net.mavericklabs.bos.utils.AppLogger;
+import net.mavericklabs.bos.utils.Gender;
 import net.mavericklabs.bos.utils.NetworkConnection;
 import net.mavericklabs.bos.utils.ToastUtils;
 import net.mavericklabs.bos.utils.UserRole;
@@ -76,6 +78,7 @@ import retrofit2.Response;
 
 import static java.lang.Thread.sleep;
 import static net.mavericklabs.bos.utils.Util.convertRealmResourceToTrainingSession;
+import static net.mavericklabs.bos.utils.Util.getGender;
 
 public class CreateAthleteActivity extends AppCompatActivity {
 
@@ -84,6 +87,7 @@ public class CreateAthleteActivity extends AppCompatActivity {
     private TextView emptyView;
     private MeasurementReadingAdapter measurementReadingAdapter;
     private TextInputEditText firstNameEditText, middleNameEditText, lastNameEditText;
+    private Spinner spinner;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,8 +105,25 @@ public class CreateAthleteActivity extends AppCompatActivity {
         emptyView = findViewById(R.id.empty_view);
         firstNameEditText = findViewById(R.id.edit_text_first_name);
         middleNameEditText = findViewById(R.id.edit_text_middle_name);
-        lastNameEditText = findViewById(R.id.edit_text_last_name);
+        spinner = findViewById(R.id.spinner_gender);
+        String selectedGender = null;
         measurementsRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+
+        Spinner spinner = (Spinner) findViewById(R.id.spinner);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                R.array.gender_array, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(adapter);
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                appLogger.logInformation(String.valueOf(parent.getItemAtPosition(position)));
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
 
         final RealmResource realmResource = RealmHandler.getAthleteRegistrationForm();
         Util.setEmptyMessageIfNeeded(realmResource, measurementsRecyclerView, emptyView);
@@ -128,6 +149,7 @@ public class CreateAthleteActivity extends AppCompatActivity {
                 String firstName = firstNameEditText.getText().toString();
                 String middleName = middleNameEditText.getText().toString();
                 String lastName = lastNameEditText.getText().toString();
+                Gender gender = getGender("male");
 //              Create an offline athlete
 //              Save data and mark as evaluated
                 RealmUser selfRealmUser = RealmHandler.getSelfRealmUser();
@@ -136,7 +158,12 @@ public class CreateAthleteActivity extends AppCompatActivity {
                     return;
                 }
                 Realm realm = Realm.getDefaultInstance();
-                RealmUser newAthlete = new RealmUser(firstName, middleName, lastName, UserRole.ATHLETE, selfRealmUser.getNgo());
+                RealmUser newAthlete = new RealmUser(firstName,
+                        middleName,
+                        lastName,
+                        UserRole.ATHLETE,
+                        gender,
+                        selfRealmUser.getNgo());
                 realm.beginTransaction();
                 newAthlete = realm.copyToRealm(newAthlete);
                 realm.commitTransaction();

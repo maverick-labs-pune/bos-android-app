@@ -29,6 +29,7 @@ import android.content.SyncResult;
 import android.net.Uri;
 import android.os.Bundle;
 
+import com.google.android.gms.common.util.CollectionUtils;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
@@ -53,7 +54,6 @@ import net.mavericklabs.bos.model.Translation;
 import net.mavericklabs.bos.realm.RealmHandler;
 import net.mavericklabs.bos.retrofit.ApiClient;
 import net.mavericklabs.bos.utils.DateUtil;
-import net.mavericklabs.bos.utils.Util;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -68,6 +68,8 @@ import io.realm.RealmList;
 import retrofit2.Response;
 
 import static android.content.Context.ACCOUNT_SERVICE;
+import static net.mavericklabs.bos.utils.Util.removeGroupFromList;
+import static net.mavericklabs.bos.utils.Util.removeResourceFromList;
 
 public class SyncAdapter extends AbstractThreadedSyncAdapter {
     private AppLogger appLogger = new AppLogger(getClass().toString());
@@ -169,14 +171,13 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             Response<List<Measurement>> response = ApiClient.getApiInterface(getContext()).getAllMeasurements(ngoKey).execute();
             if (response.isSuccessful()) {
                 List<Measurement> measurements = response.body();
+                if (CollectionUtils.isEmpty(measurements)) {
+                    return;
+                }
+
                 Realm realm = Realm.getDefaultInstance();
                 List<RealmMeasurement> realmMeasurements = RealmHandler.getAllMeasurements();
                 appLogger.logInformation("Realm measurements " + realmMeasurements.size());
-
-
-                if (measurements == null) {
-                    return;
-                }
                 realm.beginTransaction();
                 for (Measurement measurement : measurements) {
                     RealmMeasurement realmMeasurement = new RealmMeasurement(measurement);
@@ -187,7 +188,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 ContentResolver contentResolver = getContext().getContentResolver();
                 Uri uri = Uri.withAppendedPath(BosApplication.BASE_URI, BosApplication.MEASUREMENTS);
                 contentResolver.notifyChange(uri, null);
-                appLogger.logDebug("notifyChange GROUPS");
+                appLogger.logDebug("notifyChange MEASUREMENTS");
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -200,20 +201,26 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             Response<List<Resource>> response = ApiClient.getApiInterface(getContext()).getUserResources(userKey).execute();
             if (response.isSuccessful()) {
                 List<Resource> resources = response.body();
-                Realm realm = Realm.getDefaultInstance();
-                List<RealmResource> realmResources = RealmHandler.getAllResources();
-                appLogger.logInformation("Realm resources " + realmResources.size());
-
-
-                if (resources == null) {
+                if (CollectionUtils.isEmpty(resources)) {
                     return;
                 }
-                realm.beginTransaction();
+                Realm realm = Realm.getDefaultInstance();
+                List<RealmResource> realmResources = RealmHandler.getAllActiveResources(userKey);
+                appLogger.logInformation("Realm resources " + realmResources.size());
+                List<RealmResource> inMemoryRealmResources = realm.copyFromRealm(realmResources);
 
+                realm.beginTransaction();
                 for (Resource resource : resources) {
                     RealmResource realmResource = new RealmResource(resource);
                     realm.copyToRealmOrUpdate(realmResource);
+                    removeResourceFromList(inMemoryRealmResources, realmResource);
                 }
+
+                appLogger.logInformation("Realm deactivated resources " + inMemoryRealmResources.size());
+                for (RealmResource deactivatedResource : inMemoryRealmResources) {
+                    RealmHandler.deactivateResource(deactivatedResource);
+                }
+
                 realm.commitTransaction();
                 realm.close();
                 ContentResolver contentResolver = getContext().getContentResolver();
@@ -232,17 +239,16 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             Response<List<Group>> response = ApiClient.getApiInterface(getContext()).getGroups(userKey).execute();
             if (response.isSuccessful()) {
                 List<Group> groups = response.body();
-                Realm realm = Realm.getDefaultInstance();
-                List<RealmGroup> realmGroups = RealmHandler.getAllGroups();
-                appLogger.logInformation("Realm groups " + realmGroups.size());
-
-                if (groups == null) {
+                if (CollectionUtils.isEmpty(groups)) {
                     return;
                 }
 
-                for (Group group : groups) {
-                    appLogger.logInformation(String.valueOf(group.getResources().size()));
+                Realm realm = Realm.getDefaultInstance();
+                List<RealmGroup> realmGroups = RealmHandler.getAllActiveGroups();
+                appLogger.logInformation("Realm groups " + realmGroups.size());
+                List<RealmGroup> inMemoryRealmGroups = realm.copyFromRealm(realmGroups);
 
+                for (Group group : groups) {
                     // Get Realm users
                     RealmList<RealmUser> realmUsers = new RealmList<>();
                     for (User user : group.getUsers()) {
@@ -250,12 +256,18 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                         realmUsers.add(realmUser);
                     }
                     realm.beginTransaction();
-
                     RealmGroup realmGroup = new RealmGroup(group, realmUsers);
                     realm.copyToRealmOrUpdate(realmGroup);
                     realm.commitTransaction();
+                    removeGroupFromList(inMemoryRealmGroups, realmGroup);
 
                 }
+
+                appLogger.logInformation("Realm deactivated groups " + inMemoryRealmGroups.size());
+                for (RealmGroup realmGroup : inMemoryRealmGroups) {
+                    RealmHandler.deactivateGroup(realmGroup);
+                }
+
                 realm.close();
                 ContentResolver contentResolver = getContext().getContentResolver();
                 Uri uri = Uri.withAppendedPath(BosApplication.BASE_URI, BosApplication.GROUPS);
@@ -274,10 +286,11 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             if (response.isSuccessful()) {
                 List<User> athletes = response.body();
                 Realm realm = Realm.getDefaultInstance();
-                List<RealmUser> realmAthletes = RealmHandler.getAllAthletes();
+                List<RealmUser> realmAthletes = RealmHandler.getAllActiveAthletes();
                 appLogger.logInformation("Realm athletes " + realmAthletes.size());
+                List<RealmUser> inMemoryRealmAthletes = realm.copyFromRealm(realmAthletes);
 
-                if (athletes == null) {
+                if (CollectionUtils.isEmpty(athletes)) {
                     return;
                 }
 
@@ -286,11 +299,16 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                     fetchUserResources(realmUser);
                     fetchUserReadings(realmUser);
                 }
+
+                appLogger.logInformation("Realm deactivated athletes " + inMemoryRealmAthletes.size());
+                for (RealmUser realmUser : inMemoryRealmAthletes) {
+                    RealmHandler.deactivateUser(realmUser);
+                }
                 realm.close();
                 ContentResolver contentResolver = getContext().getContentResolver();
                 Uri uri = Uri.withAppendedPath(BosApplication.BASE_URI, BosApplication.ATHLETES);
                 contentResolver.notifyChange(uri, null);
-                appLogger.logDebug("notifyChange TRANSLATIONS");
+                appLogger.logDebug("notifyChange ATHLETES");
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -303,16 +321,13 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                     .getUserReadings(realmUser.getKey()).execute();
             if (response.isSuccessful()) {
                 List<UserReading> userReadings = response.body();
-                if (userReadings == null) {
+                if (CollectionUtils.isEmpty(userReadings)) {
                     return;
                 }
-
                 for (UserReading userReading : userReadings) {
                     RealmMeasurement realmMeasurement = RealmHandler.getMeasurementFromKey(userReading.getMeasurement());
-                    RealmHandler.findReadingOrCreate(userReading,realmUser,realmMeasurement);
+                    RealmHandler.findReadingOrCreate(userReading, realmUser, realmMeasurement);
                 }
-
-//                realm.close();
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -325,8 +340,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             Response<List<Resource>> response = ApiClient.getApiInterface(getContext()).getUserResources(realmUser.getKey()).execute();
             if (response.isSuccessful()) {
                 List<Resource> resources = response.body();
-
-                if (resources == null) {
+                if (CollectionUtils.isEmpty(resources)) {
                     return;
                 }
 

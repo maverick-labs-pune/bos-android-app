@@ -40,6 +40,8 @@ public class User {
     private String language;
     @SerializedName("role")
     private String role;
+    @SerializedName("gender")
+    private String gender;
     @SerializedName("is_active")
     private Boolean isActive;
 
@@ -114,5 +116,13 @@ public class User {
 
     public void setActive(Boolean active) {
         isActive = active;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
     }
 }

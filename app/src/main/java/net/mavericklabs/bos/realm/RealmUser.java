@@ -21,6 +21,7 @@ package net.mavericklabs.bos.realm;
 
 import net.mavericklabs.bos.model.LoginResponse;
 import net.mavericklabs.bos.model.User;
+import net.mavericklabs.bos.utils.Gender;
 import net.mavericklabs.bos.utils.UserRole;
 
 import java.util.List;
@@ -39,6 +40,7 @@ public class RealmUser extends RealmObject {
     private String firstName;
     private String middleName;
     private String lastName;
+    private String gender;
     private String email;
     private String language;
     private String role;
@@ -48,7 +50,8 @@ public class RealmUser extends RealmObject {
     public RealmUser() {
 
     }
-    public RealmUser(String firstName, String middleName, String lastName, UserRole role, String ngoKey) {
+    public RealmUser(String firstName, String middleName, String lastName, UserRole role,
+                     Gender gender, String ngoKey) {
         this.uuid = getRandomUUID();
         this.key = null;
         this.ngo = ngoKey;
@@ -57,6 +60,7 @@ public class RealmUser extends RealmObject {
         this.middleName = middleName;
         this.lastName = lastName;
         this.role = role.label;
+        this.gender = gender.label;
         this.resources = new RealmList<>();
         this.language = null;
         this.email = null;
@@ -70,6 +74,7 @@ public class RealmUser extends RealmObject {
         this.middleName = user.getMiddleName();
         this.lastName = user.getLastName();
         this.role = user.getRole();
+        this.gender = user.getGender();
         this.resources = realmResources;
         this.language = user.getLanguage();
     }
@@ -82,6 +87,7 @@ public class RealmUser extends RealmObject {
         this.firstName = loginResponse.getFirstName();
         this.lastName = loginResponse.getLastName();
         this.role = loginResponse.getRole();
+        this.gender = loginResponse.getGender();
         this.language = loginResponse.getLanguage();
     }
 
@@ -175,5 +181,13 @@ public class RealmUser extends RealmObject {
 
     public String getUuid() {
         return uuid;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
     }
 }

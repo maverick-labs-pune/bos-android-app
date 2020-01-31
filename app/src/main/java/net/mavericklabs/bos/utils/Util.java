@@ -33,6 +33,7 @@ import net.mavericklabs.bos.object.Day;
 import net.mavericklabs.bos.object.Measurement;
 import net.mavericklabs.bos.object.TrainingSession;
 import net.mavericklabs.bos.realm.RealmEvaluationResource;
+import net.mavericklabs.bos.realm.RealmGroup;
 import net.mavericklabs.bos.realm.RealmReading;
 import net.mavericklabs.bos.realm.RealmResource;
 import net.mavericklabs.bos.realm.RealmUser;
@@ -117,6 +118,16 @@ public class Util {
             return UserRole.ATHLETE;
         }
         return UserRole.UNKNOWN;
+    }
+
+    public static Gender getGender(String gender) {
+        if (gender.toLowerCase().equals(Gender.MALE.label)) {
+            return Gender.MALE;
+        }
+        if (gender.toLowerCase().equals(Gender.FEMALE.label)) {
+            return Gender.FEMALE;
+        }
+        return Gender.UNKNOWN;
     }
 
     public static EvaluationResourceType getEvaluationResourceType(String evaluationResourceType) {
@@ -255,5 +266,27 @@ public class Util {
         Gson gson = new Gson();
         return gson.toJson(object);
 
+    }
+
+    public static void removeResourceFromList(List<RealmResource> realmResources,
+                                              RealmResource realmResourceToBeRemoved) {
+        for (RealmResource realmResource :
+                realmResources) {
+            if (realmResource.getKey().equals(realmResourceToBeRemoved.getKey())) {
+                realmResources.remove(realmResource);
+                return;
+            }
+        }
+    }
+
+    public static void removeGroupFromList(List<RealmGroup> realmGroups,
+                                           RealmGroup realmGroupToBeRemoved) {
+        for (RealmGroup realmGroup :
+                realmGroups) {
+            if (realmGroup.getKey().equals(realmGroupToBeRemoved.getKey())) {
+                realmGroups.remove(realmGroup);
+                return;
+            }
+        }
     }
 }

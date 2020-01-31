@@ -44,6 +44,8 @@ public interface Constants {
     String READ = "read";
     String EVALUATION = "evaluation";
 
+    String MALE = "male";
+    String FEMALE = "female";
 
     String BUNDLE_KEY_TRAINING_SESSION = "trainingSession";
     String BUNDLE_KEY_GROUP_KEY = "groupKey";
