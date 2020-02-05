@@ -120,9 +120,9 @@ public class RealmHandler {
         List<RealmResource> realmResources = realm.where(RealmResource.class)
                 .equalTo("isActive", Boolean.TRUE)
                 .beginGroup()
-                .equalTo("realmUser.key",loginResponse.getUserKey())
+                .equalTo("realmUsers.key",loginResponse.getUserKey())
                 .or()
-                .equalTo("realmGroup.user.key",loginResponse.getUserKey())
+                .equalTo("realmGroups.users.key",loginResponse.getUserKey())
                 .endGroup()
                 .findAll();
         realm.close();

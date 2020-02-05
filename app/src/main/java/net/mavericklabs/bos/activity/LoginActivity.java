@@ -310,7 +310,7 @@ public class LoginActivity extends AppCompatActivity {
         progress.setIndeterminate(true);
         progress.setCancelable(false);
         progress.show();
-        hideKeyboard(getWindow().getCurrentFocus());
+//        hideKeyboard(getWindow().getCurrentFocus());
         ApiInterface apiInterface = ApiClient.getApiInterface(getApplicationContext());
         LoginRequest obj = new LoginRequest();
         obj.setUsername(editUsername.getText().toString());

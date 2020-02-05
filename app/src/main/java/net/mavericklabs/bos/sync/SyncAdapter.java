@@ -202,6 +202,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             if (response.isSuccessful()) {
                 List<Resource> resources = response.body();
                 if (CollectionUtils.isEmpty(resources)) {
+                    // TODO what to do if empty
                     return;
                 }
                 Realm realm = Realm.getDefaultInstance();
@@ -210,12 +211,15 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 List<RealmResource> inMemoryRealmResources = realm.copyFromRealm(realmResources);
 
                 realm.beginTransaction();
+                RealmList<RealmResource> selfUserResources = new RealmList<>();
                 for (Resource resource : resources) {
                     RealmResource realmResource = new RealmResource(resource);
                     realm.copyToRealmOrUpdate(realmResource);
+                    selfUserResources.add(realmResource);
                     removeResourceFromList(inMemoryRealmResources, realmResource);
                 }
-
+                RealmUser selfUser = RealmHandler.getSelfRealmUser();
+//                selfUser.setResources(selfUserResources);
                 appLogger.logInformation("Realm deactivated resources " + inMemoryRealmResources.size());
                 for (RealmResource deactivatedResource : inMemoryRealmResources) {
                     RealmHandler.deactivateResource(deactivatedResource);
@@ -301,9 +305,11 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 }
 
                 appLogger.logInformation("Realm deactivated athletes " + inMemoryRealmAthletes.size());
+                realm.beginTransaction();
                 for (RealmUser realmUser : inMemoryRealmAthletes) {
                     RealmHandler.deactivateUser(realmUser);
                 }
+                realm.commitTransaction();
                 realm.close();
                 ContentResolver contentResolver = getContext().getContentResolver();
                 Uri uri = Uri.withAppendedPath(BosApplication.BASE_URI, BosApplication.ATHLETES);

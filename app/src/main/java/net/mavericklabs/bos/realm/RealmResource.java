@@ -30,6 +30,8 @@ import java.util.Date;
 
 import io.realm.RealmList;
 import io.realm.RealmObject;
+import io.realm.RealmResults;
+import io.realm.annotations.LinkingObjects;
 import io.realm.annotations.PrimaryKey;
 
 public class RealmResource extends RealmObject {
@@ -44,6 +46,10 @@ public class RealmResource extends RealmObject {
     private String data;
     private Date creationTime;
     private Date lastModificationTime;
+    @LinkingObjects("resources")
+    private final RealmResults<RealmUser> realmUsers = null;
+    @LinkingObjects("resources")
+    private final RealmResults<RealmGroup> realmGroups = null;
 
     public RealmResource() {
 
