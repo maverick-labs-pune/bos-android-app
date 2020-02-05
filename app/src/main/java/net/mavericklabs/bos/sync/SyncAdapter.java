@@ -214,12 +214,12 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 RealmList<RealmResource> selfUserResources = new RealmList<>();
                 for (Resource resource : resources) {
                     RealmResource realmResource = new RealmResource(resource);
-                    realm.copyToRealmOrUpdate(realmResource);
+                    realmResource = realm.copyToRealmOrUpdate(realmResource);
                     selfUserResources.add(realmResource);
                     removeResourceFromList(inMemoryRealmResources, realmResource);
                 }
                 RealmUser selfUser = RealmHandler.getSelfRealmUser();
-//                selfUser.setResources(selfUserResources);
+                selfUser.setResources(selfUserResources);
                 appLogger.logInformation("Realm deactivated resources " + inMemoryRealmResources.size());
                 for (RealmResource deactivatedResource : inMemoryRealmResources) {
                     RealmHandler.deactivateResource(deactivatedResource);
