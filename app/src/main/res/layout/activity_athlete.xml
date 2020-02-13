@@ -31,58 +31,69 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <ImageView
-            android:id="@+id/image_view"
-            android:layout_marginStart="@dimen/nav_header_vertical_spacing"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:src="@drawable/ic_athlete_male" />
-
-        <RelativeLayout
-            android:id="@+id/relative_layout"
+        <androidx.cardview.widget.CardView
+            android:id="@+id/card_view"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_toEndOf="@id/image_view"
-            android:background="@color/white"
-            android:paddingStart="@dimen/nav_header_vertical_spacing"
-            android:paddingTop="@dimen/nav_header_vertical_spacing"
-            android:paddingEnd="@dimen/nav_header_vertical_spacing"
-            android:paddingBottom="@dimen/nav_header_vertical_spacing">
+            android:layout_height="wrap_content">
 
-            <TextView
-                android:id="@+id/text_view_full_name"
-                android:layout_width="wrap_content"
+
+            <RelativeLayout
+                android:id="@+id/relative_layout"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="start"
-                android:text="No data"
-                android:textColor="@color/black" />
+                android:layout_toEndOf="@id/image_view"
+                android:background="@color/white"
+                android:paddingStart="@dimen/content_padding_start"
+                android:paddingTop="@dimen/content_padding_top"
+                android:paddingEnd="@dimen/content_padding_end"
+                android:paddingBottom="@dimen/content_padding_bottom">
 
-            <TextView
-                android:id="@+id/text_view_description"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/text_view_full_name"
-                android:gravity="start"
-                android:text="No data"
-                android:textColor="@color/black" />
+                <ImageView
+                    android:id="@+id/image_view"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:src="@drawable/ic_athlete_male" />
 
-            <Button
-                android:id="@+id/button_view_resources"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true"
-                android:text="View Resources" />
+                <TextView
+                    android:id="@+id/text_view_full_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/activity_horizontal_margin"
+                    android:layout_toEndOf="@id/image_view"
+                    android:gravity="start"
+                    android:text="No data"
+                    android:textColor="@color/black" />
 
+                <TextView
+                    android:id="@+id/text_view_description"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/text_view_full_name"
+                    android:layout_marginStart="@dimen/activity_horizontal_margin"
+                    android:layout_toEndOf="@id/image_view"
+                    android:gravity="start"
+                    android:text="No data"
+                    android:textColor="@color/black" />
 
-        </RelativeLayout>
+                <Button
+                    android:id="@+id/button_view_resources"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:text="View Resources" />
+
+            </RelativeLayout>
+        </androidx.cardview.widget.CardView>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recycler_view_readings"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@id/relative_layout"
-            android:layout_marginTop="@dimen/activity_vertical_margin" />
+            android:layout_below="@id/card_view"
+            android:clipToPadding="false"
+            android:paddingTop="@dimen/recycler_view_padding_top"
+            android:paddingBottom="@dimen/recycler_view_padding_bottom"/>
     </RelativeLayout>
 
     <TextView

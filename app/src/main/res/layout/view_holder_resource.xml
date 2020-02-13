@@ -18,16 +18,17 @@
   -->
 
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/card_view"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginStart="@dimen/activity_horizontal_margin"
-    android:layout_marginTop="@dimen/nav_header_vertical_spacing"
-    android:layout_marginEnd="@dimen/activity_horizontal_margin"
-    android:layout_marginBottom="@dimen/nav_header_vertical_spacing"
-    android:elevation="2dp"
+    android:layout_marginStart="@dimen/card_margin_start"
+    android:layout_marginTop="@dimen/card_margin_top"
+    android:layout_marginEnd="@dimen/card_margin_end"
+    android:elevation="@dimen/card_elevation"
     android:gravity="bottom"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    app:cardCornerRadius="@dimen/card_radius">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -36,7 +37,6 @@
         android:paddingTop="@dimen/nav_header_vertical_spacing"
         android:paddingEnd="@dimen/nav_header_vertical_spacing"
         android:paddingBottom="@dimen/nav_header_vertical_spacing"
-
         >
 
         <ImageView
@@ -85,16 +85,14 @@
                 android:layout_height="24dp"
                 android:layout_alignParentEnd="true"
                 android:layout_marginStart="@dimen/activity_horizontal_margin"
-                android:src="@drawable/ic_attach"
-                />
+                android:src="@drawable/ic_attach" />
 
             <ImageView
                 android:id="@+id/image_view_view_resource"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:layout_toStartOf="@id/image_view_assign_resource"
-                android:src="@drawable/ic_view"
-                />
+                android:src="@drawable/ic_view" />
 
 
         </RelativeLayout>

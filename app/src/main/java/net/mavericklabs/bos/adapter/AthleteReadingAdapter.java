@@ -20,6 +20,7 @@
 package net.mavericklabs.bos.adapter;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -62,13 +63,15 @@ public class AthleteReadingAdapter extends RecyclerView.Adapter<AthleteReadingAd
             holder.readingValueTextView.setText("Value");
         } else {
             final RealmReading realmReading = realmReadings.get(position - 1);
-            holder.dateTextView.setText(DateUtil.dateToString(realmReading.getCreationTime()));
+            holder.dateTextView.setText(DateUtil.dateToString(realmReading.getRecordedAt()));
             if (realmReading.getMeasurement() != null){
                 holder.readingMeasurementTextView.setText(realmReading.getMeasurement().getLabel());
             }
             holder.readingValueTextView.setText(realmReading.getValue());
             if (position % 2 == 1) {
                 holder.linearLayout.setBackgroundColor(context.getResources().getColor(R.color.white));
+            }else{
+                holder.linearLayout.setBackgroundColor(context.getResources().getColor(R.color.gray));
             }
         }
 

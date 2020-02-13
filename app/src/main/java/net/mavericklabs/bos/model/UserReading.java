@@ -44,6 +44,12 @@ public class UserReading {
     private String value;
     @SerializedName("is_active")
     private Boolean isActive;
+    @SerializedName("recorded_at")
+    private String recordedAt;
+    @SerializedName("creation_time")
+    private String creationTime;
+    @SerializedName("last_modification_time")
+    private String lastModificationTime;
 
 
     public String getKey() {
@@ -116,5 +122,29 @@ public class UserReading {
 
     public void setActive(Boolean active) {
         isActive = active;
+    }
+
+    public String getRecordedAt() {
+        return recordedAt;
+    }
+
+    public void setRecordedAt(String recordedAt) {
+        this.recordedAt = recordedAt;
+    }
+
+    public String getCreationTime() {
+        return creationTime;
+    }
+
+    public void setCreationTime(String creationTime) {
+        this.creationTime = creationTime;
+    }
+
+    public String getLastModificationTime() {
+        return lastModificationTime;
+    }
+
+    public void setLastModificationTime(String lastModificationTime) {
+        this.lastModificationTime = lastModificationTime;
     }
 }

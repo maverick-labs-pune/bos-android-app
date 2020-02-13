@@ -34,6 +34,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import net.mavericklabs.bos.R;
 import net.mavericklabs.bos.activity.AthleteActivity;
 import net.mavericklabs.bos.realm.RealmUser;
+import net.mavericklabs.bos.utils.Util;
 
 import java.util.List;
 
@@ -61,7 +62,8 @@ public class AthleteAdapter extends RecyclerView.Adapter<AthleteAdapter.AthleteV
     public void onBindViewHolder(@NonNull AthleteViewHolder holder, int position) {
         final RealmUser realmUser = athletes.get(position);
         holder.fullNameTextView.setText(realmUser.getFullName());
-        holder.imageView.setImageResource(R.drawable.ic_athlete_male);
+        holder.genderTextView.setText(Util.getGenderLabel(realmUser.getGender()));
+        Util.setImageViewBasedOnGender(holder.imageView, realmUser);
         holder.cardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -80,13 +82,14 @@ public class AthleteAdapter extends RecyclerView.Adapter<AthleteAdapter.AthleteV
 
     class AthleteViewHolder extends RecyclerView.ViewHolder {
 
-        private final TextView fullNameTextView;
+        private final TextView fullNameTextView, genderTextView;
         private final CardView cardView;
         private final ImageView imageView;
 
         AthleteViewHolder(@NonNull View itemView) {
             super(itemView);
             fullNameTextView = itemView.findViewById(R.id.text_view_full_name);
+            genderTextView = itemView.findViewById(R.id.text_view_gender);
             cardView = itemView.findViewById(R.id.card_view);
             imageView = itemView.findViewById(R.id.image_view);
 

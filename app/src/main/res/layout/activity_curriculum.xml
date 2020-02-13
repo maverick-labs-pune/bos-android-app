@@ -17,7 +17,8 @@
   ~
   -->
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -27,57 +28,81 @@
     tools:context=".activity.CurriculumActivity">
 
     <RelativeLayout
-        android:id="@+id/relative_layout_data"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginStart="@dimen/activity_horizontal_margin"
-        android:layout_marginTop="@dimen/activity_vertical_margin"
-        android:layout_marginEnd="@dimen/activity_horizontal_margin"
-        android:layout_marginBottom="@dimen/activity_vertical_margin">
+        android:layout_height="match_parent">
 
         <RelativeLayout
-            android:id="@+id/relative_layout"
+            android:id="@+id/relative_layout_data"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/white"
-            android:paddingStart="@dimen/nav_header_vertical_spacing"
-            android:paddingTop="@dimen/nav_header_vertical_spacing"
-            android:paddingEnd="@dimen/nav_header_vertical_spacing"
-            android:paddingBottom="@dimen/nav_header_vertical_spacing">
+            android:layout_height="match_parent">
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/card_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/card_margin_start"
+                android:layout_marginTop="@dimen/card_margin_top"
+                android:layout_marginEnd="@dimen/card_margin_end"
+                android:layout_marginBottom="@dimen/card_margin_bottom"
+                android:elevation="@dimen/card_elevation"
+                app:cardCornerRadius="@dimen/card_radius">
+
+                <RelativeLayout
+                    android:id="@+id/relative_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="@dimen/content_padding_start"
+                    android:paddingTop="@dimen/content_padding_top"
+                    android:paddingEnd="@dimen/content_padding_end"
+                    android:paddingBottom="@dimen/content_padding_bottom">
+
+                    <TextView
+                        android:id="@+id/text_view_label"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:gravity="start"
+                        android:text="No data"
+                        android:textColor="@color/black" />
+
+                    <TextView
+                        android:id="@+id/text_view_description"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/text_view_label"
+                        android:gravity="start"
+                        android:text="No data"
+                        android:textColor="@color/black" />
+
+                </RelativeLayout>
+            </androidx.cardview.widget.CardView>
 
             <TextView
-                android:id="@+id/text_view_label"
+                android:id="@+id/text_view_days"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="start"
-                android:text="No data"
-                android:textColor="@color/black" />
+                android:layout_height="match_parent"
+                android:layout_below="@id/card_view"
+                android:layout_marginStart="@dimen/card_margin_start"
+                android:layout_marginEnd="@dimen/card_margin_end"
+                android:layout_marginBottom="@dimen/card_margin_bottom"
+                android:text="Days"
+                android:textSize="16dp" />
 
-            <TextView
-                android:id="@+id/text_view_description"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/text_view_label"
-                android:gravity="start"
-                android:text="No data"
-                android:textColor="@color/black" />
-
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recycler_view_days"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_below="@id/text_view_days"
+                android:clipToPadding="false"
+                android:paddingBottom="@dimen/content_padding_bottom" />
         </RelativeLayout>
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recycler_view_days"
+        <TextView
+            android:id="@+id/empty_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@id/relative_layout"
-            android:layout_marginTop="@dimen/activity_vertical_margin" />
+            android:gravity="center"
+            android:text="No data"
+            android:visibility="gone" />
     </RelativeLayout>
 
-    <TextView
-        android:id="@+id/empty_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center"
-        android:text="No data"
-        android:visibility="gone" />
-
-</RelativeLayout>
+</androidx.core.widget.NestedScrollView>

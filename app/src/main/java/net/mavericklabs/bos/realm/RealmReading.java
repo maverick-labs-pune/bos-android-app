@@ -42,7 +42,9 @@ public class RealmReading extends RealmObject {
     private RealmResource resource;
     private RealmEvaluationResource evaluationResource;
     private String value;
+    private Date recordedAt;
     private Date creationTime;
+    private Date lastModificationTime;
 
     public RealmReading() {
 
@@ -61,7 +63,9 @@ public class RealmReading extends RealmObject {
         this.resource = null;
         this.value = userReading.getValue();
 //        TODO
-        this.creationTime = DateUtil.getCurrentTime();
+        this.recordedAt = DateUtil.getDateTimeFromString(userReading.getRecordedAt());
+        this.creationTime = DateUtil.getDateTimeFromString(userReading.getCreationTime());
+        this.lastModificationTime = DateUtil.getDateTimeFromString(userReading.getLastModificationTime());
     }
 
     public RealmReading(RealmMeasurement realmMeasurement, RealmUser realmUser, RealmUser enteredByUser,
@@ -70,12 +74,12 @@ public class RealmReading extends RealmObject {
         this.key = null;
         this.user = realmUser;
         this.ngo = realmUser.getNgo();
-        this.enteredByUser = realmUser;
+        this.enteredByUser = enteredByUser;
         this.measurement = realmMeasurement;
         this.evaluationResource = realmEvaluationResource;
         this.resource = realmResource;
         this.value = measurement.getReading();
-        this.creationTime = DateUtil.getCurrentTime();
+        this.recordedAt = DateUtil.getCurrentTime();
     }
 
 
@@ -119,5 +123,13 @@ public class RealmReading extends RealmObject {
 
     public Date getCreationTime() {
         return creationTime;
+    }
+
+    public Date getRecordedAt() {
+        return recordedAt;
+    }
+
+    public Date getLastModificationTime() {
+        return lastModificationTime;
     }
 }

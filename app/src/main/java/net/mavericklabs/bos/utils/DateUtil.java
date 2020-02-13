@@ -28,7 +28,7 @@ import java.util.TimeZone;
 
 
 public class DateUtil {
-
+    private static String longFormTZDateString = "yyyy-MM-dd'T'HH:mm:ss'Z'";
     public static Date getDateFromString(String dateStr) {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd", Locale.UK);
         try {
@@ -39,8 +39,8 @@ public class DateUtil {
         return null;
     }
 
-    private static Date getDateTimeFromString(String dateStr) {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.UK);
+    public static Date getDateTimeFromString(String dateStr) {
+        SimpleDateFormat sdf = new SimpleDateFormat(longFormTZDateString, Locale.UK);
         sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
         try {
             return sdf.parse(dateStr);
@@ -57,7 +57,7 @@ public class DateUtil {
     }
 
     public static String getTZDateString(Date date) {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.UK);
+        SimpleDateFormat sdf = new SimpleDateFormat(longFormTZDateString, Locale.UK);
         sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
         return sdf.format(date);
     }

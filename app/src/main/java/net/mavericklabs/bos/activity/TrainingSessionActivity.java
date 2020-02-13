@@ -20,6 +20,8 @@
 package net.mavericklabs.bos.activity;
 
 import android.os.Bundle;
+import android.os.TestLooperManager;
+import android.text.TextUtils;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -27,13 +29,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import net.mavericklabs.bos.R;
 import net.mavericklabs.bos.adapter.MeasurementAdapter;
 import net.mavericklabs.bos.adapter.MeasurementReadingAdapter;
-import net.mavericklabs.bos.adapter.SelectAthleteAdapter;
+import net.mavericklabs.bos.adapter.SelectAthleteAdapterForEvaluation;
 import net.mavericklabs.bos.object.Curriculum;
 import net.mavericklabs.bos.object.Measurement;
 import net.mavericklabs.bos.object.TrainingSession;
@@ -47,6 +50,8 @@ import net.mavericklabs.bos.utils.AppLogger;
 import net.mavericklabs.bos.utils.EvaluationResourceType;
 import net.mavericklabs.bos.utils.ToastUtils;
 import net.mavericklabs.bos.utils.Util;
+
+import org.w3c.dom.Text;
 
 import java.util.List;
 
@@ -80,18 +85,33 @@ public class TrainingSessionActivity extends AppCompatActivity {
 
         final TrainingSession trainingSession = getIntent().getParcelableExtra(BUNDLE_KEY_TRAINING_SESSION);
         activityMode = Util.getActivityMode(getIntent().getStringExtra(BUNDLE_KEY_ACTIVITY_MODE));
+        appLogger.logInformation("Activity Mode " + activityMode.label);
+        appLogger.logInformation("trainingSession isEvaluated " + trainingSession.isEvaluated());
         evaluationResourceType = Util.getEvaluationResourceType(getIntent().getStringExtra(BUNDLE_KEY_EVALUATION_RESOURCE_TYPE));
-        isPartOfCurriculum = getIntent().getBooleanExtra(BUNDLE_KEY_IS_PART_OF_CURRICULUM,false);
-        TextView label = findViewById(R.id.text_view_label);
+        isPartOfCurriculum = getIntent().getBooleanExtra(BUNDLE_KEY_IS_PART_OF_CURRICULUM, false);
+        TextView readingsTextView = findViewById(R.id.text_view_label_readings);
+        TextView athletesTextView = findViewById(R.id.text_view_label_athletes);
+        CardView cardView = findViewById(R.id.card_view);
         TextView description = findViewById(R.id.text_view_description);
+        if (!TextUtils.isEmpty(trainingSession.getLabel())) {
+            setTitle(trainingSession.getLabel());
+        }
+        if (TextUtils.isEmpty(trainingSession.getDescription())) {
+            cardView.setVisibility(View.GONE);
+        } else {
+            description.setText(trainingSession.getDescription());
+        }
         Button evaluateTrainingSessionButton = findViewById(R.id.button_evaluate_training_session);
         measurementsRecyclerView = findViewById(R.id.recycler_view_measurements);
         usersRecyclerView = findViewById(R.id.recycler_view_users);
         emptyView = findViewById(R.id.empty_view);
         measurementsRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
 
+
         switch (activityMode) {
             case READ:
+                readingsTextView.setText("Measurements for this session");
+                athletesTextView.setVisibility(View.GONE);
                 measurementsRecyclerView.setAdapter(new MeasurementAdapter(getApplicationContext(), trainingSession.getMeasurements(), activityMode));
                 break;
             case EVALUATION:
@@ -100,30 +120,37 @@ public class TrainingSessionActivity extends AppCompatActivity {
                 final RealmEvaluationResource realmEvaluationResource = RealmHandler.getEvaluationResourceByUUID(evaluationResourceUUID);
                 final Curriculum curriculum = Util.convertRealmResourceToCurriculum(realmEvaluationResource);
                 final MeasurementReadingAdapter measurementReadingAdapter =
-                        new MeasurementReadingAdapter(getApplicationContext(), trainingSession.getMeasurements());
+                        new MeasurementReadingAdapter(getApplicationContext(), trainingSession);
                 measurementsRecyclerView.setAdapter(measurementReadingAdapter);
 
-                usersRecyclerView.setVisibility(View.VISIBLE);
+                if (trainingSession.isEvaluated()) {
+                    athletesTextView.setVisibility(View.GONE);
+                    evaluateTrainingSessionButton.setVisibility(View.GONE);
+                    usersRecyclerView.setVisibility(View.GONE);
+                    readingsTextView.setText("Readings collected below");
 
+                } else {
+                    usersRecyclerView.setVisibility(View.VISIBLE);
+                    athletesTextView.setVisibility(View.VISIBLE);
+                    evaluateTrainingSessionButton.setVisibility(View.VISIBLE);
+                }
                 // Check if evaluationResourceType
                 switch (evaluationResourceType) {
                     case GROUP: {
                         List<RealmUser> athletes = Util.getAthletes(realmEvaluationResource.getGroup().getUsers());
-                        final SelectAthleteAdapter selectAthleteAdapter = new SelectAthleteAdapter(athletes);
-                        usersRecyclerView.setAdapter(selectAthleteAdapter);
+                        final SelectAthleteAdapterForEvaluation selectAthleteAdapterForEvaluation = new SelectAthleteAdapterForEvaluation(athletes);
+                        usersRecyclerView.setAdapter(selectAthleteAdapterForEvaluation);
                         usersRecyclerView.setLayoutManager(new LinearLayoutManager(this));
                         evaluateTrainingSessionButton.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
                                 if (!measurementReadingAdapter.verifyReadings()) {
-                                    ToastUtils.showToast(getApplicationContext(), "Incorrect", Toast.LENGTH_SHORT);
                                     return;
                                 }
-//                        ToastUtils.showToast(getApplicationContext(), "Correct", Toast.LENGTH_SHORT);
 
                                 if (realmEvaluationResource.getGroup() != null) {
                                     appLogger.logInformation("This is for a group.");
-                                    List<RealmUser> selectedAthletes = selectAthleteAdapter.getSelectedAthletes();
+                                    List<RealmUser> selectedAthletes = selectAthleteAdapterForEvaluation.getSelectedAthletes();
                                     if (selectedAthletes.size() == 0) {
                                         ToastUtils.showToast(getApplicationContext(), "Did not select any athlete", Toast.LENGTH_SHORT);
                                         return;
@@ -155,17 +182,15 @@ public class TrainingSessionActivity extends AppCompatActivity {
 
                                     String data;
                                     boolean isEvaluated;
-                                    if (isPartOfCurriculum){
+                                    if (isPartOfCurriculum) {
                                         data = Util.updateCurriculum(curriculum, trainingSession.getUuid(),
                                                 measurementReadingAdapter.getMeasurementsWithReadings());
                                         isEvaluated = curriculum.isEvaluated();
-                                    }else{
+                                    } else {
                                         data = Util.updateTrainingSession(trainingSession,
                                                 measurementReadingAdapter.getMeasurementsWithReadings());
                                         isEvaluated = true;
                                     }
-
-
                                     realm.beginTransaction();
                                     realmEvaluationResource.setData(data);
                                     realmEvaluationResource.setEvaluated(isEvaluated);
@@ -174,9 +199,7 @@ public class TrainingSessionActivity extends AppCompatActivity {
                                     realm.commitTransaction();
                                     realm.close();
                                     finish();
-
                                 }
-
                             }
                         });
                     }
@@ -185,11 +208,11 @@ public class TrainingSessionActivity extends AppCompatActivity {
 
                         final RealmUser athlete = realmEvaluationResource.getUser();
                         usersRecyclerView.setVisibility(View.GONE);
+                        athletesTextView.setVisibility(View.GONE);
                         evaluateTrainingSessionButton.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
                                 if (!measurementReadingAdapter.verifyReadings()) {
-                                    ToastUtils.showToast(getApplicationContext(), "Incorrect", Toast.LENGTH_SHORT);
                                     return;
                                 }
 
@@ -221,11 +244,11 @@ public class TrainingSessionActivity extends AppCompatActivity {
                                     // Check if resource is a curriculum or a standalone training session
                                     String data;
                                     boolean isEvaluated;
-                                    if (isPartOfCurriculum){
+                                    if (isPartOfCurriculum) {
                                         data = Util.updateCurriculum(curriculum, trainingSession.getUuid(),
                                                 measurementReadingAdapter.getMeasurementsWithReadings());
                                         isEvaluated = curriculum.isEvaluated();
-                                    }else{
+                                    } else {
                                         data = Util.updateTrainingSession(trainingSession,
                                                 measurementReadingAdapter.getMeasurementsWithReadings());
                                         isEvaluated = true;
@@ -239,21 +262,13 @@ public class TrainingSessionActivity extends AppCompatActivity {
                                     realm.commitTransaction();
                                     realm.close();
                                     finish();
-
                                 }
                             }
                         });
-
                         break;
-
                 }
-
-                evaluateTrainingSessionButton.setVisibility(View.VISIBLE);
-
                 break;
         }
-        appLogger.logDebug(String.valueOf(trainingSession.getMeasurements().size()));
-
         Util.setEmptyMessageIfNeeded(measurementsRecyclerView, measurementsRecyclerView, emptyView);
     }
 

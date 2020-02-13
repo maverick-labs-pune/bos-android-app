@@ -105,14 +105,14 @@ public class MainActivity extends AppCompatActivity
             if (NetworkConnection.isNetworkAvailable(this)) {
                 boolean result = SyncAdapter.requestSync(this, SyncAdapter.SYNC_EVERYTHING);
                 if (!result) {
-                    Toast.makeText(this, getTranslation(locale, "SYNC_ALREADY_RUNNING"), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, getTranslation(locale, "Sync is already running"), Toast.LENGTH_SHORT).show();
                 } else {
-                    Toast.makeText(this, getTranslation(locale, "SYNC_STARTED"), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, getTranslation(locale, "Sync started"), Toast.LENGTH_SHORT).show();
                 }
             }
 
         } else {
-            Toast.makeText(this, getTranslation(locale, "NO_NETWORK"), Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getTranslation(locale, "No network"), Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -129,7 +129,7 @@ public class MainActivity extends AppCompatActivity
                 return;
             }
             this.doubleBackToExitPressedOnce = true;
-            Toast.makeText(this, getTranslation(locale, "LABEL_EXIT_APP"), Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getTranslation(locale, "Press back again to exit"), Toast.LENGTH_SHORT).show();
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
@@ -174,18 +174,18 @@ public class MainActivity extends AppCompatActivity
                 break;
             case R.id.nav_change_password:
                 fragmentClass = ResetPasswordFragment.class;
-                title = getTranslation(locale, "RESET_PASSWORD_TITLE");
+                title = getTranslation(locale, "Reset Password");
                 break;
             case R.id.nav_language:
                 fragmentClass = ChangeLanguageFragment.class;
-                title = getTranslation(locale, "CHANGE_LANGUAGE_TITLE");
+                title = getTranslation(locale, "Change language");
                 break;
             case R.id.nav_logout:
                 boolean isSyncActive = SyncAdapter.isSyncActive(getApplicationContext());
                 if (isSyncActive) {
                     AlertDialog.Builder builder = new AlertDialog.Builder(this);
                     builder.setTitle("LABEL_LOGOUT_ERROR");
-                    builder.setMessage("SYNC_ALREADY_RUNNING");
+                    builder.setMessage("Sync is already running");
                     builder.setCancelable(false);
                     builder.setNeutralButton("LABEL_OK", new DialogInterface.OnClickListener() {
                         @Override
@@ -264,15 +264,15 @@ public class MainActivity extends AppCompatActivity
             id = R.id.nav_language;
         }else if (name.equals(AthleteFragment.class.getName())) {
 //            title = getTranslation(locale, "CHANGE_LANGUAGE_TITLE");
-            title = "Athlete";
+            title = "Athletes";
             id = R.id.nav_athletes;
         }else if (name.equals(ResourceFragment.class.getName())) {
 //            title = getTranslation(locale, "CHANGE_LANGUAGE_TITLE");
-            title = "Resource";
+            title = "Resources";
             id = R.id.nav_resources;
         }else if (name.equals(GroupFragment.class.getName())) {
 //            title = getTranslation(locale, "CHANGE_LANGUAGE_TITLE");
-            title = "Group";
+            title = "Groups";
             id = R.id.nav_groups;
         }
         setTitle(title);
@@ -286,14 +286,14 @@ public class MainActivity extends AppCompatActivity
             if (NetworkConnection.isNetworkAvailable(this)) {
                 boolean result = SyncAdapter.requestSync(this, SyncAdapter.SYNC_SESSIONS);
                 if (!result) {
-                    Toast.makeText(this, getTranslation(locale, "SYNC_ALREADY_RUNNING"), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, getTranslation(locale, "Sync is already running"), Toast.LENGTH_SHORT).show();
 
                 } else {
-                    Toast.makeText(this, getTranslation(locale, "SYNC_STARTED"), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, getTranslation(locale, "Sync started"), Toast.LENGTH_SHORT).show();
 
                 }
             } else {
-                Toast.makeText(this, getTranslation(locale, "NO_NETWORK"), Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, getTranslation(locale, "No network"), Toast.LENGTH_SHORT).show();
 
             }
         }

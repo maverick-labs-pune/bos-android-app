@@ -172,12 +172,11 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             if (response.isSuccessful()) {
                 List<Measurement> measurements = response.body();
                 if (CollectionUtils.isEmpty(measurements)) {
+                    appLogger.logInformation("measurements from server empty");
                     return;
                 }
 
                 Realm realm = Realm.getDefaultInstance();
-                List<RealmMeasurement> realmMeasurements = RealmHandler.getAllMeasurements();
-                appLogger.logInformation("Realm measurements " + realmMeasurements.size());
                 realm.beginTransaction();
                 for (Measurement measurement : measurements) {
                     RealmMeasurement realmMeasurement = new RealmMeasurement(measurement);
@@ -427,6 +426,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 paramObject.put("middle_name", offlineAthlete.getMiddleName());
                 paramObject.put("last_name", offlineAthlete.getLastName());
                 paramObject.put("email", offlineAthlete.getEmail());
+                paramObject.put("gender", offlineAthlete.getGender());
                 paramObject.put("ngo", offlineAthlete.getNgo());
                 paramObject.put("is_active", true);
 
@@ -479,7 +479,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         String resourceKey = unSyncedRealmReading.getResource() != null ? unSyncedRealmReading.getResource().getKey() : null;
 //                String resourceSessionKey = unSyncedRealmReading.getMeasurement().getKey();
         String value = unSyncedRealmReading.getValue();
-        String enteredDateTime = DateUtil.getTZDateString(unSyncedRealmReading.getCreationTime());
+        String recordedAtDateTimeTZString = DateUtil.getTZDateString(unSyncedRealmReading.getRecordedAt());
 
         try {
             JSONObject paramObject = new JSONObject();
@@ -488,7 +488,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             paramObject.put("measurement", measurementKey);
             paramObject.put("resource", resourceKey);
             paramObject.put("value", value);
-            paramObject.put("entered_date_time", enteredDateTime);
+            paramObject.put("recorded_at", recordedAtDateTimeTZString);
 
             Response<UserReading> response = ApiClient.getApiInterface(getContext())
                     .createUserReading(paramObject.toString()).execute();

@@ -20,6 +20,7 @@
 package net.mavericklabs.bos.adapter;
 
 import android.content.Context;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -62,12 +63,10 @@ public class MeasurementAdapter extends RecyclerView.Adapter<MeasurementAdapter.
     public void onBindViewHolder(@NonNull MeasurementViewHolder holder, int position) {
         final Measurement measurement = measurements.get(position);
         RealmMeasurement realmMeasurement = RealmHandler.getMeasurementFromKey(measurement.getKey());
-        appLogger.logDebug(realmMeasurement.getKey());
-        appLogger.logDebug(realmMeasurement.getLabel());
-        appLogger.logDebug(realmMeasurement.getInputType());
         holder.getLabel().setText(realmMeasurement.getLabel());
-        holder.getUom().setText(realmMeasurement.getUnitOfMeasurement());
-
+        if(TextUtils.isEmpty(realmMeasurement.getUnitOfMeasurement())){
+            holder.getUom().setText(realmMeasurement.getUnitOfMeasurement());
+        }
         holder.getImageView().setImageResource(R.drawable.ic_measurement);
 
 
@@ -89,7 +88,7 @@ public class MeasurementAdapter extends RecyclerView.Adapter<MeasurementAdapter.
         MeasurementViewHolder(@NonNull View itemView) {
             super(itemView);
             label = itemView.findViewById(R.id.text_view_label);
-            uom = itemView.findViewById(R.id.text_view_type);
+            uom = itemView.findViewById(R.id.text_view_uom);
             imageView = itemView.findViewById(R.id.image_view);
             cardView = itemView.findViewById(R.id.card_view);
         }

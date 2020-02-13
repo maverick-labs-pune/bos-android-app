@@ -19,7 +19,9 @@
 
 package net.mavericklabs.bos.adapter;
 
+import android.animation.ObjectAnimator;
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,11 +33,15 @@ import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.sasank.roundedhorizontalprogress.RoundedHorizontalProgressBar;
+
 import net.mavericklabs.bos.R;
 import net.mavericklabs.bos.object.Curriculum;
 import net.mavericklabs.bos.object.Day;
+import net.mavericklabs.bos.object.TrainingSession;
 import net.mavericklabs.bos.utils.ActivityMode;
 import net.mavericklabs.bos.utils.EvaluationResourceType;
+import net.mavericklabs.bos.utils.Util;
 
 public class CurriculumDayAdapter extends RecyclerView.Adapter<CurriculumDayAdapter.DayViewHolder> {
     private Context context;
@@ -66,7 +72,7 @@ public class CurriculumDayAdapter extends RecyclerView.Adapter<CurriculumDayAdap
         holder.labelTextView.setText(day.getLabel());
         final RecyclerView recyclerView = holder.trainingSessionsRecyclerView;
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
-        recyclerView.setAdapter(new TrainingSessionAdapter(context, curriculum,day,activityMode,
+        recyclerView.setAdapter(new TrainingSessionAdapter(context, curriculum, day, activityMode,
                 evaluatingResourceType));
         holder.expandedImageView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -86,17 +92,26 @@ public class CurriculumDayAdapter extends RecyclerView.Adapter<CurriculumDayAdap
             }
         });
 
-        switch (activityMode){
+        switch (activityMode) {
             case EVALUATION:
-                holder.evaluatedImageView.setVisibility(View.VISIBLE);
-                if (day.isEvaluated()){
-                    holder.evaluatedImageView.setImageResource(R.drawable.baseline_check_black_18);
-                }else{
-                    holder.evaluatedImageView.setImageResource(R.drawable.baseline_close_black_18);
+                holder.progressBar.setVisibility(View.VISIBLE);
+                if (day.isEvaluated()) {
+                    holder.progressBar.animateProgress(1000, 0, 100);
+                }else {
+                    int numberOfTrainingSessions = day.getSessions().size();
+                    int evaluatedTrainingSessions = 0;
+                    for (TrainingSession trainingSession :day.getSessions()){
+                        if (trainingSession.isEvaluated()){
+                            evaluatedTrainingSessions++;
+                        }
+                    }
+                    int progress = (int) (((evaluatedTrainingSessions * 1.0)/numberOfTrainingSessions) * 100.0);
+                    holder.progressBar.animateProgress(1000, 0, progress);
+
                 }
                 break;
             case READ:
-                holder.evaluatedImageView.setVisibility(View.GONE);
+                holder.progressBar.setVisibility(View.GONE);
                 break;
             case UNKNOWN:
         }
@@ -110,15 +125,15 @@ public class CurriculumDayAdapter extends RecyclerView.Adapter<CurriculumDayAdap
     class DayViewHolder extends RecyclerView.ViewHolder {
 
         private final TextView labelTextView;
-        private final ImageView imageView, expandedImageView,evaluatedImageView;
+        private final ImageView expandedImageView;
         private final CardView cardView;
+        private final RoundedHorizontalProgressBar progressBar;
         private final RecyclerView trainingSessionsRecyclerView;
 
         DayViewHolder(@NonNull View itemView) {
             super(itemView);
             labelTextView = itemView.findViewById(R.id.text_view_label);
-            imageView = itemView.findViewById(R.id.image_view);
-            evaluatedImageView = itemView.findViewById(R.id.image_view_evaluated);
+            progressBar = itemView.findViewById(R.id.progress_bar);
             expandedImageView = itemView.findViewById(R.id.image_view_expand);
             cardView = itemView.findViewById(R.id.card_view);
             trainingSessionsRecyclerView = itemView.findViewById(R.id.recycler_view_training_sessions);

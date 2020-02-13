@@ -20,20 +20,22 @@
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginStart="@dimen/activity_horizontal_margin"
-    android:layout_marginTop="@dimen/nav_header_vertical_spacing"
-    android:layout_marginEnd="@dimen/activity_horizontal_margin"
-    android:elevation="2dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_marginStart="@dimen/card_margin_start"
+    android:layout_marginTop="@dimen/card_margin_top"
+    android:layout_marginEnd="@dimen/card_margin_end"
+    android:elevation="@dimen/card_elevation"
     android:gravity="bottom"
+    app:cardCornerRadius="@dimen/card_radius"
     android:orientation="vertical">
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingStart="@dimen/activity_horizontal_margin"
-        android:paddingTop="@dimen/nav_header_vertical_spacing"
-        android:paddingEnd="@dimen/activity_horizontal_margin"
-        android:paddingBottom="@dimen/nav_header_vertical_spacing">
+        android:paddingStart="@dimen/content_padding_start"
+        android:paddingTop="@dimen/content_padding_top"
+        android:paddingEnd="@dimen/content_padding_end"
+        android:paddingBottom="@dimen/content_padding_bottom">
 
         <ImageView
             android:id="@+id/image_view"
@@ -46,9 +48,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_alignTop="@id/image_view"
-            android:layout_toEndOf="@id/image_view"
             android:layout_centerVertical="true"
-            >
+            android:layout_toEndOf="@id/image_view">
 
             <TextView
                 android:id="@+id/text_view_full_name"
@@ -56,8 +57,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/activity_horizontal_margin"
                 android:text="Athlete Name"
-                android:textSize="12sp"
-                android:textColor="@color/black" />
+                android:textColor="@color/black"
+                android:textSize="12sp" />
 
             <TextView
                 android:id="@+id/text_view_role"
@@ -65,8 +66,8 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@id/text_view_full_name"
                 android:layout_marginStart="@dimen/activity_horizontal_margin"
-                android:textSize="12sp"
-                android:textColor="@color/secondaryText" />
+                android:textColor="@color/secondaryText"
+                android:textSize="12sp" />
         </RelativeLayout>
 
     </RelativeLayout>

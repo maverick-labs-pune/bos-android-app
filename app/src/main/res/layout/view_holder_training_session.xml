@@ -17,67 +17,74 @@
   ~
   -->
 
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/card_view"
+
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginStart="@dimen/activity_horizontal_margin"
-    android:layout_marginTop="@dimen/activity_vertical_margin"
-    android:layout_marginEnd="@dimen/activity_horizontal_margin"
-    android:layout_marginBottom="@dimen/activity_vertical_margin"
-    android:elevation="2dp"
+    android:layout_marginStart="@dimen/card_double_margin_start"
+    android:layout_marginTop="@dimen/card_half_margin_top"
+    android:layout_marginBottom="@dimen/card_half_margin_bottom"
+    android:layout_marginEnd="@dimen/card_double_margin_end"
+    android:elevation="@dimen/card_elevation"
     android:gravity="bottom"
     android:orientation="vertical"
-    android:paddingStart="@dimen/nav_header_vertical_spacing"
-    android:paddingTop="@dimen/nav_header_vertical_spacing"
-    android:paddingEnd="@dimen/nav_header_vertical_spacing"
-    android:paddingBottom="@dimen/nav_header_vertical_spacing">
+    app:cardCornerRadius="@dimen/card_radius">
 
-    <ImageView
-        android:id="@+id/image_view"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/ic_training_session" />
-
-    <TextView
-        android:id="@+id/text_view_label"
+    <RelativeLayout
+        android:id="@+id/card_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="@dimen/activity_horizontal_margin"
-        android:layout_toEndOf="@id/image_view"
-        android:layout_toStartOf="@id/image_view_open"
-        android:text="Resource Name"
-        android:textColor="@color/black"
-         />
+        android:paddingStart="@dimen/content_padding_start"
+        android:paddingTop="@dimen/content_padding_top"
+        android:paddingEnd="@dimen/content_padding_end"
+        android:paddingBottom="@dimen/content_padding_bottom">
 
-    <TextView
-        android:id="@+id/text_view_type"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/text_view_label"
-        android:layout_toStartOf="@id/image_view_open"
-        android:layout_marginStart="@dimen/activity_horizontal_margin"
-        android:layout_toEndOf="@id/image_view"
-        android:text="Training session"
-        android:textColor="@color/black"
-        />
+        <ImageView
+            android:id="@+id/image_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_training_session" />
 
-    <ImageView
-        android:id="@+id/image_view_evaluated"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="@dimen/activity_horizontal_margin"
-        android:layout_toStartOf="@id/image_view_open"
-        android:src="@drawable/baseline_attachment_black_18"
-        android:visibility="gone"/>
+        <TextView
+            android:id="@+id/text_view_label"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/activity_horizontal_margin"
+            android:layout_toStartOf="@id/image_view_open"
+            android:layout_toEndOf="@id/image_view"
+            android:text="Resource Name"
+            android:textColor="@color/black" />
 
-    <ImageView
-        android:id="@+id/image_view_open"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentTop="true"
-        android:layout_centerVertical="true"
-        android:src="@drawable/baseline_open_in_new_black_24"/>
+        <TextView
+            android:id="@+id/text_view_type"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/text_view_label"
+            android:layout_marginStart="@dimen/activity_horizontal_margin"
+            android:layout_toStartOf="@id/image_view_open"
+            android:layout_toEndOf="@id/image_view"
+            android:text="Training session"
+            android:textColor="@color/black" />
 
-</RelativeLayout>
+        <ImageView
+            android:id="@+id/image_view_evaluated"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/activity_horizontal_margin"
+            android:layout_toStartOf="@id/image_view_open"
+            android:layout_centerVertical="true"
+            android:src="@drawable/baseline_attachment_black_18"
+            android:visibility="gone" />
+
+        <ImageView
+            android:id="@+id/image_view_open"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/baseline_open_in_new_black_24" />
+
+    </RelativeLayout>
+
+</androidx.cardview.widget.CardView>

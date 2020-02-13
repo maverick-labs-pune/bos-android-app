@@ -24,6 +24,7 @@ import android.os.Bundle;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
@@ -105,11 +106,12 @@ public class CreateAthleteActivity extends AppCompatActivity {
         emptyView = findViewById(R.id.empty_view);
         firstNameEditText = findViewById(R.id.edit_text_first_name);
         middleNameEditText = findViewById(R.id.edit_text_middle_name);
+        lastNameEditText = findViewById(R.id.edit_text_last_name);
         spinner = findViewById(R.id.spinner_gender);
-        String selectedGender = null;
+        final String[] selectedGender = {null};
         measurementsRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
 
-        Spinner spinner = (Spinner) findViewById(R.id.spinner);
+        final Spinner spinner = findViewById(R.id.spinner_gender);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
                 R.array.gender_array, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -118,6 +120,7 @@ public class CreateAthleteActivity extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 appLogger.logInformation(String.valueOf(parent.getItemAtPosition(position)));
+                selectedGender[0] = String.valueOf(parent.getItemAtPosition(position));
             }
 
             @Override
@@ -129,7 +132,7 @@ public class CreateAthleteActivity extends AppCompatActivity {
         Util.setEmptyMessageIfNeeded(realmResource, measurementsRecyclerView, emptyView);
 
         TrainingSession trainingSession = convertRealmResourceToTrainingSession(realmResource);
-        measurementReadingAdapter = new MeasurementReadingAdapter(getApplicationContext(), trainingSession.getMeasurements());
+        measurementReadingAdapter = new MeasurementReadingAdapter(getApplicationContext(), trainingSession);
         measurementsRecyclerView.setAdapter(measurementReadingAdapter);
 
 
@@ -142,14 +145,13 @@ public class CreateAthleteActivity extends AppCompatActivity {
 
                 }
                 if (!measurementReadingAdapter.verifyReadings()) {
-                    ToastUtils.showToast(getApplicationContext(), "Incomplete extra information", Toast.LENGTH_SHORT);
                     return;
                 }
 
                 String firstName = firstNameEditText.getText().toString();
                 String middleName = middleNameEditText.getText().toString();
                 String lastName = lastNameEditText.getText().toString();
-                Gender gender = getGender("male");
+                Gender gender = getGender(selectedGender[0]);
 //              Create an offline athlete
 //              Save data and mark as evaluated
                 RealmUser selfRealmUser = RealmHandler.getSelfRealmUser();
@@ -197,5 +199,15 @@ public class CreateAthleteActivity extends AppCompatActivity {
         return true;
     }
 
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // handle arrow click here
+        if (item.getItemId() == android.R.id.home) {
+            finish(); // close this activity and return to preview activity (if there is any)
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
 
 }

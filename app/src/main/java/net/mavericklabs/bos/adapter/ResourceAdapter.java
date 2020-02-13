@@ -35,6 +35,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import net.mavericklabs.bos.R;
 import net.mavericklabs.bos.activity.CurriculumActivity;
+import net.mavericklabs.bos.activity.SelectAthleteActivity;
 import net.mavericklabs.bos.realm.RealmEvaluationResource;
 import net.mavericklabs.bos.realm.RealmGroup;
 import net.mavericklabs.bos.realm.RealmHandler;
@@ -140,6 +141,16 @@ public class ResourceAdapter extends RecyclerView.Adapter<ResourceAdapter.Resour
                         Intent intent = new Intent(context, CurriculumActivity.class);
                         intent.putExtra(BUNDLE_KEY_ACTIVITY_MODE, READ);
                         intent.putExtra(BUNDLE_KEY_EVALUATION_RESOURCE_TYPE, evaluationResourceType.label);
+                        intent.putExtra(BUNDLE_KEY_RESOURCE_KEY, realmResource.getKey());
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        context.startActivity(intent);
+                    }
+                });
+                holder.assignResourceImageView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        // Select athlete activity
+                        Intent intent = new Intent(context, SelectAthleteActivity.class);
                         intent.putExtra(BUNDLE_KEY_RESOURCE_KEY, realmResource.getKey());
                         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         context.startActivity(intent);

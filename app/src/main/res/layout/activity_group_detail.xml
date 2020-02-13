@@ -17,7 +17,7 @@
   ~
   -->
 
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -58,8 +58,7 @@
                     android:layout_marginStart="@dimen/activity_horizontal_margin"
                     android:layout_toEndOf="@id/image_view"
                     android:text="Group Name"
-                    android:textColor="@color/black"
-                    />
+                    android:textColor="@color/black" />
 
             </RelativeLayout>
         </androidx.cardview.widget.CardView>
@@ -69,7 +68,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/card_view_group_detail"
-            android:layout_marginTop="@dimen/nav_header_vertical_spacing">
+            android:layout_marginTop="@dimen/card_margin_top"
+            android:elevation="@dimen/card_elevation">
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -82,8 +82,7 @@
                     android:layout_centerVertical="true"
                     android:layout_marginStart="@dimen/activity_horizontal_margin"
                     android:text="Users in the group"
-                    android:textColor="@color/black"
-                     />
+                    android:textColor="@color/black" />
 
                 <ImageView
                     android:id="@+id/image_view_users_expand"
@@ -108,21 +107,19 @@
                 android:id="@+id/recycler_view_users"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/nav_header_vertical_spacing"
-                android:layout_marginBottom="@dimen/nav_header_vertical_spacing"
-
+                android:clipToPadding="false"
+                android:paddingBottom="@dimen/recycler_view_padding_bottom"
                 android:visibility="gone" />
 
         </RelativeLayout>
-
 
         <androidx.cardview.widget.CardView
             android:id="@+id/card_view_resources"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/relative_layout_users_data"
-            android:layout_marginTop="@dimen/nav_header_vertical_spacing"
-            >
+            android:layout_marginTop="@dimen/card_margin_top"
+            android:elevation="@dimen/card_elevation">
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -135,8 +132,7 @@
                     android:layout_centerVertical="true"
                     android:layout_marginStart="@dimen/activity_horizontal_margin"
                     android:text="Resources in the group"
-                    android:textColor="@color/black"
-                    />
+                    android:textColor="@color/black" />
 
                 <ImageView
                     android:id="@+id/image_view_resources_expand"
@@ -161,13 +157,12 @@
                 android:id="@+id/recycler_view_resources"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/nav_header_vertical_spacing"
-                android:layout_marginBottom="@dimen/nav_header_vertical_spacing"
+                android:clipToPadding="false"
+                android:paddingBottom="@dimen/recycler_view_padding_bottom"
                 android:visibility="gone" />
 
         </RelativeLayout>
 
-
     </RelativeLayout>
 
-</ScrollView>
+</androidx.core.widget.NestedScrollView>

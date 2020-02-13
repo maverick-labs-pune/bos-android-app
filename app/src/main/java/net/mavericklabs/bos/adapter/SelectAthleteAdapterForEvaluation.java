@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020. Maverick Labs
+ * Copyright (c) 2019. Maverick Labs
  *
  *   This program is free software: you can redistribute it and/or modify
  *   it under the terms of the GNU Affero General Public License as,
@@ -37,11 +37,11 @@ import net.mavericklabs.bos.utils.Util;
 import java.util.ArrayList;
 import java.util.List;
 
-public class SelectAthleteAdapter extends RecyclerView.Adapter<SelectAthleteAdapter.AthleteViewHolder> {
+public class SelectAthleteAdapterForEvaluation extends RecyclerView.Adapter<SelectAthleteAdapterForEvaluation.AthleteViewHolder> {
     private List<RealmUser> athletes;
     private List<RealmUser> selectedAthletes;
 
-    public SelectAthleteAdapter(List<RealmUser> athletes) {
+    public SelectAthleteAdapterForEvaluation(List<RealmUser> athletes) {
         this.athletes = athletes;
         this.selectedAthletes = new ArrayList<>();
     }
@@ -58,9 +58,9 @@ public class SelectAthleteAdapter extends RecyclerView.Adapter<SelectAthleteAdap
     @Override
     public void onBindViewHolder(@NonNull AthleteViewHolder holder, int position) {
         final RealmUser realmUser = athletes.get(position);
+        Util.setImageViewBasedOnGender(holder.imageView,realmUser);
         holder.fullNameTextView.setText(realmUser.getFullName());
         holder.genderTextView.setText(Util.getGenderLabel(realmUser.getGender()));
-        Util.setImageViewBasedOnGender(holder.imageView,realmUser);
         holder.checkBox.setOnCheckedChangeListener(new CheckBox.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -83,16 +83,16 @@ public class SelectAthleteAdapter extends RecyclerView.Adapter<SelectAthleteAdap
     class AthleteViewHolder extends RecyclerView.ViewHolder {
 
         private final TextView fullNameTextView;
-        private final TextView genderTextView;
         private final CheckBox checkBox;
+        private final TextView genderTextView;
         private final ImageView imageView;
 
         AthleteViewHolder(@NonNull View itemView) {
             super(itemView);
             fullNameTextView = itemView.findViewById(R.id.text_view_full_name);
+            imageView = itemView.findViewById(R.id.image_view);
             genderTextView = itemView.findViewById(R.id.text_view_gender);
             checkBox = itemView.findViewById(R.id.check_box);
-            imageView = itemView.findViewById(R.id.image_view);
         }
 
     }

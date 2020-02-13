@@ -20,6 +20,7 @@
 package net.mavericklabs.bos.adapter;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -31,34 +32,46 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.textfield.TextInputLayout;
+
 import net.mavericklabs.bos.R;
 import net.mavericklabs.bos.object.Curriculum;
 import net.mavericklabs.bos.object.Measurement;
+import net.mavericklabs.bos.object.TrainingSession;
 import net.mavericklabs.bos.realm.RealmHandler;
 import net.mavericklabs.bos.realm.RealmMeasurement;
 import net.mavericklabs.bos.utils.AppLogger;
+import net.mavericklabs.bos.utils.MeasurementInputType;
+import net.mavericklabs.bos.utils.ToastUtils;
 
 import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static android.text.InputType.TYPE_CLASS_NUMBER;
+import static android.text.InputType.TYPE_CLASS_TEXT;
 import static android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL;
 import static android.text.InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS;
+import static android.text.InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS;
+import static net.mavericklabs.bos.utils.Util.getMeasurementInputType;
 
 public class MeasurementReadingAdapter extends RecyclerView.Adapter<MeasurementReadingAdapter.MeasurementReadingViewHolder> {
+    private final TrainingSession trainingSession;
     private Context context;
     private List<Measurement> measurements;
     private final AppLogger appLogger = new AppLogger(getClass().toString());
 
-    public MeasurementReadingAdapter(Context context, List<Measurement> measurements) {
+    public MeasurementReadingAdapter(Context context, TrainingSession trainingSession) {
         this.context = context;
-        this.measurements = measurements;
+        this.measurements = trainingSession.getMeasurements();
+        this.trainingSession = trainingSession;
     }
 
     @NonNull
@@ -74,58 +87,38 @@ public class MeasurementReadingAdapter extends RecyclerView.Adapter<MeasurementR
     public void onBindViewHolder(@NonNull final MeasurementReadingViewHolder holder, final int measurementPosition) {
         Measurement measurement = measurements.get(measurementPosition);
         RealmMeasurement realmMeasurement = RealmHandler.getMeasurementFromKey(measurement.getKey());
-        appLogger.logDebug(realmMeasurement.getKey());
-        appLogger.logDebug(realmMeasurement.getLabel());
-        appLogger.logDebug(realmMeasurement.getInputType());
-        holder.editTextView.setHint(realmMeasurement.getLabel());
-//        holder.uomTextView.setText(realmMeasurement.getUnitOfMeasurement());
-        switch (realmMeasurement.getInputType()) {
-            case "text":
-                holder.editTextView.setInputType(TYPE_TEXT_FLAG_NO_SUGGESTIONS);
-                holder.editTextView.setVisibility(View.VISIBLE);
-                holder.spinner.setVisibility(View.GONE);
-                holder.editTextView.setText(measurement.getReading());
-                holder.editTextView.addTextChangedListener(new TextWatcher() {
-                    @Override
-                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        TextWatcher textWatcher = new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
-                    }
+            }
 
-                    @Override
-                    public void onTextChanged(CharSequence s, int start, int before, int count) {
-                        measurements.get(measurementPosition).setReading(s.toString());
-                    }
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                measurements.get(measurementPosition).setReading(s.toString());
+            }
 
-                    @Override
-                    public void afterTextChanged(Editable s) {
+            @Override
+            public void afterTextChanged(Editable s) {
 
-                    }
-                });
+            }
+        };
+        switch (getMeasurementInputType(realmMeasurement.getInputType())) {
+            case TEXT:
+                holder.editTextView.setInputType(TYPE_CLASS_TEXT | TYPE_TEXT_FLAG_NO_SUGGESTIONS);
+                showEditTextAndHideSpinner(holder);
+                checkIfTrainingSessionEvaluated(holder, measurement, realmMeasurement, textWatcher);
                 break;
-            case "numeric":
-                holder.editTextView.setInputType(TYPE_NUMBER_FLAG_DECIMAL);
-                holder.editTextView.setVisibility(View.VISIBLE);
-                holder.spinner.setVisibility(View.GONE);
-                holder.editTextView.setText(measurement.getReading());
-                holder.editTextView.addTextChangedListener(new TextWatcher() {
-                    @Override
-                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-                    }
-
-                    @Override
-                    public void onTextChanged(CharSequence s, int start, int before, int count) {
-                        measurements.get(measurementPosition).setReading(s.toString());
-                    }
-
-                    @Override
-                    public void afterTextChanged(Editable s) {
-
-                    }
-                });
+            case NUMERIC:
+                holder.editTextView.setInputType(TYPE_CLASS_NUMBER | TYPE_NUMBER_FLAG_DECIMAL);
+                showEditTextAndHideSpinner(holder);
+                checkIfTrainingSessionEvaluated(holder, measurement, realmMeasurement, textWatcher);
                 break;
-            case "boolean":
-                holder.editTextView.setVisibility(View.GONE);
+            case BOOLEAN:
+                holder.spinnerTextInputLayout.setHint(realmMeasurement.getLabel());
+
+                hideEditTextAndShowSpinner(holder);
+
                 final List<String> choices = new ArrayList<>();
                 choices.add("-");
                 choices.add("Yes");
@@ -139,7 +132,6 @@ public class MeasurementReadingAdapter extends RecyclerView.Adapter<MeasurementR
                 } else {
                     holder.spinner.setSelection(0);
                 }
-                holder.spinner.setVisibility(View.VISIBLE);
                 holder.spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                     @Override
                     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -160,11 +152,54 @@ public class MeasurementReadingAdapter extends RecyclerView.Adapter<MeasurementR
 
     }
 
+    private void checkIfTrainingSessionEvaluated(MeasurementReadingViewHolder holder, Measurement measurement, RealmMeasurement realmMeasurement, TextWatcher textWatcher) {
+        if (trainingSession.isEvaluated()) {
+            holder.editTextViewTextInputLayout.setHint(realmMeasurement.getLabel());
+            String measurementWithUOM = measurement.getReading();
+            if (!TextUtils.isEmpty(realmMeasurement.getUnitOfMeasurement())) {
+                measurementWithUOM = measurementWithUOM + ' ' + realmMeasurement.getUnitOfMeasurement();
+            }
+            holder.editTextView.setText(measurementWithUOM);
+            disableEditText(holder.editTextView);
+        } else {
+            String hint = realmMeasurement.getLabel();
+            if (!TextUtils.isEmpty(realmMeasurement.getUnitOfMeasurement())) {
+                hint = hint + " in " + realmMeasurement.getUnitOfMeasurement();
+            }
+            holder.editTextView.setText(measurement.getReading());
+            holder.editTextViewTextInputLayout.setHint(hint);
+            holder.editTextView.addTextChangedListener(textWatcher);
+        }
+
+    }
+
+    private void showEditTextAndHideSpinner(MeasurementReadingViewHolder holder) {
+        holder.editTextViewTextInputLayout.setVisibility(View.VISIBLE);
+        holder.editTextView.setVisibility(View.VISIBLE);
+        holder.spinnerTextInputLayout.setVisibility(View.GONE);
+        holder.spinner.setVisibility(View.GONE);
+    }
+
+    private void hideEditTextAndShowSpinner(MeasurementReadingViewHolder holder) {
+        holder.editTextViewTextInputLayout.setVisibility(View.GONE);
+        holder.editTextView.setVisibility(View.GONE);
+        holder.spinnerTextInputLayout.setVisibility(View.VISIBLE);
+        holder.spinner.setVisibility(View.VISIBLE);
+    }
+
+    private void disableEditText(EditText editText) {
+        editText.setFocusable(false);
+        editText.setEnabled(false);
+        editText.setCursorVisible(false);
+        editText.setKeyListener(null);
+    }
+
     public boolean verifyReadings() {
         for (Measurement measurement : measurements) {
-            appLogger.logInformation(measurement.getReading());
             if (measurement.isRequired()) {
                 if (TextUtils.isEmpty(measurement.getReading())) {
+                    RealmMeasurement realmMeasurement = RealmHandler.getMeasurementFromKey(measurement.getKey());
+                    ToastUtils.showToast(context, realmMeasurement.getLabel() + " is empty", Toast.LENGTH_SHORT);
                     return false;
                 }
             }
@@ -184,17 +219,16 @@ public class MeasurementReadingAdapter extends RecyclerView.Adapter<MeasurementR
     class MeasurementReadingViewHolder extends RecyclerView.ViewHolder {
 
         private final TextView labelTextView;
-//        private final TextView uomTextView;
-        private final CardView cardView;
         private final EditText editTextView;
         private final Spinner spinner;
+        private final TextInputLayout editTextViewTextInputLayout, spinnerTextInputLayout;
 
         MeasurementReadingViewHolder(@NonNull View itemView) {
             super(itemView);
             labelTextView = itemView.findViewById(R.id.text_view_label);
-//            uomTextView = itemView.findViewById(R.id.text_view_uom);
-            cardView = itemView.findViewById(R.id.card_view);
             editTextView = itemView.findViewById(R.id.edit_text_view);
+            editTextViewTextInputLayout = itemView.findViewById(R.id.text_input_layout_edit_text_view);
+            spinnerTextInputLayout = itemView.findViewById(R.id.text_input_layout_edit_spinner);
             spinner = itemView.findViewById(R.id.spinner);
         }
     }

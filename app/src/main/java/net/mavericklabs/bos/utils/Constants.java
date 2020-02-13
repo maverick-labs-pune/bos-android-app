@@ -56,4 +56,7 @@ public interface Constants {
     String BUNDLE_KEY_IS_PART_OF_CURRICULUM = "isPartOfCurriculum";
     String BUNDLE_KEY_ATHLETE_UUID = "athleteUUID";
 
+    String TEXT = "text";
+    String NUMERIC = "numeric";
+    String BOOLEAN = "boolean";
 }

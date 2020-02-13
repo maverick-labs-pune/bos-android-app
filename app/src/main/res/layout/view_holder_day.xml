@@ -17,68 +17,73 @@
   ~
   -->
 
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:elevation="2dp"
-    android:gravity="bottom"
-    android:layout_marginTop="@dimen/nav_header_vertical_spacing"
-    android:orientation="vertical"
-    android:id="@+id/card_view">
+    android:layout_height="wrap_content">
 
-    <RelativeLayout
-        android:id="@+id/relative_layout_data"
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/card_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingTop="@dimen/nav_header_vertical_spacing"
-        android:paddingStart="@dimen/nav_header_vertical_spacing"
-        android:paddingEnd="@dimen/nav_header_vertical_spacing"
-        android:paddingBottom="@dimen/nav_header_vertical_spacing"
+        android:layout_marginStart="@dimen/card_margin_start"
+        android:layout_marginTop="@dimen/card_half_margin_top"
+        android:layout_marginEnd="@dimen/card_margin_end"
+        android:layout_marginBottom="@dimen/card_half_margin_bottom"
+        android:elevation="@dimen/card_elevation"
+        android:gravity="bottom"
+        android:orientation="vertical"
+        app:cardCornerRadius="@dimen/card_radius">
 
-        >
-
-        <ImageView
-            android:id="@+id/image_view"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/baseline_today_black_48"/>
-
-        <TextView
-            android:id="@+id/text_view_label"
+        <RelativeLayout
+            android:id="@+id/relative_layout_data"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_toEndOf="@id/image_view"
-            android:layout_marginStart="@dimen/activity_horizontal_margin"
-            android:text="Resource Name"
-            android:textColor="@color/black"
-            />
+            android:paddingStart="@dimen/content_padding_start"
+            android:paddingTop="@dimen/content_padding_top"
+            android:paddingEnd="@dimen/content_padding_end"
+            android:paddingBottom="@dimen/content_padding_bottom">
 
-        <ImageView
-            android:id="@+id/image_view_evaluated"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/activity_horizontal_margin"
-            android:layout_toStartOf="@id/image_view_expand"
-            android:src="@drawable/baseline_attachment_black_18"
-            android:visibility="gone"/>
+            <TextView
+                android:id="@+id/text_view_label"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:text="Day name"
+                android:textColor="@color/black" />
 
-        <ImageView
-            android:id="@+id/image_view_expand"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="@dimen/activity_horizontal_margin"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentTop="true"
-            android:src="@drawable/baseline_expand_more_black_18"/>
+            <com.sasank.roundedhorizontalprogress.RoundedHorizontalProgressBar
+                android:id="@+id/progress_bar"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="8dp"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:layout_marginEnd="32dp"
+                android:layout_toStartOf="@id/image_view_expand"
+                android:indeterminate="false"
+                android:visibility="gone"
+                app:backgroundColor="@color/light_green"
+                app:isRounded="true"
+                app:progressColor="@color/dark_green" />
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recycler_view_training_sessions"
-            android:layout_marginTop="@dimen/activity_vertical_margin"
-            android:layout_below="@id/text_view_label"
-            android:visibility="gone"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            <ImageView
+                android:id="@+id/image_view_expand"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:src="@drawable/baseline_expand_more_black_24" />
+        </RelativeLayout>
 
-    </RelativeLayout>
+    </androidx.cardview.widget.CardView>
 
-</androidx.cardview.widget.CardView>
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_view_training_sessions"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/card_view"
+        android:clipToPadding="false"
+        android:visibility="gone" />
+</RelativeLayout>

@@ -18,29 +18,31 @@
   -->
 
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/card_view"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginStart="@dimen/activity_horizontal_margin"
-    android:layout_marginTop="@dimen/activity_vertical_margin"
-    android:layout_marginEnd="@dimen/activity_horizontal_margin"
-    android:elevation="2dp"
+    android:layout_marginStart="@dimen/card_margin_start"
+    android:layout_marginTop="@dimen/card_margin_top"
+    android:layout_marginEnd="@dimen/card_margin_end"
+    android:elevation="@dimen/card_elevation"
+    app:cardCornerRadius="@dimen/card_radius"
     android:gravity="bottom"
     android:orientation="vertical">
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingTop="@dimen/nav_header_vertical_spacing"
-        android:paddingStart="@dimen/nav_header_vertical_spacing"
-        android:paddingEnd="@dimen/nav_header_vertical_spacing"
-        android:paddingBottom="@dimen/nav_header_vertical_spacing">
+        android:paddingTop="@dimen/content_padding_top"
+        android:paddingStart="@dimen/content_padding_start"
+        android:paddingEnd="@dimen/content_padding_end"
+        android:paddingBottom="@dimen/content_padding_bottom">
 
         <ImageView
             android:id="@+id/image_view"
             android:layout_width="48dp"
             android:layout_height="48dp"
-            android:src="@drawable/ic_athlete" />
+            android:src="@drawable/ic_athlete_male" />
 
         <TextView
             android:id="@+id/text_view_full_name"
@@ -49,6 +51,16 @@
             android:layout_marginStart="@dimen/activity_horizontal_margin"
             android:layout_toEndOf="@id/image_view"
             android:text="Athlete Name"
+            android:textColor="@color/black" />
+
+        <TextView
+            android:id="@+id/text_view_gender"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/activity_horizontal_margin"
+            android:layout_toEndOf="@id/image_view"
+            android:layout_below="@id/text_view_full_name"
+            android:text="Male"
             android:textColor="@color/black" />
 
     </RelativeLayout>

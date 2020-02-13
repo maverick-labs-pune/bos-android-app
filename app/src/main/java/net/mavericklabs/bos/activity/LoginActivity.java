@@ -86,7 +86,7 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
         editUsername = findViewById(R.id.edit_username);
         editPassword = findViewById(R.id.edit_password);
-        btnLogin = findViewById(R.id.btn_login);
+        btnLogin = findViewById(R.id.button_login);
         textForgotPassword = findViewById(R.id.text_forgot_password);
         textApplyCoach = findViewById(R.id.apply_coach);
         textApplyNgo = findViewById(R.id.apply_ngo);
@@ -175,7 +175,7 @@ public class LoginActivity extends AppCompatActivity {
                                 sendForgotPasswordRequest(userName);
                             } else {
                                 Toast.makeText(getApplicationContext(),
-                                        getTranslationFromXML(locale, "NO_NETWORK"),
+                                        getTranslationFromXML(locale, "No network"),
                                         Toast.LENGTH_SHORT).show();
                             }
                         }
@@ -236,7 +236,7 @@ public class LoginActivity extends AppCompatActivity {
                         return getString(R.string.LABEL_ERROR_EN);
                     case "LABEL_EMAIL_SENT":
                         return getString(R.string.LABEL_EMAIL_SENT_EN);
-                    case "NO_NETWORK":
+                    case "No network":
                         return getString(R.string.NO_NETWORK_EN);
                 }
                 break;
@@ -262,7 +262,7 @@ public class LoginActivity extends AppCompatActivity {
                         return getString(R.string.LABEL_ERROR_MR);
                     case "LABEL_EMAIL_SENT":
                         return getString(R.string.LABEL_EMAIL_SENT_MR);
-                    case "NO_NETWORK":
+                    case "No network":
                         return getString(R.string.NO_NETWORK_MR);
                 }
                 break;
@@ -302,7 +302,7 @@ public class LoginActivity extends AppCompatActivity {
         final String locale = SharedPreferenceUtil.getLocale(getApplicationContext());
         if (!NetworkConnection.isNetworkAvailable(getApplicationContext())) {
             Toast.makeText(getApplicationContext(),
-                    getTranslationFromXML(locale, "NO_NETWORK"), Toast.LENGTH_SHORT).show();
+                    getTranslationFromXML(locale, "No network"), Toast.LENGTH_SHORT).show();
             return;
         }
         final ProgressDialog progress = new ProgressDialog(this);

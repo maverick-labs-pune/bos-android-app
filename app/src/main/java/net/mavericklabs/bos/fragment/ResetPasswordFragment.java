@@ -102,13 +102,13 @@ public class ResetPasswordFragment extends Fragment {
 
     private void setTranslations() {
         locale = SharedPreferenceUtil.getLocale(getContext());
-        editOldPassword.setHint(getTranslation(locale, "LABEL_OLD_PASSWORD"));
-        editNewPassword.setHint(getTranslation(locale, "LABEL_NEW_PASSWORD"));
-        editConfirmPassword.setHint(getTranslation(locale, "LABEL_CONFIRM_PASSWORD"));
-        btn.setText(getTranslation(locale, "LABEL_SAVE"));
+        editOldPassword.setHint(getTranslation(locale, "Old password"));
+        editNewPassword.setHint(getTranslation(locale, "New password"));
+        editConfirmPassword.setHint(getTranslation(locale, "Confirm password"));
+        btn.setText(getTranslation(locale, "Save"));
     }
 
-    View.OnFocusChangeListener onFocusChangeListener = new View.OnFocusChangeListener() {
+    private View.OnFocusChangeListener onFocusChangeListener = new View.OnFocusChangeListener() {
         @Override
         public void onFocusChange(View v, boolean hasFocus) {
             if (v.getId() == R.id.edit_old_password) {
@@ -158,7 +158,7 @@ public class ResetPasswordFragment extends Fragment {
                 });
             }
         } else {
-            Toast.makeText(getContext(), getTranslation(locale, "NO_NETWORK"), Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), getTranslation(locale, "No network"), Toast.LENGTH_SHORT).show();
         }
 
     }

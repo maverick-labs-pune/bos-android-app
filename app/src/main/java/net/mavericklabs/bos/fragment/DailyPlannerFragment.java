@@ -108,14 +108,14 @@ public class DailyPlannerFragment extends Fragment {
                     if (NetworkConnection.isNetworkAvailable(context)) {
                         boolean result = SyncAdapter.requestSync(context, SyncAdapter.SYNC_EVERYTHING);
                         if (!result) {
-                            Toast.makeText(context, getTranslation(locale, "SYNC_ALREADY_RUNNING"), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(context, getTranslation(locale, "Sync is already running"), Toast.LENGTH_SHORT).show();
 
                         } else {
-                            Toast.makeText(context, getTranslation(locale, "SYNC_STARTED"), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(context, getTranslation(locale, "Sync started"), Toast.LENGTH_SHORT).show();
 
                         }
                     } else {
-                        Toast.makeText(context, getTranslation(locale, "NO_NETWORK"), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, getTranslation(locale, "No network"), Toast.LENGTH_SHORT).show();
 
                     }
 
@@ -140,7 +140,7 @@ public class DailyPlannerFragment extends Fragment {
                 public void onChange(boolean selfChange) {
                     appLogger.logDebug("On change syncCompletedObserver");
                     synchronized (updateLock) {
-                        Toast.makeText(getContext(), getTranslation(locale, "SYNC_COMPLETE"), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), getTranslation(locale, "Sync completed"), Toast.LENGTH_SHORT).show();
                     }
                 }
             };

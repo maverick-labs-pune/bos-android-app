@@ -83,7 +83,9 @@ public class DailyPlannerAdapter extends RecyclerView.Adapter<DailyPlannerAdapte
         final EvaluationResourceType type = Util.getEvaluationResourceType(realmEvaluationResource.getType());
         switch (type) {
             case USER:
-                holder.resourceLabelTextView.setText(realmEvaluationResource.getUser().getFullName());
+                holder.resourceLabelTextView.setText(realmEvaluationResource.getResource().getLabel());
+                holder.entityTextView.setText(realmEvaluationResource.getUser().getFullName());
+
                 break;
             case GROUP:
                 holder.resourceLabelTextView.setText(realmEvaluationResource.getResource().getLabel());
@@ -91,29 +93,19 @@ public class DailyPlannerAdapter extends RecyclerView.Adapter<DailyPlannerAdapte
                 break;
             case UNKNOWN:
         }
-        String data = realmEvaluationResource.getData();
         final RealmResource realmResource = realmEvaluationResource.getResource();
         switch (realmResource.getType()) {
             case CURRICULUM:
                 Curriculum curriculum = Util.convertRealmResourceToCurriculum(realmEvaluationResource);
                 appLogger.logInformation("realmEvaluationResource");
                 appLogger.logInformation(realmEvaluationResource.getUuid());
-                int totalNumberOfDays = curriculum.getDays().size();
-                int completedDays = 0;
-                for (Day day : curriculum.getDays()) {
-                    appLogger.logInformation(day.getUuid());
-                    appLogger.logInformation(String.valueOf(day.isEvaluated()));
-                    if (day.isEvaluated()) {
-                        completedDays++;
-                    }
-                }
 
                 holder.imageView.setImageResource(R.drawable.ic_curriculum);
                 holder.resourceTypeTextView.setText("Curriculum");
                 holder.lastUpdatedTextView.setText("Last changed : " + DateUtil.dateToString(curriculum.getLastModificationTime()));
-                int progress = (int) ((double) completedDays / totalNumberOfDays * 100);
+
+                int progress = Util.computeCurriculumProgress(curriculum);
                 holder.progressBar.animateProgress(1000, 0, progress);
-//                holder.progressTextView.setText("Progress : " + completedDays+ "/" + totalNumberOfDays );
                 holder.cardView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -136,7 +128,6 @@ public class DailyPlannerAdapter extends RecyclerView.Adapter<DailyPlannerAdapte
                 holder.lastUpdatedTextView.setText("Last changed : " + DateUtil.dateToString(trainingSession.getLastModificationTime()));
                 holder.progressBar.setVisibility(View.GONE);
                 holder.progressTextView.setVisibility(View.GONE);
-//                holder.progressTextView.setText("Progress : " + completedDays+ "/" + totalNumberOfDays );
                 holder.cardView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {

@@ -41,8 +41,8 @@ import retrofit2.converter.scalars.ScalarsConverterFactory;
 
 public class ApiClient {
 //    private static final String BASE_URL = "http://192.168.0.105:8000";
-    private static final String BASE_URL = "http://192.168.0.122:8000";
-//    private static final String BASE_URL = "https://api.bos.org";
+//    private static final String BASE_URL = "http://192.168.0.122:8000";
+    private static final String BASE_URL = "https://testapi.bridgesofsports.org";
 
     public static ApiInterface getApiInterface(Context context) {
         String token = "";

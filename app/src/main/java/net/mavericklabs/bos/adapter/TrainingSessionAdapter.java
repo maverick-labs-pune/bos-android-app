@@ -21,6 +21,7 @@ package net.mavericklabs.bos.adapter;
 
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -78,7 +79,7 @@ public class TrainingSessionAdapter extends RecyclerView.Adapter<TrainingSession
         switch (activityMode) {
             case EVALUATION:
                 holder.evaluatedImageView.setVisibility(View.VISIBLE);
-                if (day.isEvaluated()) {
+                if (trainingSession.isEvaluated()) {
                     holder.evaluatedImageView.setImageResource(R.drawable.baseline_check_black_18);
                 } else {
                     holder.evaluatedImageView.setImageResource(R.drawable.baseline_close_black_18);

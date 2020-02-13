@@ -27,7 +27,9 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:clipToPadding="false"
+        android:paddingBottom="@dimen/recycler_view_padding_bottom" />
 
     <TextView
         android:id="@+id/empty_view"
@@ -44,5 +46,6 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
         android:layout_margin="16dp"
-        android:src="@drawable/baseline_sync_white_36dp" />
+        android:src="@drawable/baseline_sync_white_36dp"
+        />
 </RelativeLayout>

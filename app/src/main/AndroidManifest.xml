@@ -23,11 +23,16 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".activity.CurriculumActivity" />
-        <activity android:name=".activity.TrainingSessionActivity" />
+        <activity
+            android:name=".activity.CurriculumActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.TrainingSessionActivity"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateHidden" />
         <activity
             android:name=".activity.GroupDetailActivity"
-            android:theme="@style/AppTheme" />
+            android:screenOrientation="portrait" />
 
         <provider
             android:name="androidx.core.content.FileProvider"
@@ -76,9 +81,12 @@
             android:name=".activity.AthleteActivity"
             android:screenOrientation="portrait" />
         <activity
+            android:name=".activity.SelectAthleteActivity"
+            android:screenOrientation="portrait" />
+        <activity
             android:name=".activity.CreateAthleteActivity"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="stateHidden"/>
+            android:windowSoftInputMode="stateHidden" />
 
         <service
             android:name=".sync.SyncService"

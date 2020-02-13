@@ -21,12 +21,14 @@ package net.mavericklabs.bos.utils;
 
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.gson.Gson;
 
+import net.mavericklabs.bos.R;
 import net.mavericklabs.bos.model.UserReading;
 import net.mavericklabs.bos.object.Curriculum;
 import net.mavericklabs.bos.object.Day;
@@ -118,6 +120,19 @@ public class Util {
             return UserRole.ATHLETE;
         }
         return UserRole.UNKNOWN;
+    }
+
+    public static MeasurementInputType getMeasurementInputType(String measurementType) {
+        if (measurementType.toLowerCase().equals(MeasurementInputType.TEXT.label)) {
+            return MeasurementInputType.TEXT;
+        }
+        if (measurementType.toLowerCase().equals(MeasurementInputType.NUMERIC.label)) {
+            return MeasurementInputType.NUMERIC;
+        }
+        if (measurementType.toLowerCase().equals(MeasurementInputType.BOOLEAN.label)) {
+            return MeasurementInputType.BOOLEAN;
+        }
+        return MeasurementInputType.UNKNOWN;
     }
 
     public static Gender getGender(String gender) {
@@ -288,5 +303,44 @@ public class Util {
                 return;
             }
         }
+    }
+
+    public static void setImageViewBasedOnGender(ImageView imageView, RealmUser realmUser) {
+        switch (Util.getGender(realmUser.getGender())) {
+            case MALE:
+                imageView.setImageResource(R.drawable.ic_athlete_male);
+                break;
+            case FEMALE:
+                imageView.setImageResource(R.drawable.ic_athlete_female);
+                break;
+        }
+    }
+
+    public static String getGenderLabel(String genderLabel) {
+        Gender gender = Util.getGender(genderLabel);
+        switch (gender) {
+            case MALE:
+                return "Male";
+            case FEMALE:
+                return "Female";
+            case UNKNOWN:
+                return "";
+        }
+        return "";
+    }
+
+    public static int computeCurriculumProgress(Curriculum curriculum) {
+        int totalNumberOfTrainingSessions = 0;
+        int evaluatedTrainingSessions = 0;
+
+        for (Day day : curriculum.getDays()) {
+            for (TrainingSession trainingSession : day.getSessions()) {
+                if (trainingSession.isEvaluated()) {
+                    evaluatedTrainingSessions++;
+                }
+                totalNumberOfTrainingSessions++;
+            }
+        }
+        return (int) ((evaluatedTrainingSessions * 1.0) / totalNumberOfTrainingSessions * 100.0);
     }
 }
