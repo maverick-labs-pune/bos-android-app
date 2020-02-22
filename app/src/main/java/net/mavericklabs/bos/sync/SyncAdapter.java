@@ -39,6 +39,10 @@ import net.mavericklabs.bos.model.Measurement;
 import net.mavericklabs.bos.model.Resource;
 import net.mavericklabs.bos.model.User;
 import net.mavericklabs.bos.model.UserReading;
+import net.mavericklabs.bos.object.Curriculum;
+import net.mavericklabs.bos.object.Day;
+import net.mavericklabs.bos.object.File;
+import net.mavericklabs.bos.object.TrainingSession;
 import net.mavericklabs.bos.realm.RealmEvaluationResource;
 import net.mavericklabs.bos.realm.RealmGroup;
 import net.mavericklabs.bos.realm.RealmMeasurement;
@@ -54,11 +58,17 @@ import net.mavericklabs.bos.model.Translation;
 import net.mavericklabs.bos.realm.RealmHandler;
 import net.mavericklabs.bos.retrofit.ApiClient;
 import net.mavericklabs.bos.utils.DateUtil;
+import net.mavericklabs.bos.utils.Util;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -68,6 +78,9 @@ import io.realm.RealmList;
 import retrofit2.Response;
 
 import static android.content.Context.ACCOUNT_SERVICE;
+import static net.mavericklabs.bos.utils.Constants.CURRICULUM;
+import static net.mavericklabs.bos.utils.Constants.FILE;
+import static net.mavericklabs.bos.utils.Constants.TRAINING_SESSION;
 import static net.mavericklabs.bos.utils.Util.removeGroupFromList;
 import static net.mavericklabs.bos.utils.Util.removeResourceFromList;
 
@@ -153,6 +166,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 syncOfflineAthletes();
                 syncEvaluationResourceReadings();
                 syncAthleteBaseline();
+                syncFiles();
                 notifySyncStopped();
                 break;
         }
@@ -205,7 +219,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                     return;
                 }
                 Realm realm = Realm.getDefaultInstance();
-                List<RealmResource> realmResources = RealmHandler.getAllActiveResources(userKey);
+                List<RealmResource> realmResources = RealmHandler.getAllActiveResources();
                 appLogger.logInformation("Realm resources " + realmResources.size());
                 List<RealmResource> inMemoryRealmResources = realm.copyFromRealm(realmResources);
 
@@ -449,9 +463,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
 
 
                 }
-            } catch (JSONException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
+            } catch (JSONException | IOException e) {
                 e.printStackTrace();
             }
         }
@@ -505,12 +517,144 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 realm.commitTransaction();
                 realm.close();
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (JSONException e) {
+        } catch (IOException | JSONException e) {
             e.printStackTrace();
         }
     }
+
+    private void syncFiles() {
+
+        Realm realm = Realm.getDefaultInstance();
+        List<RealmResource> realmResources = RealmHandler.getAllActiveResources();
+        for (RealmResource realmResource : realmResources) {
+            switch (realmResource.getType()) {
+                case CURRICULUM: {
+                    // Check for files inside all the sessions
+                    List<String> resourceIDsToDownload = new ArrayList<>();
+                    Curriculum curriculum = Util.convertRealmResourceToCurriculum(realmResource);
+                    for (Day day : curriculum.getDays()) {
+                        for (TrainingSession trainingSession : day.getSessions()) {
+                            for (File file : trainingSession.getFiles()) {
+                                if (!resourceIDsToDownload.contains(file.getKey())) {
+                                    resourceIDsToDownload.add(file.getKey());
+                                }
+                            }
+                        }
+                    }
+
+                    for (String resourceKey : resourceIDsToDownload) {
+                        fetchResourcesByID(resourceKey);
+                    }
+                }
+                break;
+
+                case FILE:
+                    // Check if file downloaded and save to location
+                    processFileResource(realmResource);
+                    break;
+
+                case TRAINING_SESSION: {
+                    // Check for files inside the session
+                    TrainingSession trainingSession = Util.convertRealmResourceToTrainingSession(realmResource);
+                    List<String> resourceIDsToDownload = new ArrayList<>();
+
+                    for (File file : trainingSession.getFiles()) {
+                        if (!resourceIDsToDownload.contains(file.getKey())) {
+                            resourceIDsToDownload.add(file.getKey());
+                        }
+                    }
+                    for (String resourceKey : resourceIDsToDownload) {
+                        fetchResourcesByID(resourceKey);
+                    }
+                }
+                break;
+
+                default:
+                    break;
+            }
+        }
+        realm.close();
+    }
+
+    private void fetchResourcesByID(String resourceKey) {
+        appLogger.logInformation("fetchResourcesByID" + resourceKey);
+        try {
+            Response<Resource> response = ApiClient.getApiInterface(getContext()).getResource(resourceKey).execute();
+            if (response.isSuccessful()) {
+                Resource resource = response.body();
+                if (resource == null) {
+                    return;
+                }
+
+                Realm realm = Realm.getDefaultInstance();
+                realm.beginTransaction();
+                RealmResource realmResource = new RealmResource(resource);
+                realmResource = realm.copyToRealmOrUpdate(realmResource);
+                realm.commitTransaction();
+                realm.close();
+                processFileResource(realmResource);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void processFileResource(RealmResource realmResource) {
+        File file = Util.convertRealmResourceToFile(realmResource);
+        downloadFile(file);
+    }
+
+    private boolean downloadFile(File file) {
+        java.io.File newResourceFile;
+        try {
+            // Check if file already present
+
+            newResourceFile = Util.getFileInsideBOSDirectory(file, getContext());
+            if (newResourceFile.exists()) {
+                appLogger.logInformation("file exists");
+                return true;
+            }
+
+            URL url = new URL(file.getUrl());//Create Download URl
+            HttpURLConnection c = (HttpURLConnection) url.openConnection();
+            c.setRequestMethod("GET");
+            c.connect();
+
+//            If Connection response is not OK then show Logs
+            if (c.getResponseCode() != HttpURLConnection.HTTP_OK) {
+                appLogger.logError("Server returned HTTP " + c.getResponseCode()
+                        + " " + c.getResponseMessage());
+                return false;
+            }
+
+
+            //Create New File if not present
+            if (!newResourceFile.exists()) {
+                newResourceFile.createNewFile();
+            }
+
+            FileOutputStream fos = new FileOutputStream(newResourceFile);//Get OutputStream for NewFile Location
+
+            InputStream is = c.getInputStream();//Get InputStream for connection
+
+            byte[] buffer = new byte[1024];//Set buffer type
+            int len1 = 0;//init length
+            while ((len1 = is.read(buffer)) != -1) {
+                fos.write(buffer, 0, len1);//Write new file
+            }
+
+            //Close all connection after doing task
+            fos.close();
+            is.close();
+        } catch (Exception e) {
+
+            //Read exception if something went wrong
+            e.printStackTrace();
+            newResourceFile = null;
+        }
+        return false;
+    }
+
 
     private void syncTranslations() {
         try {

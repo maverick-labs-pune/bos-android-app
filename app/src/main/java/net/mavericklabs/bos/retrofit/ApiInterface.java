@@ -61,6 +61,9 @@ public interface ApiInterface {
     @GET("/ngos/{ngo_key}/coach_registration_form/")
     Call<Resource> getCoachRegistrationForm(@Path("ngo_key") String ngoKey);
 
+    @GET("/resources/{resource_key}/")
+    Call<Resource> getResource(@Path("resource_key") String resourceKey);
+
     @POST("/ngos/{ngo_key}/measurements_from_keys/")
     Call<List<Measurement>> getMeasurementsFromKeys(@Path("ngo_key") String ngoKey, @Body ArrayList<String> measurementKeys);
 

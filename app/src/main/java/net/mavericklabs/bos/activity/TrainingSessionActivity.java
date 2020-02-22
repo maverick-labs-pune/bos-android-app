@@ -34,10 +34,13 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import net.mavericklabs.bos.R;
+import net.mavericklabs.bos.adapter.FilesAdapter;
 import net.mavericklabs.bos.adapter.MeasurementAdapter;
 import net.mavericklabs.bos.adapter.MeasurementReadingAdapter;
+import net.mavericklabs.bos.adapter.ResourceAdapter;
 import net.mavericklabs.bos.adapter.SelectAthleteAdapterForEvaluation;
 import net.mavericklabs.bos.object.Curriculum;
+import net.mavericklabs.bos.object.File;
 import net.mavericklabs.bos.object.Measurement;
 import net.mavericklabs.bos.object.TrainingSession;
 import net.mavericklabs.bos.realm.RealmEvaluationResource;
@@ -65,11 +68,6 @@ import static net.mavericklabs.bos.utils.Constants.BUNDLE_KEY_TRAINING_SESSION;
 
 public class TrainingSessionActivity extends AppCompatActivity {
     private AppLogger appLogger = new AppLogger(getClass().toString());
-    private RecyclerView measurementsRecyclerView;
-    private TextView emptyView;
-    private ActivityMode activityMode;
-    private RecyclerView usersRecyclerView;
-    private EvaluationResourceType evaluationResourceType;
     private boolean isPartOfCurriculum;
 
     @Override
@@ -84,13 +82,14 @@ public class TrainingSessionActivity extends AppCompatActivity {
         }
 
         final TrainingSession trainingSession = getIntent().getParcelableExtra(BUNDLE_KEY_TRAINING_SESSION);
-        activityMode = Util.getActivityMode(getIntent().getStringExtra(BUNDLE_KEY_ACTIVITY_MODE));
+        ActivityMode activityMode = Util.getActivityMode(getIntent().getStringExtra(BUNDLE_KEY_ACTIVITY_MODE));
         appLogger.logInformation("Activity Mode " + activityMode.label);
         appLogger.logInformation("trainingSession isEvaluated " + trainingSession.isEvaluated());
-        evaluationResourceType = Util.getEvaluationResourceType(getIntent().getStringExtra(BUNDLE_KEY_EVALUATION_RESOURCE_TYPE));
+        EvaluationResourceType evaluationResourceType = Util.getEvaluationResourceType(getIntent().getStringExtra(BUNDLE_KEY_EVALUATION_RESOURCE_TYPE));
         isPartOfCurriculum = getIntent().getBooleanExtra(BUNDLE_KEY_IS_PART_OF_CURRICULUM, false);
         TextView readingsTextView = findViewById(R.id.text_view_label_readings);
         TextView athletesTextView = findViewById(R.id.text_view_label_athletes);
+        TextView filesTextView = findViewById(R.id.text_view_label_files);
         CardView cardView = findViewById(R.id.card_view);
         TextView description = findViewById(R.id.text_view_description);
         if (!TextUtils.isEmpty(trainingSession.getLabel())) {
@@ -102,17 +101,27 @@ public class TrainingSessionActivity extends AppCompatActivity {
             description.setText(trainingSession.getDescription());
         }
         Button evaluateTrainingSessionButton = findViewById(R.id.button_evaluate_training_session);
-        measurementsRecyclerView = findViewById(R.id.recycler_view_measurements);
-        usersRecyclerView = findViewById(R.id.recycler_view_users);
-        emptyView = findViewById(R.id.empty_view);
-        measurementsRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
-
-
+        TextView emptyView = findViewById(R.id.empty_view);
+        RecyclerView measurementsRecyclerView = findViewById(R.id.recycler_view_measurements);
+        RecyclerView filesRecyclerView = findViewById(R.id.recycler_view_files);
+        RecyclerView usersRecyclerView = findViewById(R.id.recycler_view_users);
+        measurementsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        filesRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        usersRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        List<File> files = trainingSession.getFiles();
+        if (files.size() == 0){
+            filesTextView.setVisibility(View.GONE);
+        }else{
+            filesRecyclerView.setAdapter(new FilesAdapter(this,trainingSession.getFiles()));
+        }
+        appLogger.logInformation(String.valueOf(files.size()));
+        appLogger.logInformation("YOLO files");
         switch (activityMode) {
             case READ:
                 readingsTextView.setText("Measurements for this session");
                 athletesTextView.setVisibility(View.GONE);
                 measurementsRecyclerView.setAdapter(new MeasurementAdapter(getApplicationContext(), trainingSession.getMeasurements(), activityMode));
+
                 break;
             case EVALUATION:
                 String evaluationResourceUUID = getIntent().getStringExtra(BUNDLE_KEY_EVALUATION_RESOURCE_UUID);
@@ -127,7 +136,9 @@ public class TrainingSessionActivity extends AppCompatActivity {
                     athletesTextView.setVisibility(View.GONE);
                     evaluateTrainingSessionButton.setVisibility(View.GONE);
                     usersRecyclerView.setVisibility(View.GONE);
+                    filesTextView.setVisibility(View.GONE);
                     readingsTextView.setText("Readings collected below");
+
 
                 } else {
                     usersRecyclerView.setVisibility(View.VISIBLE);
@@ -140,7 +151,6 @@ public class TrainingSessionActivity extends AppCompatActivity {
                         List<RealmUser> athletes = Util.getAthletes(realmEvaluationResource.getGroup().getUsers());
                         final SelectAthleteAdapterForEvaluation selectAthleteAdapterForEvaluation = new SelectAthleteAdapterForEvaluation(athletes);
                         usersRecyclerView.setAdapter(selectAthleteAdapterForEvaluation);
-                        usersRecyclerView.setLayoutManager(new LinearLayoutManager(this));
                         evaluateTrainingSessionButton.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {

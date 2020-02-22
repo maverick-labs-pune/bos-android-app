@@ -40,6 +40,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
@@ -77,7 +78,6 @@ public class LoginActivity extends AppCompatActivity {
     private boolean userNameHasFocus = false;
     private boolean passwordHasFocus = false;
     private TextView textApplyCoach;
-    private TextView textApplyNgo;
     private AppLogger appLogger = new AppLogger(getClass().toString());
 
     @Override
@@ -89,8 +89,8 @@ public class LoginActivity extends AppCompatActivity {
         btnLogin = findViewById(R.id.button_login);
         textForgotPassword = findViewById(R.id.text_forgot_password);
         textApplyCoach = findViewById(R.id.apply_coach);
-        textApplyNgo = findViewById(R.id.apply_ngo);
         btnChangeLanguage = findViewById(R.id.btn_change_language);
+        ExtendedFloatingActionButton extendedFAB = findViewById(R.id.extended_fab);
         setTranslations();
 
         editUsername.setOnFocusChangeListener(onFocusChangeListener);
@@ -126,14 +126,6 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-        textApplyNgo.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(LoginActivity.this, ApplyNGOActivity.class);
-                startActivity(intent);
-            }
-        });
-
         editPassword.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
@@ -146,6 +138,7 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
+//        extendedFAB.menu;
         textForgotPassword.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

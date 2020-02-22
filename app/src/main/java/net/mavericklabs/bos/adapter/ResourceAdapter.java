@@ -21,6 +21,7 @@ package net.mavericklabs.bos.adapter;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -35,7 +36,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import net.mavericklabs.bos.R;
 import net.mavericklabs.bos.activity.CurriculumActivity;
+import net.mavericklabs.bos.activity.ImageViewActivity;
+import net.mavericklabs.bos.activity.PDFActivity;
 import net.mavericklabs.bos.activity.SelectAthleteActivity;
+import net.mavericklabs.bos.object.File;
 import net.mavericklabs.bos.realm.RealmEvaluationResource;
 import net.mavericklabs.bos.realm.RealmGroup;
 import net.mavericklabs.bos.realm.RealmHandler;
@@ -44,12 +48,14 @@ import net.mavericklabs.bos.realm.RealmUser;
 import net.mavericklabs.bos.utils.AlertCallback;
 import net.mavericklabs.bos.utils.AlertUtil;
 import net.mavericklabs.bos.utils.EvaluationResourceType;
+import net.mavericklabs.bos.utils.Util;
 
 import java.util.List;
 
 import static net.mavericklabs.bos.utils.Constants.BUNDLE_KEY_ACTIVITY_MODE;
 import static net.mavericklabs.bos.utils.Constants.BUNDLE_KEY_EVALUATION_RESOURCE_TYPE;
 import static net.mavericklabs.bos.utils.Constants.BUNDLE_KEY_RESOURCE_KEY;
+import static net.mavericklabs.bos.utils.Constants.BUNDLE_KEY_URI;
 import static net.mavericklabs.bos.utils.Constants.CURRICULUM;
 import static net.mavericklabs.bos.utils.Constants.FILE;
 import static net.mavericklabs.bos.utils.Constants.READ;
@@ -118,11 +124,42 @@ public class ResourceAdapter extends RecyclerView.Adapter<ResourceAdapter.Resour
             case FILE:
                 holder.imageView.setImageResource(R.drawable.baseline_attachment_black_48);
                 holder.resourceTypeTextView.setText("File");
+                holder.assignResourceImageView.setVisibility(View.GONE);
+                holder.viewResourceImageView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        File fileObject = Util.convertRealmResourceToFile(realmResource);
+                        java.io.File file = Util.getFileInsideBOSDirectory(fileObject, context);
+
+                        String fileExtension = Util.getFileExtension(fileObject.getUrl());
+                        switch (fileExtension) {
+                            case ".pdf": {
+                                Intent intent = new Intent(context, PDFActivity.class);
+                                intent.putExtra(BUNDLE_KEY_RESOURCE_KEY, realmResource.getKey());
+                                intent.putExtra(BUNDLE_KEY_URI, Uri.fromFile(file).toString());
+                                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                context.startActivity(intent);
+                                break;
+                            }
+                            case ".png":
+                            case ".jpg":
+                            case ".jpeg":
+                                Intent intent = new Intent(context, ImageViewActivity.class);
+                                intent.putExtra(BUNDLE_KEY_RESOURCE_KEY, realmResource.getKey());
+                                intent.putExtra(BUNDLE_KEY_URI, Uri.fromFile(file).toString());
+                                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                context.startActivity(intent);
+                            default:
+                                break;
+                        }
+                    }
+                });
                 break;
 
             case TRAINING_SESSION:
                 holder.imageView.setImageResource(R.drawable.ic_training_session);
                 holder.resourceTypeTextView.setText("Training session");
+
                 setOnClickListener(holder, realmResource);
                 break;
 

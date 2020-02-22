@@ -50,6 +50,7 @@ public interface Constants {
     String BUNDLE_KEY_TRAINING_SESSION = "trainingSession";
     String BUNDLE_KEY_GROUP_KEY = "groupKey";
     String BUNDLE_KEY_RESOURCE_KEY = "resourceKey";
+    String BUNDLE_KEY_URI = "uri";
     String BUNDLE_KEY_EVALUATION_RESOURCE_UUID = "evaluationResourceUUID";
     String BUNDLE_KEY_ACTIVITY_MODE = "activityMode";
     String BUNDLE_KEY_EVALUATION_RESOURCE_TYPE = "evaluationResourceType";

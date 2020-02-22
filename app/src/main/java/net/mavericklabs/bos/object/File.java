@@ -29,10 +29,12 @@ import java.util.List;
 public class File implements Parcelable {
     private String label;
     private String url;
+    private String key;
 
     private File(Parcel in) {
         label = in.readString();
         url = in.readString();
+        key = in.readString();
     }
 
     public static final Creator<File> CREATOR = new Creator<File>() {
@@ -56,5 +58,30 @@ public class File implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(label);
         dest.writeString(url);
+        dest.writeString(key);
+    }
+
+    public void setLabel(String label) {
+        this.label = label;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public String getLabel() {
+        return label;
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
     }
 }

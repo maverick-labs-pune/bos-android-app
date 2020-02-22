@@ -143,4 +143,8 @@ public class TrainingSession implements Parcelable {
     public boolean isEvaluated() {
         return isEvaluated;
     }
+
+    public void setFiles(List<File> files) {
+        this.files = files;
+    }
 }

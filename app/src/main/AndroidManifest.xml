@@ -67,12 +67,10 @@
         </activity>
         <activity
             android:name=".activity.ApplyCoachActivity"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateHidden" />
         <activity
             android:name=".activity.SelectResourceActivity"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".activity.ApplyNGOActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name=".activity.LoginActivity"
@@ -83,6 +81,10 @@
         <activity
             android:name=".activity.SelectAthleteActivity"
             android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.PDFActivity"
+            android:screenOrientation="portrait" />
+        <activity android:name=".activity.ImageViewActivity" />
         <activity
             android:name=".activity.CreateAthleteActivity"
             android:screenOrientation="portrait"

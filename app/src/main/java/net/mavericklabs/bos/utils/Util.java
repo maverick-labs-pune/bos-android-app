@@ -19,7 +19,7 @@
 
 package net.mavericklabs.bos.utils;
 
-import android.util.Log;
+import android.content.Context;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -29,14 +29,15 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.gson.Gson;
 
 import net.mavericklabs.bos.R;
-import net.mavericklabs.bos.model.UserReading;
+import net.mavericklabs.bos.model.Resource;
 import net.mavericklabs.bos.object.Curriculum;
 import net.mavericklabs.bos.object.Day;
+import net.mavericklabs.bos.object.File;
 import net.mavericklabs.bos.object.Measurement;
 import net.mavericklabs.bos.object.TrainingSession;
 import net.mavericklabs.bos.realm.RealmEvaluationResource;
 import net.mavericklabs.bos.realm.RealmGroup;
-import net.mavericklabs.bos.realm.RealmReading;
+import net.mavericklabs.bos.realm.RealmHandler;
 import net.mavericklabs.bos.realm.RealmResource;
 import net.mavericklabs.bos.realm.RealmUser;
 
@@ -55,6 +56,11 @@ public class Util {
         if (data.isEmpty()) {
             recyclerView.setVisibility(View.GONE);
             emptyView.setVisibility(View.VISIBLE);
+            emptyView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                }
+            });
         } else {
             recyclerView.setVisibility(View.VISIBLE);
             emptyView.setVisibility(View.GONE);
@@ -71,12 +77,35 @@ public class Util {
         }
     }
 
+    private static void convertFilesInsideTrainingSession(TrainingSession trainingSession) {
+        List<File> convertedFiles = new ArrayList<>();
+        for (File file : trainingSession.getFiles()
+        ) {
+            RealmResource fileResource = RealmHandler.getResourceByKey(file.getKey());
+            if (fileResource != null) {
+                File convertedFile = convertRealmResourceToFile(fileResource);
+                convertedFiles.add(convertedFile);
+            }
+        }
+        trainingSession.setFiles(convertedFiles);
+    }
+
+    private static void convertFilesInsideCurriculum(Curriculum curriculum) {
+        for (Day day : curriculum.getDays()) {
+            for (TrainingSession trainingSession : day.getSessions()) {
+                convertFilesInsideTrainingSession(trainingSession);
+            }
+        }
+
+    }
+
     public static Curriculum convertRealmResourceToCurriculum(RealmResource realmResource) {
         Gson gson = new Gson();
         Curriculum curriculum = gson.fromJson(realmResource.getData(), Curriculum.class);
         curriculum.setKey(realmResource.getKey());
         curriculum.setLabel(realmResource.getLabel());
         curriculum.setDescription(realmResource.getDescription());
+        convertFilesInsideCurriculum(curriculum);
         return curriculum;
     }
 
@@ -86,6 +115,7 @@ public class Util {
         trainingSession.setKey(realmResource.getKey());
         trainingSession.setLabel(realmResource.getLabel());
         trainingSession.setDescription(realmResource.getDescription());
+        convertFilesInsideTrainingSession(trainingSession);
         return trainingSession;
     }
 
@@ -96,6 +126,7 @@ public class Util {
         curriculum.setKey(realmEvaluationResource.getResource().getKey());
         curriculum.setLabel(realmEvaluationResource.getResource().getLabel());
         curriculum.setDescription(realmEvaluationResource.getResource().getDescription());
+        convertFilesInsideCurriculum(curriculum);
         return curriculum;
     }
 
@@ -106,6 +137,18 @@ public class Util {
         trainingSession.setKey(realmEvaluationResource.getResource().getKey());
         trainingSession.setLabel(realmEvaluationResource.getResource().getLabel());
         trainingSession.setDescription(realmEvaluationResource.getResource().getDescription());
+        convertFilesInsideTrainingSession(trainingSession);
+        return trainingSession;
+    }
+
+    public static TrainingSession convertResourceToTrainingSession(Resource resource) {
+        Gson gson = new Gson();
+        TrainingSession trainingSession = gson.fromJson(resource.getData(), TrainingSession.class);
+        trainingSession.setUuid(getRandomUUID());
+        trainingSession.setKey(resource.getKey());
+        trainingSession.setLabel(resource.getLabel());
+        trainingSession.setDescription(resource.getDescription());
+        convertFilesInsideTrainingSession(trainingSession);
         return trainingSession;
     }
 
@@ -342,5 +385,34 @@ public class Util {
             }
         }
         return (int) ((evaluatedTrainingSessions * 1.0) / totalNumberOfTrainingSessions * 100.0);
+    }
+
+    public static String getBOSFilesDirectory(Context context) {
+        return context.getNoBackupFilesDir().getAbsolutePath() + "/files/";
+    }
+
+    public static String getFileExtension(String filePath) {
+        return filePath.substring(filePath.lastIndexOf("."));
+
+    }
+
+    public static File convertRealmResourceToFile(RealmResource realmResource) {
+        Gson gson = new Gson();
+        File file = gson.fromJson(realmResource.getData(), File.class);
+        file.setLabel(realmResource.getLabel());
+        file.setKey(realmResource.getKey());
+        return file;
+    }
+
+    public static java.io.File getFileInsideBOSDirectory(File file, Context context) {
+        java.io.File bosFilesDirectory = new java.io.File(Util.getBOSFilesDirectory(context));
+
+        if (!bosFilesDirectory.exists()) {
+            bosFilesDirectory.mkdir();
+        }
+
+        String filePath = bosFilesDirectory.getAbsolutePath() + file.getKey() + Util.getFileExtension(file.getUrl());
+        return new java.io.File(filePath);
+
     }
 }

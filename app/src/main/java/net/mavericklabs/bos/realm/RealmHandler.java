@@ -101,7 +101,7 @@ public class RealmHandler {
 
     }
 
-    public static List<RealmResource> getAllActiveResources(String userKey) {
+    public static List<RealmResource> getAllActiveResources() {
         Realm realm = Realm.getDefaultInstance();
         List<RealmResource> realmResources = realm.where(RealmResource.class)
                 .equalTo("isActive", Boolean.TRUE)
@@ -124,6 +124,7 @@ public class RealmHandler {
                 .or()
                 .equalTo("realmGroups.users.key",loginResponse.getUserKey())
                 .endGroup()
+                .notEqualTo("type", REGISTRATION_FORM)
                 .findAll();
         realm.close();
         return realmResources;

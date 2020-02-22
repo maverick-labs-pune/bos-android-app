@@ -45,8 +45,6 @@ import java.util.List;
 
 public class ResourceFragment extends Fragment {
     private AppLogger appLogger = new AppLogger(getClass().toString());
-    private RecyclerView recyclerView;
-    private TextView emptyView;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -65,8 +63,8 @@ public class ResourceFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull final View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        recyclerView = view.findViewById(R.id.recycler_view);
-        emptyView = view.findViewById(R.id.empty_view);
+        RecyclerView recyclerView = view.findViewById(R.id.recycler_view);
+        TextView emptyView = view.findViewById(R.id.empty_view);
         List<RealmResource> realmResources = RealmHandler.getSelfAllActiveResources();
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         recyclerView.setAdapter(new ResourceAdapter(getActivity(), realmResources, EvaluationResourceType.RESOURCE));

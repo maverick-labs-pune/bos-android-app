@@ -55,6 +55,8 @@ import org.w3c.dom.Text;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.realm.Realm;
+
 import static android.text.InputType.TYPE_CLASS_NUMBER;
 import static android.text.InputType.TYPE_CLASS_TEXT;
 import static android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL;
@@ -86,6 +88,7 @@ public class MeasurementReadingAdapter extends RecyclerView.Adapter<MeasurementR
     @Override
     public void onBindViewHolder(@NonNull final MeasurementReadingViewHolder holder, final int measurementPosition) {
         Measurement measurement = measurements.get(measurementPosition);
+        Realm realm = Realm.getDefaultInstance();
         RealmMeasurement realmMeasurement = RealmHandler.getMeasurementFromKey(measurement.getKey());
         TextWatcher textWatcher = new TextWatcher() {
             @Override
@@ -149,7 +152,7 @@ public class MeasurementReadingAdapter extends RecyclerView.Adapter<MeasurementR
                 });
         }
 
-
+        realm.close();
     }
 
     private void checkIfTrainingSessionEvaluated(MeasurementReadingViewHolder holder, Measurement measurement, RealmMeasurement realmMeasurement, TextWatcher textWatcher) {
