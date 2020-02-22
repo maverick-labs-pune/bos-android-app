@@ -89,4 +89,10 @@ public interface ApiInterface {
     @Headers("Content-Type: application/json")
     @POST("/athletes/")
     Call<User> createAthlete(@Body String body);
+
+    @Headers("Content-Type: application/json")
+    @POST("/requests/create_request/")
+    Call<Void> createCoachRequest(@Body String body);
+
+
 }

@@ -201,8 +201,10 @@ public class MeasurementReadingAdapter extends RecyclerView.Adapter<MeasurementR
         for (Measurement measurement : measurements) {
             if (measurement.isRequired()) {
                 if (TextUtils.isEmpty(measurement.getReading())) {
+                    Realm realm = Realm.getDefaultInstance();
                     RealmMeasurement realmMeasurement = RealmHandler.getMeasurementFromKey(measurement.getKey());
                     ToastUtils.showToast(context, realmMeasurement.getLabel() + " is empty", Toast.LENGTH_SHORT);
+                    realm.close();
                     return false;
                 }
             }

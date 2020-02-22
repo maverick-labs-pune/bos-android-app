@@ -41,6 +41,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
@@ -64,6 +65,7 @@ import java.util.Map;
 import java.util.Set;
 
 import io.realm.Realm;
+import io.realm.internal.Util;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -77,7 +79,6 @@ public class LoginActivity extends AppCompatActivity {
     private TextView btnChangeLanguage;
     private boolean userNameHasFocus = false;
     private boolean passwordHasFocus = false;
-    private TextView textApplyCoach;
     private AppLogger appLogger = new AppLogger(getClass().toString());
 
     @Override
@@ -88,9 +89,8 @@ public class LoginActivity extends AppCompatActivity {
         editPassword = findViewById(R.id.edit_password);
         btnLogin = findViewById(R.id.button_login);
         textForgotPassword = findViewById(R.id.text_forgot_password);
-        textApplyCoach = findViewById(R.id.apply_coach);
+        TextView textApplyCoach = findViewById(R.id.apply_coach);
         btnChangeLanguage = findViewById(R.id.btn_change_language);
-        ExtendedFloatingActionButton extendedFAB = findViewById(R.id.extended_fab);
         setTranslations();
 
         editUsername.setOnFocusChangeListener(onFocusChangeListener);
@@ -298,6 +298,20 @@ public class LoginActivity extends AppCompatActivity {
                     getTranslationFromXML(locale, "No network"), Toast.LENGTH_SHORT).show();
             return;
         }
+
+        String userName = editUsername.getText().toString();
+        String password = editPassword.getText().toString();
+
+        if (Util.isEmptyString(userName)) {
+            editUsername.setError("This field cannot be empty");
+            return;
+        }
+        if (Util.isEmptyString(password)) {
+            editPassword.setError("This field cannot be empty");
+            return;
+        }
+
+
         final ProgressDialog progress = new ProgressDialog(this);
         progress.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         progress.setIndeterminate(true);
@@ -313,6 +327,11 @@ public class LoginActivity extends AppCompatActivity {
             public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
                 if (response.isSuccessful()) {
                     LoginResponse loginResponse = response.body();
+                    if (loginResponse == null) {
+                        progress.dismiss();
+                        Toast.makeText(LoginActivity.this, "Login response is empty", Toast.LENGTH_LONG).show();
+                        return;
+                    }
                     Realm realm = Realm.getDefaultInstance();
                     realm.beginTransaction();
                     realm.copyToRealm(loginResponse);

@@ -54,7 +54,6 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/bos_image"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="16dp"
             android:hint="Username"
             android:importantForAutofill="no"
             android:inputType="text"
@@ -79,7 +78,6 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/edit_username"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="4dp"
             android:hint="Password"
             android:importantForAutofill="no"
             android:inputType="textPassword"
@@ -94,10 +92,8 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/text_input_layout_password_edit_text_view"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="@dimen/content_double_margin_top"
         android:background="@color/colorPrimary"
-        android:paddingStart="4dp"
-        android:paddingEnd="4dp"
         android:text="Login"
         android:textColor="@color/white" />
 
@@ -107,7 +103,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/button_login"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="@dimen/content_double_margin_top"
         android:gravity="center_horizontal"
         android:text="Forgot Password?"
         android:textColor="@color/colorAccent"
@@ -119,13 +115,13 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/text_forgot_password"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="@dimen/content_double_margin_top"
         android:gravity="center_horizontal"
         android:text="Not a coach yet? Apply now"
         android:textColor="@color/colorAccent"
         android:textSize="16sp" />
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_change_language"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -136,12 +132,5 @@
         android:textColor="@color/white"
         android:visibility="gone" />
 
-    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-        android:id="@+id/extended_fab"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
-        android:layout_margin="@dimen/fab_margin" />
 </RelativeLayout>
 

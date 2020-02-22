@@ -150,21 +150,27 @@
                             android:textColor="@color/black" />
                     </com.google.android.material.textfield.TextInputLayout>
 
-                    <com.google.android.material.textfield.TextInputLayout
-                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    <RelativeLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_below="@id/layout_edit_text_last_name"
                         android:layout_marginTop="@dimen/content_margin_top"
                         android:layout_marginBottom="@dimen/content_margin_bottom"
-                        android:hint="Gender">
-
+                        >
+                        <TextView
+                            android:id="@+id/text_view_gender"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Gender"
+                        />
                         <Spinner
                             android:id="@+id/spinner_gender"
+                            android:layout_toEndOf="@id/text_view_gender"
+                            android:layout_marginStart="@dimen/content_double_padding_start"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content" />
 
-                    </com.google.android.material.textfield.TextInputLayout>
+                    </RelativeLayout>
                 </RelativeLayout>
 
             </androidx.cardview.widget.CardView>
@@ -200,7 +206,7 @@
             </androidx.cardview.widget.CardView>
 
             <Button
-                android:id="@+id/button_create_athlete"
+                android:id="@+id/button_apply_as_coach"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/card_view_measurements"

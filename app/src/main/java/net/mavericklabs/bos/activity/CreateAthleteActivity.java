@@ -89,6 +89,8 @@ public class CreateAthleteActivity extends AppCompatActivity {
     private MeasurementReadingAdapter measurementReadingAdapter;
     private TextInputEditText firstNameEditText, middleNameEditText, lastNameEditText;
     private Spinner spinner;
+    final String[] selectedGender = {null};
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -140,9 +142,7 @@ public class CreateAthleteActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (!verifyBasicInformation()) {
-                    ToastUtils.showToast(getApplicationContext(), "Incomplete basic information", Toast.LENGTH_SHORT);
                     return;
-
                 }
                 if (!measurementReadingAdapter.verifyReadings()) {
                     return;
@@ -191,9 +191,11 @@ public class CreateAthleteActivity extends AppCompatActivity {
 
     private boolean verifyBasicInformation() {
         if (TextUtils.isEmpty(firstNameEditText.getText())) {
+            firstNameEditText.setError("This field is required");
             return false;
         }
         if (TextUtils.isEmpty(lastNameEditText.getText())) {
+            lastNameEditText.setError("This field is required");
             return false;
         }
         return true;
