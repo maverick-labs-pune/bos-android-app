@@ -41,6 +41,9 @@ import net.mavericklabs.bos.realm.RealmHandler;
 import net.mavericklabs.bos.realm.RealmResource;
 import net.mavericklabs.bos.realm.RealmUser;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -102,7 +105,6 @@ public class Util {
     public static Curriculum convertRealmResourceToCurriculum(RealmResource realmResource) {
         Gson gson = new Gson();
         Curriculum curriculum = gson.fromJson(realmResource.getData(), Curriculum.class);
-        curriculum.setKey(realmResource.getKey());
         curriculum.setLabel(realmResource.getLabel());
         curriculum.setDescription(realmResource.getDescription());
         convertFilesInsideCurriculum(curriculum);
@@ -112,7 +114,6 @@ public class Util {
     public static TrainingSession convertRealmResourceToTrainingSession(RealmResource realmResource) {
         Gson gson = new Gson();
         TrainingSession trainingSession = gson.fromJson(realmResource.getData(), TrainingSession.class);
-        trainingSession.setKey(realmResource.getKey());
         trainingSession.setLabel(realmResource.getLabel());
         trainingSession.setDescription(realmResource.getDescription());
         convertFilesInsideTrainingSession(trainingSession);
@@ -123,9 +124,8 @@ public class Util {
         Gson gson = new Gson();
         Curriculum curriculum = gson.fromJson(realmEvaluationResource.getData(), Curriculum.class);
         curriculum.setUuid(realmEvaluationResource.getUuid());
-        curriculum.setKey(realmEvaluationResource.getResource().getKey());
-        curriculum.setLabel(realmEvaluationResource.getResource().getLabel());
-        curriculum.setDescription(realmEvaluationResource.getResource().getDescription());
+        curriculum.setLabel(realmEvaluationResource.getLabel());
+        curriculum.setDescription(realmEvaluationResource.getDescription());
         convertFilesInsideCurriculum(curriculum);
         return curriculum;
     }
@@ -134,9 +134,8 @@ public class Util {
         Gson gson = new Gson();
         TrainingSession trainingSession = gson.fromJson(realmEvaluationResource.getData(), TrainingSession.class);
         trainingSession.setUuid(realmEvaluationResource.getUuid());
-        trainingSession.setKey(realmEvaluationResource.getResource().getKey());
-        trainingSession.setLabel(realmEvaluationResource.getResource().getLabel());
-        trainingSession.setDescription(realmEvaluationResource.getResource().getDescription());
+        trainingSession.setLabel(realmEvaluationResource.getLabel());
+        trainingSession.setDescription(realmEvaluationResource.getDescription());
         convertFilesInsideTrainingSession(trainingSession);
         return trainingSession;
     }
@@ -145,7 +144,6 @@ public class Util {
         Gson gson = new Gson();
         TrainingSession trainingSession = gson.fromJson(resource.getData(), TrainingSession.class);
         trainingSession.setUuid(getRandomUUID());
-        trainingSession.setKey(resource.getKey());
         trainingSession.setLabel(resource.getLabel());
         trainingSession.setDescription(resource.getDescription());
         convertFilesInsideTrainingSession(trainingSession);
@@ -414,5 +412,47 @@ public class Util {
         String filePath = bosFilesDirectory.getAbsolutePath() + file.getKey() + Util.getFileExtension(file.getUrl());
         return new java.io.File(filePath);
 
+    }
+
+    public static JSONObject getJSONObjectForEvaluationResource(RealmEvaluationResource realmEvaluationResource) {
+        String evaluationResourceType = null;
+        String userKey = null;
+        String groupKey = null;
+        switch (Util.getEvaluationResourceType(realmEvaluationResource.getEvaluationResourcetype())) {
+            case USER:
+                evaluationResourceType = EvaluationResourceType.USER.label;
+                userKey = realmEvaluationResource.getUser().getKey();
+                break;
+            case GROUP:
+                evaluationResourceType = EvaluationResourceType.GROUP.label;
+                groupKey = realmEvaluationResource.getGroup().getKey();
+                break;
+            default:
+                return null;
+        }
+        String uuid = realmEvaluationResource.getUuid();
+        String data = realmEvaluationResource.getData();
+        String label = realmEvaluationResource.getLabel();
+        String description = realmEvaluationResource.getDescription();
+        Boolean isEvaluated = realmEvaluationResource.getEvaluated();
+        String resourceType = realmEvaluationResource.getResourceType();
+
+        JSONObject paramObject = new JSONObject();
+        try {
+            paramObject.put("uuid", uuid);
+            paramObject.put("data", data);
+            paramObject.put("label", label);
+            paramObject.put("description", description);
+            paramObject.put("evaluated_user", userKey);
+            paramObject.put("evaluated_group", groupKey);
+
+            paramObject.put("is_evaluated", isEvaluated);
+            paramObject.put("type", evaluationResourceType);
+            paramObject.put("resource_type", resourceType);
+            return paramObject;
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

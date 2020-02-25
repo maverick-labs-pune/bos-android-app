@@ -21,6 +21,7 @@ package net.mavericklabs.bos.model;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.util.Date;
 import java.util.List;
 
 public class UserReading {
@@ -45,11 +46,11 @@ public class UserReading {
     @SerializedName("is_active")
     private Boolean isActive;
     @SerializedName("recorded_at")
-    private String recordedAt;
+    private Date recordedAt;
     @SerializedName("creation_time")
-    private String creationTime;
+    private Date creationTime;
     @SerializedName("last_modification_time")
-    private String lastModificationTime;
+    private Date lastModificationTime;
 
 
     public String getKey() {
@@ -124,27 +125,28 @@ public class UserReading {
         isActive = active;
     }
 
-    public String getRecordedAt() {
+
+    public Date getRecordedAt() {
         return recordedAt;
     }
 
-    public void setRecordedAt(String recordedAt) {
+    public void setRecordedAt(Date recordedAt) {
         this.recordedAt = recordedAt;
     }
 
-    public String getCreationTime() {
+    public Date getCreationTime() {
         return creationTime;
     }
 
-    public void setCreationTime(String creationTime) {
+    public void setCreationTime(Date creationTime) {
         this.creationTime = creationTime;
     }
 
-    public String getLastModificationTime() {
+    public Date getLastModificationTime() {
         return lastModificationTime;
     }
 
-    public void setLastModificationTime(String lastModificationTime) {
+    public void setLastModificationTime(Date lastModificationTime) {
         this.lastModificationTime = lastModificationTime;
     }
 }

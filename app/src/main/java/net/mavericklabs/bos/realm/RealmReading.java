@@ -63,9 +63,9 @@ public class RealmReading extends RealmObject {
         this.resource = null;
         this.value = userReading.getValue();
 //        TODO
-        this.recordedAt = DateUtil.getDateTimeFromString(userReading.getRecordedAt());
-        this.creationTime = DateUtil.getDateTimeFromString(userReading.getCreationTime());
-        this.lastModificationTime = DateUtil.getDateTimeFromString(userReading.getLastModificationTime());
+        this.recordedAt = userReading.getRecordedAt();
+        this.creationTime = userReading.getCreationTime();
+        this.lastModificationTime = (userReading.getLastModificationTime());
     }
 
     public RealmReading(RealmMeasurement realmMeasurement, RealmUser realmUser, RealmUser enteredByUser,

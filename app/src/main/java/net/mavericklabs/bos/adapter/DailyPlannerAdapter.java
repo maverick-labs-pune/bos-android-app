@@ -37,7 +37,6 @@ import net.mavericklabs.bos.R;
 import net.mavericklabs.bos.activity.CurriculumActivity;
 import net.mavericklabs.bos.activity.TrainingSessionActivity;
 import net.mavericklabs.bos.object.Curriculum;
-import net.mavericklabs.bos.object.Day;
 import net.mavericklabs.bos.object.TrainingSession;
 import net.mavericklabs.bos.realm.RealmEvaluationResource;
 import net.mavericklabs.bos.realm.RealmResource;
@@ -80,21 +79,20 @@ public class DailyPlannerAdapter extends RecyclerView.Adapter<DailyPlannerAdapte
     @Override
     public void onBindViewHolder(@NonNull EvaluationResourceViewHolder holder, int position) {
         final RealmEvaluationResource realmEvaluationResource = realmEvaluationResources.get(position);
-        final EvaluationResourceType type = Util.getEvaluationResourceType(realmEvaluationResource.getType());
+        final EvaluationResourceType type = Util.getEvaluationResourceType(realmEvaluationResource.getEvaluationResourcetype());
         switch (type) {
             case USER:
-                holder.resourceLabelTextView.setText(realmEvaluationResource.getResource().getLabel());
+                holder.resourceLabelTextView.setText(realmEvaluationResource.getLabel());
                 holder.entityTextView.setText(realmEvaluationResource.getUser().getFullName());
 
                 break;
             case GROUP:
-                holder.resourceLabelTextView.setText(realmEvaluationResource.getResource().getLabel());
+                holder.resourceLabelTextView.setText(realmEvaluationResource.getLabel());
                 holder.entityTextView.setText(realmEvaluationResource.getGroup().getLabel());
                 break;
             case UNKNOWN:
         }
-        final RealmResource realmResource = realmEvaluationResource.getResource();
-        switch (realmResource.getType()) {
+        switch (realmEvaluationResource.getResourceType()) {
             case CURRICULUM:
                 Curriculum curriculum = Util.convertRealmResourceToCurriculum(realmEvaluationResource);
                 appLogger.logInformation("realmEvaluationResource");

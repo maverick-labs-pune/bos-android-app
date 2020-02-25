@@ -60,4 +60,5 @@ public interface Constants {
     String TEXT = "text";
     String NUMERIC = "numeric";
     String BOOLEAN = "boolean";
+
 }

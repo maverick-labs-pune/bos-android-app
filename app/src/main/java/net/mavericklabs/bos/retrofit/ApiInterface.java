@@ -19,6 +19,7 @@
 
 package net.mavericklabs.bos.retrofit;
 
+import net.mavericklabs.bos.model.EvaluationResource;
 import net.mavericklabs.bos.model.Group;
 import net.mavericklabs.bos.model.Measurement;
 import net.mavericklabs.bos.model.Resource;
@@ -39,6 +40,7 @@ import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
 import retrofit2.http.Headers;
 import retrofit2.http.POST;
+import retrofit2.http.PUT;
 import retrofit2.http.Path;
 
 public interface ApiInterface {
@@ -76,6 +78,9 @@ public interface ApiInterface {
     @GET("/users/{user_key}/readings/")
     Call<List<UserReading>> getUserReadings(@Path("user_key") String userKey);
 
+    @GET("/users/{user_key}/evaluation_resources/")
+    Call<List<EvaluationResource>> getEvaluationResources(@Path("user_key") String userKey);
+
     @GET("/users/{user_key}/groups/")
     Call<List<Group>> getGroups(@Path("user_key") String userKey);
 
@@ -94,5 +99,12 @@ public interface ApiInterface {
     @POST("/requests/create_request/")
     Call<Void> createCoachRequest(@Body String body);
 
+    @Headers("Content-Type: application/json")
+    @POST("/evaluation_resources/")
+    Call<EvaluationResource> createEvaluationResource(@Body String body);
 
+    @Headers("Content-Type: application/json")
+    @PUT("/evaluation_resources/{key}/")
+    Call<EvaluationResource> updateEvaluationResource(@Path("key") String evaluationResourceKey,
+                                               @Body String body);
 }

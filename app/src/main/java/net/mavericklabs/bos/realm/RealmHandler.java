@@ -62,6 +62,17 @@ public class RealmHandler {
         return obj;
     }
 
+    public static void setFirstLoginResponse() {
+        Realm realm = Realm.getDefaultInstance();
+        LoginResponse loginResponse = realm.where(LoginResponse.class).findFirst();
+        if (loginResponse != null) {
+            realm.beginTransaction();
+            loginResponse.setFirstLogin(true);
+            realm.commitTransaction();
+        }
+        realm.close();
+    }
+
     public static void clearRealmDatabase() {
         Realm realm = Realm.getDefaultInstance();
         realm.beginTransaction();
@@ -113,16 +124,16 @@ public class RealmHandler {
 
     public static List<RealmResource> getSelfAllActiveResources() {
         LoginResponse loginResponse = getLoginResponse();
-        if (loginResponse == null){
+        if (loginResponse == null) {
             return new ArrayList<>();
         }
         Realm realm = Realm.getDefaultInstance();
         List<RealmResource> realmResources = realm.where(RealmResource.class)
                 .equalTo("isActive", Boolean.TRUE)
                 .beginGroup()
-                .equalTo("realmUsers.key",loginResponse.getUserKey())
+                .equalTo("realmUsers.key", loginResponse.getUserKey())
                 .or()
-                .equalTo("realmGroups.users.key",loginResponse.getUserKey())
+                .equalTo("realmGroups.users.key", loginResponse.getUserKey())
                 .endGroup()
                 .notEqualTo("type", REGISTRATION_FORM)
                 .findAll();
@@ -286,6 +297,15 @@ public class RealmHandler {
         return realmUser;
     }
 
+    public static RealmUser getUser(String userKey) {
+        Realm realm = Realm.getDefaultInstance();
+        RealmUser realmUser = realm.where(RealmUser.class)
+                .equalTo("key", userKey)
+                .findFirst();
+        realm.close();
+        return realmUser;
+    }
+
     public static List<RealmReading> getReadingsForAthlete(RealmUser realmUser) {
         Realm realm = Realm.getDefaultInstance();
         List<RealmReading> realmReading = realm.where(RealmReading.class)
@@ -405,6 +425,7 @@ public class RealmHandler {
         Realm realm = Realm.getDefaultInstance();
         List<RealmReading> realmReadings = realm.where(RealmReading.class)
                 .isNull("key")
+                .isNull("resource")
                 .findAll();
         realm.close();
         return realmReadings;
@@ -425,6 +446,14 @@ public class RealmHandler {
         }
         realm.close();
         return realmReading;
+    }
+
+    public static void deleteUserReading(RealmReading userReading) {
+        Realm realm = Realm.getDefaultInstance();
+        realm.beginTransaction();
+        userReading.deleteFromRealm();
+        realm.commitTransaction();
+        realm.close();
     }
 
 }

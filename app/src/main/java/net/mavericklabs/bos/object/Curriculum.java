@@ -28,7 +28,6 @@ import java.util.List;
 
 public class Curriculum {
     private String uuid;
-    private String key;
     private String label;
     private String description;
     private boolean isEvaluated;
@@ -54,14 +53,6 @@ public class Curriculum {
 
     public List<Day> getDays() {
         return days;
-    }
-
-    public String getKey() {
-        return key;
-    }
-
-    public void setKey(String key) {
-        this.key = key;
     }
 
     public String getUuid() {

@@ -25,38 +25,29 @@ import io.realm.RealmObject;
 
 public class LoginResponse extends RealmObject {
 
-    private String message;
+    @SerializedName("username")
     private String username;
-
     @SerializedName("key")
     private String userKey;
-
     @SerializedName("ngo")
     private String ngoKey;
-
     @SerializedName("ngo_name")
     private String ngoName;
-
     @SerializedName("first_name")
     private String firstName;
-
     @SerializedName("last_name")
     private String lastName;
-
-    @SerializedName("group")
-    private String groupName;
-
     @SerializedName("role")
     private String role;
-
     @SerializedName("gender")
     private String gender;
-
+    @SerializedName("language")
     private String language;
+    @SerializedName("token")
     private String token;
     @SerializedName("expiry_date")
     private String expiryDate;
-
+    private Boolean isFirstLogin;
 
     public String getFirstName() {
         return firstName;
@@ -72,14 +63,6 @@ public class LoginResponse extends RealmObject {
 
     public void setLastName(String lastName) {
         this.lastName = lastName;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
     }
 
     public String getUsername() {
@@ -104,14 +87,6 @@ public class LoginResponse extends RealmObject {
 
     public void setNgoName(String ngoName) {
         this.ngoName = ngoName;
-    }
-
-    public String getGroupName() {
-        return groupName;
-    }
-
-    public void setGroupName(String groupName) {
-        this.groupName = groupName;
     }
 
     public String getLanguage() {
@@ -156,5 +131,13 @@ public class LoginResponse extends RealmObject {
 
     public String getGender() {
         return gender;
+    }
+
+    public Boolean getFirstLogin() {
+        return isFirstLogin;
+    }
+
+    public void setFirstLogin(Boolean firstLogin) {
+        isFirstLogin = firstLogin;
     }
 }
