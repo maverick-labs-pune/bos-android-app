@@ -414,7 +414,7 @@ public class RealmHandler {
         List<RealmReading> realmReadings = realm.where(RealmReading.class)
                 .isNull("key")
                 .equalTo("user.uuid", offlineAthlete.getUuid())
-                .isNull("resource")
+                .isNull("trainingSessionUUID")
                 .findAll();
         realm.close();
         return realmReadings;
@@ -425,7 +425,7 @@ public class RealmHandler {
         Realm realm = Realm.getDefaultInstance();
         List<RealmReading> realmReadings = realm.where(RealmReading.class)
                 .isNull("key")
-                .isNull("resource")
+                .isNull("trainingSessionUUID")
                 .findAll();
         realm.close();
         return realmReadings;

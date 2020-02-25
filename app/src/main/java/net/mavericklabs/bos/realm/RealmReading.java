@@ -39,7 +39,7 @@ public class RealmReading extends RealmObject {
     private String ngo;
     private RealmUser enteredByUser;
     private RealmMeasurement measurement;
-    private RealmResource resource;
+    private String trainingSessionUUID;
     private RealmEvaluationResource evaluationResource;
     private String value;
     private Date recordedAt;
@@ -60,16 +60,16 @@ public class RealmReading extends RealmObject {
         this.enteredByUser = null;
         this.measurement = realmMeasurement;
         this.evaluationResource = null;
-        this.resource = null;
+        this.trainingSessionUUID = userReading.getTrainingSessionUUID();
         this.value = userReading.getValue();
-//        TODO
         this.recordedAt = userReading.getRecordedAt();
         this.creationTime = userReading.getCreationTime();
         this.lastModificationTime = (userReading.getLastModificationTime());
     }
 
-    public RealmReading(RealmMeasurement realmMeasurement, RealmUser realmUser, RealmUser enteredByUser,
-                        RealmResource realmResource, RealmEvaluationResource realmEvaluationResource, Measurement measurement) {
+    public RealmReading(RealmMeasurement realmMeasurement, RealmUser realmUser,
+                        RealmUser enteredByUser, String trainingSessionUUID,
+                        RealmEvaluationResource realmEvaluationResource, Measurement measurement) {
         this.uuid = UUID.randomUUID().toString();
         this.key = null;
         this.user = realmUser;
@@ -77,7 +77,7 @@ public class RealmReading extends RealmObject {
         this.enteredByUser = enteredByUser;
         this.measurement = realmMeasurement;
         this.evaluationResource = realmEvaluationResource;
-        this.resource = realmResource;
+        this.trainingSessionUUID = trainingSessionUUID;
         this.value = measurement.getReading();
         this.recordedAt = DateUtil.getCurrentTime();
     }
@@ -109,10 +109,6 @@ public class RealmReading extends RealmObject {
         return measurement;
     }
 
-    public RealmResource getResource() {
-        return resource;
-    }
-
     public RealmEvaluationResource getEvaluationResource() {
         return evaluationResource;
     }
@@ -131,5 +127,9 @@ public class RealmReading extends RealmObject {
 
     public Date getLastModificationTime() {
         return lastModificationTime;
+    }
+
+    public String getTrainingSessionUUID() {
+        return trainingSessionUUID;
     }
 }

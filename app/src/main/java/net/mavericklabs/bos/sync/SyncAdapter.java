@@ -156,7 +156,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             return;
         }
 
-        boolean firstSyncAfterLogin =  (loginResponse.getFirstLogin() != null) ? loginResponse.getFirstLogin() : false;
+        boolean firstSyncAfterLogin = (loginResponse.getFirstLogin() != null) ? loginResponse.getFirstLogin() : false;
         appLogger.logInformation("firstSyncAfterLogin " + firstSyncAfterLogin);
         if (!firstSyncAfterLogin) {
             if (!firstSyncAfterLogin(loginResponse)) {
@@ -558,7 +558,9 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
         }
         String ngoKey = unSyncedRealmReading.getNgo();
         String measurementKey = unSyncedRealmReading.getMeasurement().getKey();
-        String resourceKey = unSyncedRealmReading.getResource() != null ? unSyncedRealmReading.getResource().getKey() : null;
+        String trainingSessionUUID = unSyncedRealmReading.getTrainingSessionUUID();
+
+        String evaluationResourceUUID = unSyncedRealmReading.getEvaluationResource() != null ? unSyncedRealmReading.getEvaluationResource().getUuid() : null;
         String value = unSyncedRealmReading.getValue();
         String recordedAtDateTimeTZString = DateUtil.getTZDateString(unSyncedRealmReading.getRecordedAt());
 
@@ -567,7 +569,8 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
             paramObject.put("user", userKey);
             paramObject.put("ngo", ngoKey);
             paramObject.put("measurement", measurementKey);
-            paramObject.put("resource", resourceKey);
+            paramObject.put("training_session_uuid", trainingSessionUUID);
+            paramObject.put("evaluation_resource_uuid", evaluationResourceUUID);
             paramObject.put("value", value);
             paramObject.put("recorded_at", recordedAtDateTimeTZString);
 

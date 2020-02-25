@@ -22,7 +22,6 @@ package net.mavericklabs.bos.model;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.Date;
-import java.util.List;
 
 public class UserReading {
     @SerializedName("key")
@@ -37,10 +36,10 @@ public class UserReading {
     private String enteredBy;
     @SerializedName("measurement")
     private String measurement;
-    @SerializedName("resource")
-    private String resource;
-    //    @SerializedName("resource_session")
-//    private String resourceSession;
+    @SerializedName("training_session_uuid")
+    private String trainingSessionUUID;
+    @SerializedName("evaluation_session_uuid")
+    private String evaluationSessionUUID;
     @SerializedName("value")
     private String value;
     @SerializedName("is_active")
@@ -101,14 +100,6 @@ public class UserReading {
         this.measurement = measurement;
     }
 
-    public String getResource() {
-        return resource;
-    }
-
-    public void setResource(String resource) {
-        this.resource = resource;
-    }
-
     public String getValue() {
         return value;
     }
@@ -148,5 +139,21 @@ public class UserReading {
 
     public void setLastModificationTime(Date lastModificationTime) {
         this.lastModificationTime = lastModificationTime;
+    }
+
+    public String getTrainingSessionUUID() {
+        return trainingSessionUUID;
+    }
+
+    public void setTrainingSessionUUID(String trainingSessionUUID) {
+        this.trainingSessionUUID = trainingSessionUUID;
+    }
+
+    public String getEvaluationSessionUUID() {
+        return evaluationSessionUUID;
+    }
+
+    public void setEvaluationSessionUUID(String evaluationSessionUUID) {
+        this.evaluationSessionUUID = evaluationSessionUUID;
     }
 }

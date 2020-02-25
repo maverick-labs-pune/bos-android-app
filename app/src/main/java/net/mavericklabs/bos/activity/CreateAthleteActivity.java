@@ -177,7 +177,7 @@ public class CreateAthleteActivity extends AppCompatActivity {
                     // Add reading
                     realm.beginTransaction();
                     RealmReading realmReading = new RealmReading(realmMeasurement,
-                            newAthlete, selfRealmUser, realmResource,
+                            newAthlete, selfRealmUser, null,
                             null, measurementWithReading);
                     realm.copyToRealm(realmReading);
                     realm.commitTransaction();

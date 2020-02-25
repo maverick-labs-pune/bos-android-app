@@ -109,10 +109,10 @@ public class TrainingSessionActivity extends AppCompatActivity {
         filesRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         usersRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         List<File> files = trainingSession.getFiles();
-        if (files.size() == 0){
+        if (files.size() == 0) {
             filesTextView.setVisibility(View.GONE);
-        }else{
-            filesRecyclerView.setAdapter(new FilesAdapter(this,trainingSession.getFiles()));
+        } else {
+            filesRecyclerView.setAdapter(new FilesAdapter(this, trainingSession.getFiles()));
         }
         appLogger.logInformation(String.valueOf(files.size()));
         appLogger.logInformation("YOLO files");
@@ -181,7 +181,7 @@ public class TrainingSessionActivity extends AppCompatActivity {
                                             // Add reading
                                             RealmReading realmReading = new RealmReading(realmMeasurement,
                                                     athlete, selfRealmUser,
-                                                    realmEvaluationResource.getResource(),
+                                                    trainingSession.getUuid(),
                                                     realmEvaluationResource, measurementWithReading);
                                             realm.beginTransaction();
                                             realm.copyToRealm(realmReading);
@@ -243,7 +243,7 @@ public class TrainingSessionActivity extends AppCompatActivity {
                                         // Add reading
                                         RealmReading realmReading = new RealmReading(realmMeasurement,
                                                 athlete, selfRealmUser,
-                                                realmEvaluationResource.getResource(),
+                                                trainingSession.getUuid(),
                                                 realmEvaluationResource, measurementWithReading);
                                         realm.beginTransaction();
                                         realm.copyToRealm(realmReading);
