@@ -150,6 +150,22 @@ public class Util {
         return trainingSession;
     }
 
+    public static Curriculum convertRealmResourceToCurriculumForSyncAdapter(RealmResource realmResource) {
+        Gson gson = new Gson();
+        Curriculum curriculum = gson.fromJson(realmResource.getData(), Curriculum.class);
+        curriculum.setLabel(realmResource.getLabel());
+        curriculum.setDescription(realmResource.getDescription());
+        return curriculum;
+    }
+
+    public static TrainingSession convertRealmResourceToTrainingSessionForSyncAdapter(RealmResource realmResource) {
+        Gson gson = new Gson();
+        TrainingSession trainingSession = gson.fromJson(realmResource.getData(), TrainingSession.class);
+        trainingSession.setLabel(realmResource.getLabel());
+        trainingSession.setDescription(realmResource.getDescription());
+        return trainingSession;
+    }
+
     public static UserRole getRole(String role) {
         if (role.toLowerCase().equals(UserRole.ADMIN.label)) {
             return UserRole.ADMIN;
@@ -409,7 +425,7 @@ public class Util {
             bosFilesDirectory.mkdir();
         }
 
-        String filePath = bosFilesDirectory.getAbsolutePath() + file.getKey() + Util.getFileExtension(file.getUrl());
+        String filePath = bosFilesDirectory.getAbsolutePath() + "/" + file.getKey() + Util.getFileExtension(file.getUrl());
         return new java.io.File(filePath);
 
     }

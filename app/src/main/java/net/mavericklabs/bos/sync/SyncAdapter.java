@@ -82,6 +82,7 @@ import retrofit2.Response;
 import static android.content.Context.ACCOUNT_SERVICE;
 import static net.mavericklabs.bos.utils.Constants.CURRICULUM;
 import static net.mavericklabs.bos.utils.Constants.FILE;
+import static net.mavericklabs.bos.utils.Constants.REGISTRATION_FORM;
 import static net.mavericklabs.bos.utils.Constants.TRAINING_SESSION;
 import static net.mavericklabs.bos.utils.Util.removeGroupFromList;
 import static net.mavericklabs.bos.utils.Util.removeResourceFromList;
@@ -717,17 +718,21 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 case CURRICULUM: {
                     // Check for files inside all the sessions
                     List<String> resourceIDsToDownload = new ArrayList<>();
-                    Curriculum curriculum = Util.convertRealmResourceToCurriculum(realmResource);
+                    Curriculum curriculum = Util.convertRealmResourceToCurriculumForSyncAdapter(realmResource);
+                    appLogger.logInformation("YOLO Curriculum " + curriculum.getLabel());
                     for (Day day : curriculum.getDays()) {
+                        appLogger.logInformation("YOLO Day " + day.getLabel());
                         for (TrainingSession trainingSession : day.getSessions()) {
+                            appLogger.logInformation("YOLO TrainingSession " + trainingSession.getLabel());
                             for (File file : trainingSession.getFiles()) {
+                                appLogger.logInformation("YOLO File " + file.getLabel());
                                 if (!resourceIDsToDownload.contains(file.getKey())) {
                                     resourceIDsToDownload.add(file.getKey());
                                 }
                             }
                         }
                     }
-
+                    appLogger.logInformation("YOLO resourceIDsToDownload " + resourceIDsToDownload);
                     for (String resourceKey : resourceIDsToDownload) {
                         fetchResourcesByID(resourceKey);
                     }
@@ -739,9 +744,10 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                     processFileResource(realmResource);
                     break;
 
+                case REGISTRATION_FORM:
                 case TRAINING_SESSION: {
                     // Check for files inside the session
-                    TrainingSession trainingSession = Util.convertRealmResourceToTrainingSession(realmResource);
+                    TrainingSession trainingSession = Util.convertRealmResourceToTrainingSessionForSyncAdapter(realmResource);
                     List<String> resourceIDsToDownload = new ArrayList<>();
 
                     for (File file : trainingSession.getFiles()) {
@@ -763,7 +769,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
     }
 
     private void fetchResourcesByID(String resourceKey) {
-        appLogger.logInformation("fetchResourcesByID" + resourceKey);
+        appLogger.logInformation("fetchResourcesByID " + resourceKey);
         try {
             Response<Resource> response = ApiClient.getApiInterface(getContext()).getResource(resourceKey).execute();
             if (response.isSuccessful()) {
@@ -771,7 +777,7 @@ public class SyncAdapter extends AbstractThreadedSyncAdapter {
                 if (resource == null) {
                     return;
                 }
-
+                appLogger.logInformation("Resource name : " + resource.getLabel());
                 Realm realm = Realm.getDefaultInstance();
                 realm.beginTransaction();
                 RealmResource realmResource = new RealmResource(resource);

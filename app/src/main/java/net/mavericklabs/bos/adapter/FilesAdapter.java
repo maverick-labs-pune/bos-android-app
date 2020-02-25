@@ -37,6 +37,7 @@ import net.mavericklabs.bos.activity.CurriculumActivity;
 import net.mavericklabs.bos.activity.ImageViewActivity;
 import net.mavericklabs.bos.activity.PDFActivity;
 import net.mavericklabs.bos.activity.SelectAthleteActivity;
+import net.mavericklabs.bos.activity.VideoActivity;
 import net.mavericklabs.bos.object.File;
 import net.mavericklabs.bos.realm.RealmEvaluationResource;
 import net.mavericklabs.bos.realm.RealmGroup;
@@ -95,6 +96,14 @@ public class FilesAdapter extends RecyclerView.Adapter<FilesAdapter.ResourceView
                 switch (fileExtension) {
                     case ".pdf": {
                         Intent intent = new Intent(context, PDFActivity.class);
+                        intent.putExtra(BUNDLE_KEY_RESOURCE_KEY, fileObject.getKey());
+                        intent.putExtra(BUNDLE_KEY_URI, Uri.fromFile(file).toString());
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        context.startActivity(intent);
+                        break;
+                    }
+                    case ".mp4": {
+                        Intent intent = new Intent(context, VideoActivity.class);
                         intent.putExtra(BUNDLE_KEY_RESOURCE_KEY, fileObject.getKey());
                         intent.putExtra(BUNDLE_KEY_URI, Uri.fromFile(file).toString());
                         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

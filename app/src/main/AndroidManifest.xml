@@ -61,8 +61,6 @@
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
-                <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
             </intent-filter>
         </activity>
         <activity
@@ -84,6 +82,9 @@
         <activity
             android:name=".activity.PDFActivity"
             android:screenOrientation="portrait" />
+        <activity
+            android:name=".activity.VideoActivity"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize|uiMode" />
         <activity android:name=".activity.ImageViewActivity" />
         <activity
             android:name=".activity.CreateAthleteActivity"
