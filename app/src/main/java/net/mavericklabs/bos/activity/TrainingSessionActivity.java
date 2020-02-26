@@ -20,7 +20,6 @@
 package net.mavericklabs.bos.activity;
 
 import android.os.Bundle;
-import android.os.TestLooperManager;
 import android.text.TextUtils;
 import android.view.MenuItem;
 import android.view.View;
@@ -37,7 +36,6 @@ import net.mavericklabs.bos.R;
 import net.mavericklabs.bos.adapter.FilesAdapter;
 import net.mavericklabs.bos.adapter.MeasurementAdapter;
 import net.mavericklabs.bos.adapter.MeasurementReadingAdapter;
-import net.mavericklabs.bos.adapter.ResourceAdapter;
 import net.mavericklabs.bos.adapter.SelectAthleteAdapterForEvaluation;
 import net.mavericklabs.bos.object.Curriculum;
 import net.mavericklabs.bos.object.File;
@@ -53,8 +51,6 @@ import net.mavericklabs.bos.utils.AppLogger;
 import net.mavericklabs.bos.utils.EvaluationResourceType;
 import net.mavericklabs.bos.utils.ToastUtils;
 import net.mavericklabs.bos.utils.Util;
-
-import org.w3c.dom.Text;
 
 import java.util.List;
 
@@ -120,7 +116,7 @@ public class TrainingSessionActivity extends AppCompatActivity {
             case READ:
                 readingsTextView.setText("Measurements for this session");
                 athletesTextView.setVisibility(View.GONE);
-                measurementsRecyclerView.setAdapter(new MeasurementAdapter(getApplicationContext(), trainingSession.getMeasurements(), activityMode));
+                measurementsRecyclerView.setAdapter(new MeasurementAdapter(getApplicationContext(), trainingSession.getMeasurements()));
 
                 break;
             case EVALUATION:

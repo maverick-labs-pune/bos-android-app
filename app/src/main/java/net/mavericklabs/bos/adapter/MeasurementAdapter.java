@@ -45,7 +45,7 @@ public class MeasurementAdapter extends RecyclerView.Adapter<MeasurementAdapter.
     private List<Measurement> measurements;
     private final AppLogger appLogger = new AppLogger(getClass().toString());
 
-    public MeasurementAdapter(Context context, List<Measurement> measurements, ActivityMode activityMode) {
+    public MeasurementAdapter(Context context, List<Measurement> measurements) {
         this.context = context;
         this.measurements = measurements;
     }

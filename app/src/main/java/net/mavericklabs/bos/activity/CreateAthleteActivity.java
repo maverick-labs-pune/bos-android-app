@@ -19,38 +19,24 @@
 
 package net.mavericklabs.bos.activity;
 
-import android.app.Activity;
 import android.os.Bundle;
-import android.text.InputType;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.textfield.TextInputEditText;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 
 import net.mavericklabs.bos.R;
-import net.mavericklabs.bos.adapter.MeasurementAdapter;
 import net.mavericklabs.bos.adapter.MeasurementReadingAdapter;
-import net.mavericklabs.bos.model.NGO;
-import net.mavericklabs.bos.model.Resource;
 import net.mavericklabs.bos.object.Measurement;
 import net.mavericklabs.bos.object.TrainingSession;
 import net.mavericklabs.bos.realm.RealmHandler;
@@ -58,38 +44,23 @@ import net.mavericklabs.bos.realm.RealmMeasurement;
 import net.mavericklabs.bos.realm.RealmReading;
 import net.mavericklabs.bos.realm.RealmResource;
 import net.mavericklabs.bos.realm.RealmUser;
-import net.mavericklabs.bos.retrofit.ApiClient;
-import net.mavericklabs.bos.utils.ActivityMode;
 import net.mavericklabs.bos.utils.AppLogger;
 import net.mavericklabs.bos.utils.Gender;
-import net.mavericklabs.bos.utils.NetworkConnection;
-import net.mavericklabs.bos.utils.ToastUtils;
 import net.mavericklabs.bos.utils.UserRole;
 import net.mavericklabs.bos.utils.Util;
 
-import org.w3c.dom.Text;
-
-import java.util.ArrayList;
 import java.util.List;
 
 import io.realm.Realm;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
-import static java.lang.Thread.sleep;
 import static net.mavericklabs.bos.utils.Util.convertRealmResourceToTrainingSession;
 import static net.mavericklabs.bos.utils.Util.getGender;
 
 public class CreateAthleteActivity extends AppCompatActivity {
 
     private AppLogger appLogger = new AppLogger(getClass().toString());
-    private RecyclerView measurementsRecyclerView;
-    private TextView emptyView;
     private MeasurementReadingAdapter measurementReadingAdapter;
     private TextInputEditText firstNameEditText, middleNameEditText, lastNameEditText;
-    private Spinner spinner;
-    final String[] selectedGender = {null};
 
 
     @Override
@@ -104,12 +75,11 @@ public class CreateAthleteActivity extends AppCompatActivity {
         }
 
         Button createAthleteButton = findViewById(R.id.button_create_athlete);
-        measurementsRecyclerView = findViewById(R.id.recycler_view_measurements);
-        emptyView = findViewById(R.id.empty_view);
+        RecyclerView measurementsRecyclerView = findViewById(R.id.recycler_view_measurements);
+        TextView emptyView = findViewById(R.id.empty_view);
         firstNameEditText = findViewById(R.id.edit_text_first_name);
         middleNameEditText = findViewById(R.id.edit_text_middle_name);
         lastNameEditText = findViewById(R.id.edit_text_last_name);
-        spinner = findViewById(R.id.spinner_gender);
         final String[] selectedGender = {null};
         measurementsRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
 
