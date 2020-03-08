@@ -39,7 +39,9 @@ import net.mavericklabs.bos.activity.CurriculumActivity;
 import net.mavericklabs.bos.activity.ImageViewActivity;
 import net.mavericklabs.bos.activity.PDFActivity;
 import net.mavericklabs.bos.activity.SelectAthleteActivity;
+import net.mavericklabs.bos.activity.TrainingSessionActivity;
 import net.mavericklabs.bos.object.File;
+import net.mavericklabs.bos.object.TrainingSession;
 import net.mavericklabs.bos.realm.RealmEvaluationResource;
 import net.mavericklabs.bos.realm.RealmGroup;
 import net.mavericklabs.bos.realm.RealmHandler;
@@ -52,9 +54,12 @@ import net.mavericklabs.bos.utils.Util;
 
 import java.util.List;
 
+import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static net.mavericklabs.bos.utils.Constants.BUNDLE_KEY_ACTIVITY_MODE;
 import static net.mavericklabs.bos.utils.Constants.BUNDLE_KEY_EVALUATION_RESOURCE_TYPE;
+import static net.mavericklabs.bos.utils.Constants.BUNDLE_KEY_IS_PART_OF_CURRICULUM;
 import static net.mavericklabs.bos.utils.Constants.BUNDLE_KEY_RESOURCE_KEY;
+import static net.mavericklabs.bos.utils.Constants.BUNDLE_KEY_TRAINING_SESSION;
 import static net.mavericklabs.bos.utils.Constants.BUNDLE_KEY_URI;
 import static net.mavericklabs.bos.utils.Constants.CURRICULUM;
 import static net.mavericklabs.bos.utils.Constants.FILE;
@@ -125,33 +130,30 @@ public class ResourceAdapter extends RecyclerView.Adapter<ResourceAdapter.Resour
                 holder.imageView.setImageResource(R.drawable.baseline_attachment_black_48);
                 holder.resourceTypeTextView.setText("File");
                 holder.assignResourceImageView.setVisibility(View.GONE);
-                holder.viewResourceImageView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        File fileObject = Util.convertRealmResourceToFile(realmResource);
-                        java.io.File file = Util.getFileInsideBOSDirectory(fileObject, context);
+                holder.viewResourceImageView.setOnClickListener(v -> {
+                    File fileObject = Util.convertRealmResourceToFile(realmResource);
+                    java.io.File file = Util.getFileInsideBOSDirectory(fileObject, context);
 
-                        String fileExtension = Util.getFileExtension(fileObject.getUrl());
-                        switch (fileExtension) {
-                            case ".pdf": {
-                                Intent intent = new Intent(context, PDFActivity.class);
-                                intent.putExtra(BUNDLE_KEY_RESOURCE_KEY, realmResource.getKey());
-                                intent.putExtra(BUNDLE_KEY_URI, Uri.fromFile(file).toString());
-                                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                context.startActivity(intent);
-                                break;
-                            }
-                            case ".png":
-                            case ".jpg":
-                            case ".jpeg":
-                                Intent intent = new Intent(context, ImageViewActivity.class);
-                                intent.putExtra(BUNDLE_KEY_RESOURCE_KEY, realmResource.getKey());
-                                intent.putExtra(BUNDLE_KEY_URI, Uri.fromFile(file).toString());
-                                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                context.startActivity(intent);
-                            default:
-                                break;
+                    String fileExtension = Util.getFileExtension(fileObject.getUrl());
+                    switch (fileExtension) {
+                        case ".pdf": {
+                            Intent intent = new Intent(context, PDFActivity.class);
+                            intent.putExtra(BUNDLE_KEY_RESOURCE_KEY, realmResource.getKey());
+                            intent.putExtra(BUNDLE_KEY_URI, Uri.fromFile(file).toString());
+                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            context.startActivity(intent);
+                            break;
                         }
+                        case ".png":
+                        case ".jpg":
+                        case ".jpeg":
+                            Intent intent = new Intent(context, ImageViewActivity.class);
+                            intent.putExtra(BUNDLE_KEY_RESOURCE_KEY, realmResource.getKey());
+                            intent.putExtra(BUNDLE_KEY_URI, Uri.fromFile(file).toString());
+                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            context.startActivity(intent);
+                        default:
+                            break;
                     }
                 });
                 break;
@@ -170,91 +172,68 @@ public class ResourceAdapter extends RecyclerView.Adapter<ResourceAdapter.Resour
     }
 
     private void setOnClickListener(ResourceViewHolder holder, final RealmResource realmResource) {
+        if (realmResource.getType().equals(CURRICULUM)) {
+            holder.viewResourceImageView.setOnClickListener(v -> {
+                Intent intent = new Intent(context, CurriculumActivity.class);
+                intent.putExtra(BUNDLE_KEY_ACTIVITY_MODE, READ);
+                intent.putExtra(BUNDLE_KEY_EVALUATION_RESOURCE_TYPE, evaluationResourceType.label);
+                intent.putExtra(BUNDLE_KEY_RESOURCE_KEY, realmResource.getKey());
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                context.startActivity(intent);
+            });
+        } else {
+            holder.viewResourceImageView.setOnClickListener(v -> {
+                TrainingSession trainingSession = Util.convertRealmResourceToTrainingSession(realmResource);
+                Intent intent = new Intent(context, TrainingSessionActivity.class);
+                intent.putExtra(BUNDLE_KEY_TRAINING_SESSION, trainingSession);
+                intent.putExtra(BUNDLE_KEY_ACTIVITY_MODE, READ);
+                intent.putExtra(BUNDLE_KEY_EVALUATION_RESOURCE_TYPE, evaluationResourceType.label);
+                intent.putExtra(BUNDLE_KEY_IS_PART_OF_CURRICULUM, false);
+                intent.setFlags(FLAG_ACTIVITY_NEW_TASK);
+                context.startActivity(intent);
+            });
+        }
+
+
         switch (evaluationResourceType) {
             case RESOURCE:
-                holder.viewResourceImageView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Intent intent = new Intent(context, CurriculumActivity.class);
-                        intent.putExtra(BUNDLE_KEY_ACTIVITY_MODE, READ);
-                        intent.putExtra(BUNDLE_KEY_EVALUATION_RESOURCE_TYPE, evaluationResourceType.label);
-                        intent.putExtra(BUNDLE_KEY_RESOURCE_KEY, realmResource.getKey());
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        context.startActivity(intent);
-                    }
-                });
-                holder.assignResourceImageView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        // Select athlete activity
-                        Intent intent = new Intent(context, SelectAthleteActivity.class);
-                        intent.putExtra(BUNDLE_KEY_RESOURCE_KEY, realmResource.getKey());
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        context.startActivity(intent);
-                    }
+                holder.assignResourceImageView.setOnClickListener(v -> {
+                    // Select athlete activity
+                    Intent intent = new Intent(context, SelectAthleteActivity.class);
+                    intent.putExtra(BUNDLE_KEY_RESOURCE_KEY, realmResource.getKey());
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    context.startActivity(intent);
                 });
                 break;
             case GROUP:
-                holder.viewResourceImageView.setOnClickListener(new View.OnClickListener() {
+                holder.assignResourceImageView.setOnClickListener(v -> AlertUtil.showAlert(activity, "Are you sure", new AlertCallback() {
                     @Override
-                    public void onClick(View v) {
-                        Intent intent = new Intent(context, CurriculumActivity.class);
-                        intent.putExtra(BUNDLE_KEY_ACTIVITY_MODE, READ);
-                        intent.putExtra(BUNDLE_KEY_EVALUATION_RESOURCE_TYPE, evaluationResourceType.label);
-                        intent.putExtra(BUNDLE_KEY_RESOURCE_KEY, realmResource.getKey());
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        context.startActivity(intent);
+                    public void positiveButton() {
+                        RealmEvaluationResource realmEvaluationResource =
+                                new RealmEvaluationResource(realmResource, group);
+                        RealmHandler.copyToRealm(realmEvaluationResource);
                     }
-                });
-                holder.assignResourceImageView.setOnClickListener(new View.OnClickListener() {
+
                     @Override
-                    public void onClick(View v) {
-                        AlertUtil.showAlert(activity, "Are you sure", new AlertCallback() {
-                            @Override
-                            public void positiveButton() {
-                                RealmEvaluationResource realmEvaluationResource =
-                                        new RealmEvaluationResource(realmResource, group);
-                                RealmHandler.copyToRealm(realmEvaluationResource);
-                            }
+                    public void negativeButton() {
 
-                            @Override
-                            public void negativeButton() {
-
-                            }
-                        });
                     }
-                });
+                }));
                 break;
             case USER:
-                holder.viewResourceImageView.setOnClickListener(new View.OnClickListener() {
+                holder.assignResourceImageView.setOnClickListener(v -> AlertUtil.showAlert(activity, "Are you sure", new AlertCallback() {
                     @Override
-                    public void onClick(View v) {
-                        Intent intent = new Intent(context, CurriculumActivity.class);
-                        intent.putExtra(BUNDLE_KEY_ACTIVITY_MODE, READ);
-                        intent.putExtra(BUNDLE_KEY_EVALUATION_RESOURCE_TYPE, evaluationResourceType.label);
-                        intent.putExtra(BUNDLE_KEY_RESOURCE_KEY, realmResource.getKey());
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        context.startActivity(intent);
+                    public void positiveButton() {
+                        RealmEvaluationResource realmEvaluationResource =
+                                new RealmEvaluationResource(realmResource, realmUser);
+                        RealmHandler.copyToRealm(realmEvaluationResource);
                     }
-                });
-                holder.assignResourceImageView.setOnClickListener(new View.OnClickListener() {
+
                     @Override
-                    public void onClick(View v) {
-                        AlertUtil.showAlert(activity, "Are you sure", new AlertCallback() {
-                            @Override
-                            public void positiveButton() {
-                                RealmEvaluationResource realmEvaluationResource =
-                                        new RealmEvaluationResource(realmResource, realmUser);
-                                RealmHandler.copyToRealm(realmEvaluationResource);
-                            }
+                    public void negativeButton() {
 
-                            @Override
-                            public void negativeButton() {
-
-                            }
-                        });
                     }
-                });
+                }));
                 break;
         }
     }
@@ -264,7 +243,7 @@ public class ResourceAdapter extends RecyclerView.Adapter<ResourceAdapter.Resour
         return resources.size();
     }
 
-    class ResourceViewHolder extends RecyclerView.ViewHolder {
+    static class ResourceViewHolder extends RecyclerView.ViewHolder {
 
         private final TextView labelTextView;
         private final TextView resourceTypeTextView;

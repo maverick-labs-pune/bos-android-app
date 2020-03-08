@@ -30,6 +30,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -118,7 +119,7 @@ public class MeasurementReadingAdapter extends RecyclerView.Adapter<MeasurementR
                 checkIfTrainingSessionEvaluated(holder, measurement, realmMeasurement, textWatcher);
                 break;
             case BOOLEAN:
-                holder.spinnerTextInputLayout.setHint(realmMeasurement.getLabel());
+                holder.labelTextView.setHint(realmMeasurement.getLabel());
 
                 hideEditTextAndShowSpinner(holder);
 
@@ -179,14 +180,14 @@ public class MeasurementReadingAdapter extends RecyclerView.Adapter<MeasurementR
     private void showEditTextAndHideSpinner(MeasurementReadingViewHolder holder) {
         holder.editTextViewTextInputLayout.setVisibility(View.VISIBLE);
         holder.editTextView.setVisibility(View.VISIBLE);
-        holder.spinnerTextInputLayout.setVisibility(View.GONE);
+        holder.spinnerRelativeLayout.setVisibility(View.GONE);
         holder.spinner.setVisibility(View.GONE);
     }
 
     private void hideEditTextAndShowSpinner(MeasurementReadingViewHolder holder) {
         holder.editTextViewTextInputLayout.setVisibility(View.GONE);
         holder.editTextView.setVisibility(View.GONE);
-        holder.spinnerTextInputLayout.setVisibility(View.VISIBLE);
+        holder.spinnerRelativeLayout.setVisibility(View.VISIBLE);
         holder.spinner.setVisibility(View.VISIBLE);
     }
 
@@ -221,19 +222,20 @@ public class MeasurementReadingAdapter extends RecyclerView.Adapter<MeasurementR
         return measurements.size();
     }
 
-    class MeasurementReadingViewHolder extends RecyclerView.ViewHolder {
+    static class MeasurementReadingViewHolder extends RecyclerView.ViewHolder {
 
         private final TextView labelTextView;
         private final EditText editTextView;
         private final Spinner spinner;
-        private final TextInputLayout editTextViewTextInputLayout, spinnerTextInputLayout;
+        private final TextInputLayout editTextViewTextInputLayout;
+        private final RelativeLayout spinnerRelativeLayout;
 
         MeasurementReadingViewHolder(@NonNull View itemView) {
             super(itemView);
             labelTextView = itemView.findViewById(R.id.text_view_label);
             editTextView = itemView.findViewById(R.id.edit_text_view);
             editTextViewTextInputLayout = itemView.findViewById(R.id.text_input_layout_edit_text_view);
-            spinnerTextInputLayout = itemView.findViewById(R.id.text_input_layout_edit_spinner);
+            spinnerRelativeLayout = itemView.findViewById(R.id.relative_layout_edit_spinner);
             spinner = itemView.findViewById(R.id.spinner);
         }
     }
