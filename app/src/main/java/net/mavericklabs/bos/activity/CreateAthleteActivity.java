@@ -108,54 +108,51 @@ public class CreateAthleteActivity extends AppCompatActivity {
         measurementsRecyclerView.setAdapter(measurementReadingAdapter);
 
 
-        createAthleteButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (!verifyBasicInformation()) {
-                    return;
-                }
-                if (!measurementReadingAdapter.verifyReadings()) {
-                    return;
-                }
+        createAthleteButton.setOnClickListener(v -> {
+            if (!verifyBasicInformation()) {
+                return;
+            }
+            if (!measurementReadingAdapter.verifyReadings()) {
+                return;
+            }
 
-                String firstName = firstNameEditText.getText().toString();
-                String middleName = middleNameEditText.getText().toString();
-                String lastName = lastNameEditText.getText().toString();
-                Gender gender = getGender(selectedGender[0]);
+            String firstName = firstNameEditText.getText().toString();
+            String middleName = middleNameEditText.getText().toString();
+            String lastName = lastNameEditText.getText().toString();
+            Gender gender = getGender(selectedGender[0]);
 //              Create an offline athlete
 //              Save data and mark as evaluated
-                RealmUser selfRealmUser = RealmHandler.getSelfRealmUser();
-                if (selfRealmUser == null) {
-                    appLogger.logError("Self user is null");
-                    return;
-                }
-                Realm realm = Realm.getDefaultInstance();
-                RealmUser newAthlete = new RealmUser(firstName,
-                        middleName,
-                        lastName,
-                        UserRole.ATHLETE,
-                        gender,
-                        selfRealmUser.getNgo());
-                realm.beginTransaction();
-                newAthlete = realm.copyToRealm(newAthlete);
-                realm.commitTransaction();
-
-                List<net.mavericklabs.bos.object.Measurement> measurementsWithReadings = measurementReadingAdapter.getMeasurementsWithReadings();
-                for (Measurement measurementWithReading : measurementsWithReadings) {
-                    RealmMeasurement realmMeasurement = RealmHandler.getMeasurementFromKey(measurementWithReading.getKey());
-
-                    // Add reading
-                    realm.beginTransaction();
-                    RealmReading realmReading = new RealmReading(realmMeasurement,
-                            newAthlete, selfRealmUser, null,
-                            null, measurementWithReading);
-                    realm.copyToRealm(realmReading);
-                    realm.commitTransaction();
-                }
-                realm.close();
-                finish();
-
+            RealmUser selfRealmUser = RealmHandler.getSelfRealmUser();
+            if (selfRealmUser == null) {
+                appLogger.logError("Self user is null");
+                return;
             }
+            Realm realm = Realm.getDefaultInstance();
+            RealmUser newAthlete = new RealmUser(firstName,
+                    middleName,
+                    lastName,
+                    UserRole.ATHLETE,
+                    gender,
+                    selfRealmUser.getNgo());
+            realm.beginTransaction();
+            newAthlete = realm.copyToRealm(newAthlete);
+            realm.commitTransaction();
+
+            List<Measurement> measurementsWithReadings = measurementReadingAdapter.getMeasurementsWithReadings();
+            for (Measurement measurementWithReading : measurementsWithReadings) {
+                RealmMeasurement realmMeasurement = RealmHandler.getMeasurementFromKey(measurementWithReading.getKey());
+
+                // Add reading
+                realm.beginTransaction();
+                RealmReading realmReading = new RealmReading(realmMeasurement,
+                        newAthlete, selfRealmUser, null,
+                        null, measurementWithReading);
+                realm.copyToRealm(realmReading);
+                realm.commitTransaction();
+            }
+            realm.close();
+            finish();
+
         });
     }
 

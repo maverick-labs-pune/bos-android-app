@@ -13,4 +13,7 @@ app/local.properties
 gradle/
 gradlew
 gradlew.bat
+*.jks
+*.apk
+app/google-services.json
 
